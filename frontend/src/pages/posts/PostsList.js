@@ -50,8 +50,11 @@ const PostsList = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [publishLoading, setPublishLoading] = useState(null);
   const [sites, setSites] = useState([]);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  
+  // Replace state with constants since we're not actually implementing pagination UI
+  const page = 1;  // Default page
+  const limit = 10;  // Default limit
+  
   const [filters, setFilters] = useState({
     site_id: '',
     status: '',
@@ -84,7 +87,7 @@ const PostsList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, filters]);
+  }, [filters]);
   
   // Wrap fetchSites in useCallback
   const fetchSites = useCallback(async () => {
