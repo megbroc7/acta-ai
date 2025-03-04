@@ -102,4 +102,4 @@ jobs:
           docker-compose exec -T backend alembic upgrade head
           
           echo 'Deployment completed successfully!'
-        " 
+        "
