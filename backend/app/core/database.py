@@ -18,4 +18,7 @@ async def get_db():
         try:
             yield session
         finally:
-            await session.close() 
+            await session.close()
+
+# Alias for get_db to maintain compatibility with scheduler service
+get_session = get_db 

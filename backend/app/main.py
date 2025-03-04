@@ -17,8 +17,7 @@ async def lifespan(app: FastAPI):
     await init_db()
     scheduler_task = asyncio.create_task(initialize_scheduler())
     
-    # Setup metrics
-    Instrumentator().instrument(app).expose(app)
+    # Remove instrumentation from here
     
     yield  # Application runs here
     
@@ -30,6 +29,9 @@ async def lifespan(app: FastAPI):
         pass
 
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
+
+# Setup metrics - moved outside lifespan
+Instrumentator().instrument(app).expose(app)
 
 # CORS configuration
 app.add_middleware(
