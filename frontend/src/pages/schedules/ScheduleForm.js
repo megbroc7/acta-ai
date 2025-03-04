@@ -94,6 +94,8 @@ const ScheduleForm = () => {
   const [prompts, setPrompts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
+  
+  // Loading states
   const [loadingSites, setLoadingSites] = useState(false);
   const [loadingPrompts, setLoadingPrompts] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
@@ -241,6 +243,7 @@ const ScheduleForm = () => {
     }
   };
   
+  // useEffect to load initial data
   useEffect(() => {
     fetchSites();
     fetchPrompts();
@@ -249,6 +252,14 @@ const ScheduleForm = () => {
       fetchSchedule();
     }
   }, [id, isEditMode]);
+  
+  // useEffect to fetch categories and tags for the selected site when editing
+  useEffect(() => {
+    if (isEditMode && schedule && schedule.site_id) {
+      fetchCategories(schedule.site_id);
+      fetchTags(schedule.site_id);
+    }
+  }, [isEditMode, schedule]);
   
   // Fetch categories and tags when site changes
   const handleSiteChange = (siteId, setFieldValue) => {
@@ -307,14 +318,6 @@ const ScheduleForm = () => {
     is_active: schedule.is_active,
     variable_values: schedule.variable_values || {},
   } : initialValues;
-  
-  // If editing, fetch categories and tags for the selected site
-  useEffect(() => {
-    if (isEditMode && schedule && schedule.site_id) {
-      fetchCategories(schedule.site_id);
-      fetchTags(schedule.site_id);
-    }
-  }, [isEditMode, schedule]);
   
   return (
     <Box>
