@@ -58,6 +58,7 @@ function App() {
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/signup" element={<Navigate to="/register" />} />
       </Route>
 
       {/* Protected Routes */}
