@@ -126,7 +126,7 @@ const PromptDetail = () => {
   
   useEffect(() => {
     fetchPrompt();
-  }, [id]);
+  }, [id, fetchPrompt]);
   
   if (loading) {
     return <LoadingState message="Loading prompt template..." />;

@@ -16,8 +16,6 @@ import {
   Paper,
   Tab,
   Tabs,
-  IconButton,
-  Tooltip,
   Alert,
   Switch,
   FormControlLabel,
@@ -31,8 +29,6 @@ import {
   Language as LanguageIcon,
   Description as DescriptionIcon,
   Article as ArticleIcon,
-  PlayArrow as PlayArrowIcon,
-  Pause as PauseIcon,
   ArrowBack as ArrowBackIcon,
   Category as CategoryIcon,
   LocalOffer as TagIcon,
@@ -224,7 +220,7 @@ const ScheduleDetail = () => {
   useEffect(() => {
     fetchSchedule();
     fetchRelatedData();
-  }, [id]);
+  }, [id, fetchSchedule, fetchRelatedData]);
   
   if (loading) {
     return <LoadingState message="Loading schedule details..." />;

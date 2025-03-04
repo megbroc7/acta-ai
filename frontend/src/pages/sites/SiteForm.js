@@ -22,8 +22,7 @@ import {
   Language as LanguageIcon,
 } from '@mui/icons-material';
 import PageHeader from '../../components/common/PageHeader';
-import LoadingState from '../../components/common/LoadingState';
-import ErrorState from '../../components/common/ErrorState';
+import LoadingState from '../../components/states/LoadingState';
 import api from '../../services/api';
 
 const SiteForm = () => {
@@ -164,9 +163,9 @@ const SiteForm = () => {
     }
   };
 
-  // Auto-fill API URL when URL changes
+  // Auto-populate API URL when site URL changes
   useEffect(() => {
-    if (formik.values.url && !formik.values.api_url) {
+    if (formik.values.url) {
       let apiUrl = formik.values.url;
       
       // Ensure URL ends with /
@@ -179,14 +178,14 @@ const SiteForm = () => {
       
       formik.setFieldValue('api_url', apiUrl);
     }
-  }, [formik.values.url]);
+  }, [formik.values.url, formik]);
 
   // Fetch site data if in edit mode
   useEffect(() => {
     if (isEditMode) {
       fetchSite();
     }
-  }, [isEditMode, id]);
+  }, [isEditMode, id, fetchSite]);
 
   if (loading) {
     return <LoadingState message="Loading site details..." />;

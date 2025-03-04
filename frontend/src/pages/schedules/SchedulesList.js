@@ -18,7 +18,6 @@ import {
   InputAdornment,
   Switch,
   FormControlLabel,
-  Tooltip,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -26,9 +25,6 @@ import {
   Delete as DeleteIcon,
   MoreVert as MoreVertIcon,
   Search as SearchIcon,
-  PlayArrow as PlayArrowIcon,
-  Pause as PauseIcon,
-  Refresh as RefreshIcon,
   Schedule as ScheduleIcon,
   Language as LanguageIcon,
   Description as DescriptionIcon,

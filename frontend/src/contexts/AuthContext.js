@@ -103,22 +103,14 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  // Check token and load user on mount
+  // Auto load user on startup if token exists
   useEffect(() => {
-    const initAuth = async () => {
-      if (token && isTokenValid(token)) {
-        setAuthToken(token);
-        await loadUser();
-      } else {
-        setToken(null);
-        setAuthToken(null);
-        setUser(null);
-        setLoading(false);
-      }
-    };
-
-    initAuth();
-  }, [token]);
+    if (token) {
+      loadUser();
+    } else {
+      setLoading(false);
+    }
+  }, [token, loadUser]);
 
   return (
     <AuthContext.Provider

@@ -19,8 +19,7 @@ import {
   FormControl,
   InputLabel,
   Select,
-  Tooltip,
-  Paper,
+  Stack,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -201,7 +200,7 @@ const PostsList = () => {
   useEffect(() => {
     fetchPosts();
     fetchSites();
-  }, [filters]);
+  }, [filters, fetchPosts, fetchSites]);
   
   if (loading) {
     return <LoadingState message="Loading blog posts..." />;

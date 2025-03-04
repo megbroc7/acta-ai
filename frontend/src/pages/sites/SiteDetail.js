@@ -19,7 +19,6 @@ import {
   IconButton,
   Tooltip,
   Alert,
-  CircularProgress,
 } from '@mui/material';
 import {
   Language as LanguageIcon,
@@ -147,7 +146,7 @@ const SiteDetail = () => {
   useEffect(() => {
     fetchSite();
     fetchRelatedData();
-  }, [id]);
+  }, [id, fetchSite, fetchRelatedData]);
 
   if (loading) {
     return <LoadingState message="Loading site details..." />;

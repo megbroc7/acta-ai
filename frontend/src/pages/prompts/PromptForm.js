@@ -11,8 +11,6 @@ import {
   TextField,
   Button,
   IconButton,
-  Divider,
-  Paper,
   Tooltip,
   Alert,
   FormControl,
@@ -21,6 +19,7 @@ import {
   Select,
   MenuItem,
   Chip,
+  Paper,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -157,7 +156,7 @@ const PromptForm = () => {
     if (isEditMode) {
       fetchPrompt();
     }
-  }, [id, isEditMode]);
+  }, [id, isEditMode, fetchPrompt]);
   
   if (loading) {
     return <LoadingState message="Loading prompt template..." />;

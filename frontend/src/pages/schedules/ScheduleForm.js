@@ -17,7 +17,6 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
-  Divider,
   Alert,
   Autocomplete,
   Chip,
@@ -30,16 +29,14 @@ import {
   Checkbox,
 } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import {
   Save as SaveIcon,
   ArrowBack as ArrowBackIcon,
   Info as InfoIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Schedule as ScheduleIcon,
+  EditNote as EditNoteIcon,
+  AccessTime as AccessTimeIcon,
 } from '@mui/icons-material';
 import PageHeader from '../../components/common/PageHeader';
 import LoadingState from '../../components/common/LoadingState';
@@ -251,7 +248,7 @@ const ScheduleForm = () => {
     if (isEditMode) {
       fetchSchedule();
     }
-  }, [id, isEditMode]);
+  }, [id, isEditMode, fetchSchedule]);
   
   // useEffect to fetch categories and tags for the selected site when editing
   useEffect(() => {
