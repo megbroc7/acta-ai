@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      const response = await api.post('/api/v1/auth/token', {
+      const response = await api.post('/api/auth/token', {
         username: email,
         password: password,
       });
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password, name) => {
     try {
       setError(null);
-      await api.post('/api/v1/auth/register', {
+      await api.post('/api/auth/register', {
         email,
         password,
         name,
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }) => {
     
     try {
       setAuthToken(token);
-      const response = await api.get('/api/v1/auth/me');
+      const response = await api.get('/api/auth/me');
       setUser(response.data);
       setError(null);
     } catch (err) {
