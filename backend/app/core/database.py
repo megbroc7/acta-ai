@@ -20,5 +20,10 @@ async def get_db():
         finally:
             await session.close()
 
-# Alias for get_db to maintain compatibility with scheduler service
-get_session = get_db 
+# Proper implementation instead of just an alias
+async def get_session():
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close() 
