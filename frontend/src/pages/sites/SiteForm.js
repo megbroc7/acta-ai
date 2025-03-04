@@ -22,7 +22,7 @@ import {
   Language as LanguageIcon,
 } from '@mui/icons-material';
 import PageHeader from '../../components/common/PageHeader';
-import LoadingState from '../../components/states/LoadingState';
+import LoadingState from '../../components/common/LoadingState';
 import api from '../../services/api';
 
 const SiteForm = () => {
