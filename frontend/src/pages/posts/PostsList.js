@@ -50,6 +50,9 @@ const PostsList = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [publishLoading, setPublishLoading] = useState(null);
   const [sites, setSites] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
   const [filters, setFilters] = useState({
     site_id: '',
     status: '',
@@ -66,15 +69,19 @@ const PostsList = () => {
     setError(null);
     
     try {
-      const params = {
-        page,
-        limit,
-        ...filters,
-      };
+      // Build query params for filtering
+      const params = new URLSearchParams();
+      if (filters.site_id) params.append('site_id', filters.site_id);
+      if (filters.status) params.append('status', filters.status);
+      params.append('page', page);
+      params.append('limit', limit);
       
-      const response = await api.get('/api/v1/posts', { params });
-      setPosts(response.data.items);
-      setTotal(response.data.total);
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const response = await api.get(`/api/v1/posts${queryString}`);
+      setPosts(response.data.items || response.data);
+      if (response.data.total) {
+        setTotal(response.data.total);
+      }
     } catch (err) {
       console.error('Error fetching posts:', err);
       setError('Failed to load posts. Please refresh the page and try again.');
@@ -197,6 +204,16 @@ const PostsList = () => {
     if (content.length <= maxLength) return content;
     
     return content.substring(0, maxLength) + '...';
+  };
+  
+  // Pagination handlers
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
+  
+  const handleLimitChange = (event) => {
+    setLimit(parseInt(event.target.value, 10));
+    setPage(1); // Reset to first page when changing items per page
   };
   
   useEffect(() => {
