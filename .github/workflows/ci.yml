@@ -69,7 +69,34 @@ jobs:
         
     - name: Deploy to production
       run: |
-        # Add your deployment commands here
-        # For example:
-        # ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd /path/to/acta-ai && git pull && docker-compose up -d --build"
-        echo "Deployment would happen here" 
+        # Deploy the application to the production server
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          # Create app directory if it doesn't exist
+          mkdir -p ~/acta-ai
+          
+          # Clone or pull the latest code
+          if [ -d ~/acta-ai/.git ]; then
+            cd ~/acta-ai && git pull
+          else
+            git clone https://github.com/megbroc7/acta-ai.git ~/acta-ai
+          fi
+          
+          # Navigate to app directory
+          cd ~/acta-ai
+          
+          # Backup existing .env file if it exists on the server
+          if [ -f backend/.env ]; then
+            cp backend/.env backend/.env.backup
+            # Note: We use the .env file from the repository
+            echo 'Backed up existing .env file'
+          fi
+          
+          # Build and start the containers
+          docker-compose down
+          docker-compose up -d --build
+          
+          # Run database migrations
+          docker-compose exec -T backend alembic upgrade head
+          
+          echo 'Deployment completed successfully!'
+        " 
