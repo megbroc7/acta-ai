@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -55,7 +55,7 @@ const SiteDetail = () => {
     schedules: { data: [], loading: true, error: null },
   });
 
-  const fetchSite = async () => {
+  const fetchSite = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -63,42 +63,32 @@ const SiteDetail = () => {
       const response = await api.get(`/api/v1/sites/${id}`);
       setSite(response.data);
     } catch (err) {
-      setError('Failed to load site details. Please try again.');
       console.error('Error fetching site:', err);
+      setError('Failed to load site. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const fetchRelatedData = async () => {
-    // Fetch posts for this site
+  const fetchRelatedData = useCallback(async () => {
     try {
+      // Fetch schedules for this site
+      const schedulesResponse = await api.get(`/api/v1/schedules?site_id=${id}`);
+      setRelatedData(prev => ({
+        ...prev,
+        schedules: { data: schedulesResponse.data, loading: false, error: null },
+      }));
+      
+      // Fetch posts for this site
       const postsResponse = await api.get(`/api/v1/posts?site_id=${id}`);
       setRelatedData(prev => ({
         ...prev,
         posts: { data: postsResponse.data, loading: false, error: null },
       }));
     } catch (err) {
-      setRelatedData(prev => ({
-        ...prev,
-        posts: { data: [], loading: false, error: 'Failed to load posts' },
-      }));
+      console.error('Error fetching related data:', err);
     }
-    
-    // Fetch schedules for this site
-    try {
-      const schedulesResponse = await api.get(`/api/v1/schedules?site_id=${id}`);
-      setRelatedData(prev => ({
-        ...prev,
-        schedules: { data: schedulesResponse.data, loading: false, error: null },
-      }));
-    } catch (err) {
-      setRelatedData(prev => ({
-        ...prev,
-        schedules: { data: [], loading: false, error: 'Failed to load schedules' },
-      }));
-    }
-  };
+  }, [id]);
 
   const testConnection = async () => {
     setTestingConnection(true);

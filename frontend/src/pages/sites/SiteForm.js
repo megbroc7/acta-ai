@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -85,25 +85,28 @@ const SiteForm = () => {
     },
   });
 
-  const fetchSite = async () => {
+  // Wrap fetchSite in useCallback
+  const fetchSite = useCallback(async () => {
+    setLoading(true);
+    
     try {
       const response = await api.get(`/api/v1/sites/${id}`);
       const site = response.data;
       
+      // Update form values with site data
       formik.setValues({
-        name: site.name || '',
-        url: site.url || '',
-        api_url: site.api_url || '',
-        username: site.username || '',
-        app_password: '', // Don't populate password for security reasons
+        name: site.name,
+        url: site.url,
+        api_url: site.api_url,
+        username: site.username,
+        password: '',  // Don't prefill password for security
       });
     } catch (err) {
-      setError('Failed to load site details. Please try again.');
       console.error('Error fetching site:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, formik]);
 
   const testConnection = async () => {
     // Validate form first

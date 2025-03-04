@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Formik, Form, FieldArray } from 'formik';
 import * as Yup from 'yup';
@@ -94,7 +94,8 @@ const PromptForm = () => {
     ),
   });
   
-  const fetchPrompt = async () => {
+  // Wrap fetchPrompt in useCallback
+  const fetchPrompt = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -102,12 +103,12 @@ const PromptForm = () => {
       const response = await api.get(`/api/v1/prompts/${id}`);
       setPrompt(response.data);
     } catch (err) {
-      setError('Failed to load prompt template. Please try again.');
       console.error('Error fetching prompt:', err);
+      setError('Failed to load prompt template. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
   
   const handleSubmit = async (values, { setSubmitting }) => {
     setSaving(true);

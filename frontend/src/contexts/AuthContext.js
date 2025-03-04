@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import api from '../services/api';
 
@@ -12,19 +12,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Check if token is valid
-  const isTokenValid = (token) => {
-    if (!token) return false;
-    
-    try {
-      const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-      
-      return decoded.exp > currentTime;
-    } catch (error) {
-      return false;
-    }
-  };
+  // We'll mark this as unused with a comment or remove it if not needed
+  // const isTokenValid = (token) => {
+  //   if (!token) return false;
+  //   try {
+  //     const decoded = jwt.decode(token);
+  //     const currentTime = Date.now() / 1000;
+  //     return decoded.exp > currentTime;
+  //   } catch (err) {
+  //     return false;
+  //   }
+  // };
 
   // Set auth token in axios headers
   const setAuthToken = (token) => {
@@ -35,6 +33,7 @@ export const AuthProvider = ({ children }) => {
       delete api.defaults.headers.common['Authorization'];
       localStorage.removeItem('token');
     }
+    setToken(token);
   };
 
   // Login user
@@ -79,22 +78,27 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Load user data
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    
     try {
-      setLoading(true);
+      setAuthToken(token);
       const response = await api.get('/api/v1/auth/me');
       setUser(response.data);
-      return response.data;
-    } catch (error) {
+      setError(null);
+    } catch (err) {
+      console.error('Error loading user:', err);
       setToken(null);
       setAuthToken(null);
       setUser(null);
-      setError(error.response?.data?.detail || 'Failed to load user');
-      return null;
+      setError('Authentication failed. Please login again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   // Logout user
   const logout = () => {

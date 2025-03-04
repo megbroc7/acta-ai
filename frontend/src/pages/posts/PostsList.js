@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -19,7 +19,6 @@ import {
   FormControl,
   InputLabel,
   Select,
-  Stack,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -61,35 +60,38 @@ const PostsList = () => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedPostId, setSelectedPostId] = useState(null);
   
-  const fetchPosts = async () => {
+  // Wrap fetchPosts in useCallback
+  const fetchPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
-      // Build query params for filtering
-      const params = new URLSearchParams();
-      if (filters.site_id) params.append('site_id', filters.site_id);
-      if (filters.status) params.append('status', filters.status);
+      const params = {
+        page,
+        limit,
+        ...filters,
+      };
       
-      const queryString = params.toString() ? `?${params.toString()}` : '';
-      const response = await api.get(`/api/v1/posts${queryString}`);
-      setPosts(response.data);
+      const response = await api.get('/api/v1/posts', { params });
+      setPosts(response.data.items);
+      setTotal(response.data.total);
     } catch (err) {
-      setError('Failed to load posts. Please try again.');
       console.error('Error fetching posts:', err);
+      setError('Failed to load posts. Please refresh the page and try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, filters]);
   
-  const fetchSites = async () => {
+  // Wrap fetchSites in useCallback
+  const fetchSites = useCallback(async () => {
     try {
       const response = await api.get('/api/v1/sites');
       setSites(response.data);
     } catch (err) {
       console.error('Error fetching sites:', err);
     }
-  };
+  }, []);
   
   const handleMenuOpen = (event, postId) => {
     setMenuAnchorEl(event.currentTarget);

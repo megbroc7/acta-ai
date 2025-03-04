@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -53,7 +53,8 @@ const PromptDetail = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   
-  const fetchPrompt = async () => {
+  // Wrap fetchPrompt in useCallback
+  const fetchPrompt = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -61,12 +62,12 @@ const PromptDetail = () => {
       const response = await api.get(`/api/v1/prompts/${id}`);
       setPrompt(response.data);
     } catch (err) {
-      setError('Failed to load prompt template. Please try again.');
       console.error('Error fetching prompt:', err);
+      setError('Failed to load prompt template. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
   
   const handleDelete = async () => {
     setDeleteLoading(true);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -61,7 +61,8 @@ const ScheduleDetail = () => {
     history: { data: [], loading: true, error: null },
   });
   
-  const fetchSchedule = async () => {
+  // Wrap fetchSchedule in useCallback
+  const fetchSchedule = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -69,42 +70,37 @@ const ScheduleDetail = () => {
       const response = await api.get(`/api/v1/schedules/${id}`);
       setSchedule(response.data);
     } catch (err) {
-      setError('Failed to load schedule details. Please try again.');
       console.error('Error fetching schedule:', err);
+      setError('Failed to load schedule. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
   
-  const fetchRelatedData = async () => {
-    // Fetch posts for this schedule
+  // Wrap fetchRelatedData in useCallback
+  const fetchRelatedData = useCallback(async () => {
     try {
+      // Schedule posts
       const postsResponse = await api.get(`/api/v1/posts?schedule_id=${id}`);
       setRelatedData(prev => ({
         ...prev,
         posts: { data: postsResponse.data, loading: false, error: null },
       }));
+      
+      // Schedule stats
+      const statsResponse = await api.get(`/api/v1/schedules/${id}/stats`);
+      setRelatedData(prev => ({
+        ...prev,
+        stats: statsResponse.data,
+      }));
     } catch (err) {
+      console.error('Error fetching related data:', err);
       setRelatedData(prev => ({
         ...prev,
         posts: { data: [], loading: false, error: 'Failed to load posts' },
       }));
     }
-    
-    // Fetch execution history for this schedule
-    try {
-      const historyResponse = await api.get(`/api/v1/schedules/${id}/history`);
-      setRelatedData(prev => ({
-        ...prev,
-        history: { data: historyResponse.data, loading: false, error: null },
-      }));
-    } catch (err) {
-      setRelatedData(prev => ({
-        ...prev,
-        history: { data: [], loading: false, error: 'Failed to load execution history' },
-      }));
-    }
-  };
+  }, [id]);
   
   const handleDelete = async () => {
     setDeleteLoading(true);

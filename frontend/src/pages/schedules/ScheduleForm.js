@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
@@ -35,8 +35,6 @@ import {
   Save as SaveIcon,
   ArrowBack as ArrowBackIcon,
   Info as InfoIcon,
-  EditNote as EditNoteIcon,
-  AccessTime as AccessTimeIcon,
 } from '@mui/icons-material';
 import PageHeader from '../../components/common/PageHeader';
 import LoadingState from '../../components/common/LoadingState';
@@ -137,7 +135,8 @@ const ScheduleForm = () => {
     post_status: Yup.string().required('Post status is required'),
   });
   
-  const fetchSchedule = async () => {
+  // Wrap fetchSchedule in useCallback
+  const fetchSchedule = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -145,12 +144,12 @@ const ScheduleForm = () => {
       const response = await api.get(`/api/v1/schedules/${id}`);
       setSchedule(response.data);
     } catch (err) {
-      setError('Failed to load schedule. Please try again.');
       console.error('Error fetching schedule:', err);
+      setError('Failed to load schedule. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
   
   const fetchSites = async () => {
     setLoadingSites(true);
