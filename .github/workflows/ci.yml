@@ -10,6 +10,7 @@ jobs:
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 20  # Increase timeout for the entire job
     
     steps:
     - uses: actions/checkout@v3
@@ -22,7 +23,7 @@ jobs:
     - name: Deploy to production
       run: |
         # Deploy the application to the production server
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+        ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
           # Create app directory if it doesn't exist
           mkdir -p ~/acta-ai
           
@@ -46,12 +47,14 @@ jobs:
           # Note: Make sure your .env file in the repository has appropriate values for production
           # but with sensitive information replaced with GitHub secrets if needed
           
-          # Build and start the containers
+          # Stop the current containers
           docker-compose down
-          docker-compose up -d --build
           
-          # Run database migrations
-          docker-compose exec -T backend alembic upgrade head
+          # Start the build and deployment in the background with nohup to prevent SSH timeout
+          # Redirect output to deployment.log for debugging
+          nohup bash -c 'docker-compose up -d --build && docker-compose exec -T backend alembic upgrade head && echo \"Deployment completed successfully!\"' > deployment.log 2>&1 &
           
-          echo 'Deployment completed successfully!'
+          echo 'Deployment process started in the background. Check deployment.log for progress.'
+          echo 'You can monitor the build with: tail -f deployment.log'
+          echo 'Note: This process will continue running after the CI/CD workflow completes.'
         "
