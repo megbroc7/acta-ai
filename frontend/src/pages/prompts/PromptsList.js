@@ -222,7 +222,7 @@ const PromptsList = () => {
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
                         <Chip 
                           size="small" 
-                          label={`${prompt.variables?.length || 0} Variables`}
+                          label={`${prompt.placeholders ? Object.keys(prompt.placeholders).length : 0} Variables`}
                           color="primary"
                           variant="outlined"
                         />

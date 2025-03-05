@@ -53,6 +53,21 @@ const PromptDetail = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   
+  // Transform placeholders to variables format for display
+  const transformPlaceholdersToVariables = useCallback((placeholders) => {
+    if (!placeholders || Object.keys(placeholders).length === 0) {
+      return [];
+    }
+    
+    return Object.entries(placeholders).map(([key, defaultValue]) => ({
+      name: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
+      key: key,
+      type: 'text',
+      default_value: defaultValue,
+      description: `Variable for ${key.replace(/_/g, ' ')}`
+    }));
+  }, []);
+  
   // Wrap fetchPrompt in useCallback
   const fetchPrompt = useCallback(async () => {
     setLoading(true);
@@ -106,20 +121,19 @@ const PromptDetail = () => {
     );
   };
   
-  // Highlight variable placeholders in prompt content
-  const highlightVariables = (content, variables) => {
-    if (!content || !variables || variables.length === 0) return content;
+  const highlightVariables = (content, placeholders) => {
+    if (!content) return '';
+    if (!placeholders || Object.keys(placeholders).length === 0) return content;
     
     let highlightedContent = content;
     
-    // Replace each variable placeholder with a highlighted version
-    variables.forEach(variable => {
-      const placeholder = `{{${variable.key}}}`;
-      const highlightedPlaceholder = `<span class="variable-highlight">${placeholder}</span>`;
-      
-      // Use a global regex to replace all occurrences
-      const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-      highlightedContent = highlightedContent.replace(regex, highlightedPlaceholder);
+    // Replace each placeholder with a highlighted version
+    Object.keys(placeholders).forEach(key => {
+      const regex = new RegExp(`\\{${key}\\}`, 'g');
+      highlightedContent = highlightedContent.replace(
+        regex,
+        `<span class="variable-highlight" style="background-color: #e3f2fd; padding: 2px 4px; border-radius: 4px; font-weight: 500; color: #1976d2;">{${key}}</span>`
+      );
     });
     
     return highlightedContent;
@@ -231,27 +245,28 @@ const PromptDetail = () => {
                 Prompt Content
               </Typography>
               
+              <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+                System Prompt
+              </Typography>
               <Paper 
-                elevation={0} 
                 variant="outlined" 
                 sx={{ 
                   p: 2, 
+                  mb: 3, 
                   position: 'relative',
-                  fontFamily: 'monospace',
-                  whiteSpace: 'pre-wrap',
                   '& .variable-highlight': {
-                    backgroundColor: 'primary.light',
-                    color: 'primary.contrastText',
+                    backgroundColor: '#e3f2fd',
                     padding: '2px 4px',
                     borderRadius: '4px',
-                    fontWeight: 'bold',
+                    fontWeight: 500,
+                    color: '#1976d2'
                   }
                 }}
               >
-                <Tooltip title="Copy prompt content">
+                <Tooltip title="Copy system prompt">
                   <IconButton
                     size="small"
-                    onClick={() => copyToClipboard(prompt.content)}
+                    onClick={() => copyToClipboard(prompt.system_prompt)}
                     sx={{ position: 'absolute', top: 8, right: 8 }}
                   >
                     <ContentCopyIcon fontSize="small" />
@@ -260,7 +275,76 @@ const PromptDetail = () => {
                 
                 <div 
                   dangerouslySetInnerHTML={{ 
-                    __html: highlightVariables(prompt.content, prompt.variables) 
+                    __html: highlightVariables(prompt.system_prompt, prompt.placeholders) 
+                  }} 
+                />
+              </Paper>
+              
+              <Typography variant="subtitle1" gutterBottom>
+                Topic Generation Prompt
+              </Typography>
+              <Paper 
+                variant="outlined" 
+                sx={{ 
+                  p: 2, 
+                  mb: 3, 
+                  position: 'relative',
+                  '& .variable-highlight': {
+                    backgroundColor: '#e3f2fd',
+                    padding: '2px 4px',
+                    borderRadius: '4px',
+                    fontWeight: 500,
+                    color: '#1976d2'
+                  }
+                }}
+              >
+                <Tooltip title="Copy topic generation prompt">
+                  <IconButton
+                    size="small"
+                    onClick={() => copyToClipboard(prompt.topic_generation_prompt)}
+                    sx={{ position: 'absolute', top: 8, right: 8 }}
+                  >
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                
+                <div 
+                  dangerouslySetInnerHTML={{ 
+                    __html: highlightVariables(prompt.topic_generation_prompt, prompt.placeholders) 
+                  }} 
+                />
+              </Paper>
+              
+              <Typography variant="subtitle1" gutterBottom>
+                Content Generation Prompt
+              </Typography>
+              <Paper 
+                variant="outlined" 
+                sx={{ 
+                  p: 2, 
+                  position: 'relative',
+                  '& .variable-highlight': {
+                    backgroundColor: '#e3f2fd',
+                    padding: '2px 4px',
+                    borderRadius: '4px',
+                    fontWeight: 500,
+                    color: '#1976d2'
+                  }
+                }}
+              >
+                <Tooltip title="Copy content generation prompt">
+                  <IconButton
+                    size="small"
+                    onClick={() => copyToClipboard(prompt.content_generation_prompt)}
+                    sx={{ position: 'absolute', top: 8, right: 8 }}
+                  >
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                
+                <div 
+                  dangerouslySetInnerHTML={{ 
+                    __html: highlightVariables(prompt.content_generation_prompt, prompt.placeholders) 
                   }} 
                 />
               </Paper>
@@ -275,28 +359,25 @@ const PromptDetail = () => {
               <Typography variant="h6" gutterBottom>
                 Variables
                 <Chip 
-                  label={`${prompt.variables?.length || 0} Variables`}
+                  label={`${prompt.placeholders ? Object.keys(prompt.placeholders).length : 0} Variables`}
                   color="primary"
                   size="small"
                   sx={{ ml: 2 }}
                 />
               </Typography>
               
-              {prompt.variables && prompt.variables.length > 0 ? (
+              {prompt.placeholders && Object.keys(prompt.placeholders).length > 0 ? (
                 <TableContainer component={Paper} variant="outlined">
                   <Table>
                     <TableHead>
                       <TableRow>
                         <TableCell>Name</TableCell>
                         <TableCell>Key</TableCell>
-                        <TableCell>Type</TableCell>
-                        <TableCell>Description</TableCell>
                         <TableCell>Default Value</TableCell>
-                        <TableCell>Options</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {prompt.variables.map((variable, index) => (
+                      {transformPlaceholdersToVariables(prompt.placeholders).map((variable, index) => (
                         <TableRow key={index}>
                           <TableCell>{variable.name}</TableCell>
                           <TableCell>
@@ -311,12 +392,12 @@ const PromptDetail = () => {
                                   borderRadius: '4px',
                                 }}
                               >
-                                {`{{${variable.key}}}`}
+                                {`{${variable.key}}`}
                               </Typography>
                               <Tooltip title="Copy variable placeholder">
                                 <IconButton 
                                   size="small" 
-                                  onClick={() => copyToClipboard(`{{${variable.key}}}`)}
+                                  onClick={() => copyToClipboard(`{${variable.key}}`)}
                                   sx={{ ml: 1 }}
                                 >
                                   <ContentCopyIcon fontSize="small" />
@@ -324,32 +405,14 @@ const PromptDetail = () => {
                               </Tooltip>
                             </Box>
                           </TableCell>
-                          <TableCell>{variableTypeLabels[variable.type] || variable.type}</TableCell>
-                          <TableCell>{variable.description || '-'}</TableCell>
                           <TableCell>{variable.default_value || '-'}</TableCell>
-                          <TableCell>
-                            {['select', 'multiselect'].includes(variable.type) && variable.options && variable.options.length > 0 ? (
-                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                {variable.options.map((option, optionIndex) => (
-                                  <Chip 
-                                    key={optionIndex} 
-                                    label={option} 
-                                    size="small" 
-                                    variant="outlined"
-                                  />
-                                ))}
-                              </Box>
-                            ) : (
-                              '-'
-                            )}
-                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
               ) : (
-                <Typography color="textSecondary">
+                <Typography variant="body2" color="textSecondary">
                   This prompt template doesn't have any variables.
                 </Typography>
               )}
@@ -386,6 +449,41 @@ const PromptDetail = () => {
                   Set Up Schedule
                 </Button>
               </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        {/* Default Settings */}
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Default Settings
+              </Typography>
+              
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Default Word Count
+                    </Typography>
+                    <Typography variant="h6">
+                      {prompt.default_word_count} words
+                    </Typography>
+                  </Paper>
+                </Grid>
+                
+                <Grid item xs={12} sm={6}>
+                  <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Default Tone
+                    </Typography>
+                    <Typography variant="h6" sx={{ textTransform: 'capitalize' }}>
+                      {prompt.default_tone}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </Grid>
