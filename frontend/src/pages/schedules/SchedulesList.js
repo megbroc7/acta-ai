@@ -209,8 +209,8 @@ const SchedulesList = () => {
       
       {schedules.length === 0 ? (
         <EmptyState
-          title="No Content Schedules"
-          description="You haven't created any content schedules yet. Schedules help you automate blog post creation."
+          title="No Schedules Yet? Time to Plan Ahead!"
+          description="Your content calendar is looking emptier than a beach in winter! Create a schedule and let AI handle your content creation while you sip your favorite beverage."
           actionText="Create Schedule"
           actionLink="/schedules/new"
           actionIcon={<AddIcon />}

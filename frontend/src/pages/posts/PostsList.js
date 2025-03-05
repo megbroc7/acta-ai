@@ -322,16 +322,16 @@ const PostsList = () => {
       
       {posts.length === 0 ? (
         <EmptyState
-          title="No Blog Posts"
-          description="You haven't created any blog posts yet."
+          title="Your Blog Post Collection is a Blank Canvas"
+          description="No posts yet? That's like having a bookshelf without books! Create your first masterpiece and start filling your WordPress site with engaging content."
           actionText="Create Post"
           actionLink="/posts/new"
           actionIcon={<AddIcon />}
         />
       ) : filteredPosts.length === 0 ? (
         <EmptyState
-          title="No Matching Posts"
-          description={`No posts match "${searchTerm}". Try a different search term or clear your filters.`}
+          title="No Posts Found in This Dimension"
+          description={`We've searched high and low, but no posts match "${searchTerm}". Try a different search term or clear your filters to reveal hidden treasures.`}
           actionText="Clear Search"
           actionOnClick={() => setSearchTerm('')}
         />

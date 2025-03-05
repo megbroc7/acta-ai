@@ -140,8 +140,8 @@ const PromptsList = () => {
       
       {prompts.length === 0 ? (
         <EmptyState
-          title="No Prompt Templates"
-          description="You haven't created any prompt templates yet. Prompt templates help you generate consistent blog content."
+          title="Your Prompt Collection is Empty!"
+          description="No prompts yet? That's like having a magic wand without any spells! Create your first template and start crafting AI-powered content that'll make your readers say 'wow'."
           actionText="Create Template"
           actionLink="/prompts/new"
           actionIcon={<AddIcon />}

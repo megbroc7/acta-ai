@@ -149,8 +149,8 @@ const SitesList = () => {
       
       {sites.length === 0 ? (
         <EmptyState
-          title="No WordPress Sites"
-          description="Connect your WordPress sites to start generating content."
+          title="It's Lonely Here Without WordPress Sites"
+          description="Looks like your site collection is as empty as a blogger's coffee cup on Monday morning! Connect your WordPress sites to start generating awesome content."
           actionText="Add WordPress Site"
           actionLink="/sites/new"
         />
