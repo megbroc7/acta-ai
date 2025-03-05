@@ -79,7 +79,7 @@ const PostsList = () => {
       params.append('limit', limit);
       
       const queryString = params.toString() ? `?${params.toString()}` : '';
-      const response = await api.get(`/api/v1/posts${queryString}`);
+      const response = await api.get(`/api/posts/${queryString}`);
       setPosts(response.data.items || response.data);
     } catch (err) {
       console.error('Error fetching posts:', err);
@@ -92,7 +92,7 @@ const PostsList = () => {
   // Wrap fetchSites in useCallback
   const fetchSites = useCallback(async () => {
     try {
-      const response = await api.get('/api/v1/sites');
+      const response = await api.get('/api/sites/');
       setSites(response.data);
     } catch (err) {
       console.error('Error fetching sites:', err);
@@ -121,7 +121,7 @@ const PostsList = () => {
     setDeleteLoading(true);
     
     try {
-      await api.delete(`/api/v1/posts/${postToDelete.id}`);
+      await api.delete(`/api/posts/${postToDelete.id}`);
       setPosts(posts.filter(p => p.id !== postToDelete.id));
       setDeleteDialogOpen(false);
       setPostToDelete(null);
@@ -136,7 +136,7 @@ const PostsList = () => {
     setPublishLoading(postId);
     
     try {
-      const response = await api.post(`/api/v1/posts/${postId}/publish`);
+      const response = await api.post(`/api/posts/${postId}/publish`);
       
       // Update the post status in the local state
       setPosts(posts.map(post => 

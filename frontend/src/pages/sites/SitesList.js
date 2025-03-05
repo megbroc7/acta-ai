@@ -65,7 +65,7 @@ const SitesList = () => {
     setError(null);
     
     try {
-      const response = await api.get('/api/v1/sites');
+      const response = await api.get('/api/sites/');
       setSites(response.data);
     } catch (err) {
       setError('Failed to load WordPress sites. Please try again.');

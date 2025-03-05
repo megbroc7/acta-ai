@@ -51,7 +51,7 @@ const PromptsList = () => {
     setError(null);
     
     try {
-      const response = await api.get('/api/v1/prompts');
+      const response = await api.get('/api/prompts/templates');
       setPrompts(response.data);
     } catch (err) {
       setError('Failed to load prompt templates. Please try again.');

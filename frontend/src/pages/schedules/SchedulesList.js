@@ -57,7 +57,7 @@ const SchedulesList = () => {
     setError(null);
     
     try {
-      const response = await api.get('/api/v1/schedules');
+      const response = await api.get('/api/schedules/');
       setSchedules(response.data);
     } catch (err) {
       setError('Failed to load schedules. Please try again.');
