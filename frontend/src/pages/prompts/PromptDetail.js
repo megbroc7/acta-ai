@@ -74,13 +74,30 @@ const PromptDetail = () => {
     setError(null);
     
     try {
+      // First try the regular endpoint
       const response = await api.get(`/api/prompts/templates/${id}`);
       console.log('Prompt data:', response.data);
-      console.log('Placeholders:', response.data.placeholders);
-      console.log('Placeholders type:', typeof response.data.placeholders);
-      if (response.data.placeholders) {
-        console.log('Placeholders keys:', Object.keys(response.data.placeholders));
+      
+      // Then try the debug endpoint to compare
+      try {
+        const debugResponse = await api.get(`/api/prompts/templates/${id}/debug`);
+        console.log('Debug data:', debugResponse.data);
+        
+        // If the placeholders are null or undefined in the regular response but exist in debug,
+        // use the debug data instead
+        if (!response.data.placeholders && debugResponse.data.placeholders) {
+          console.log('Using debug data instead');
+          response.data.placeholders = debugResponse.data.placeholders;
+        }
+      } catch (debugErr) {
+        console.error('Debug endpoint error:', debugErr);
       }
+      
+      // Ensure placeholders is at least an empty object
+      if (!response.data.placeholders) {
+        response.data.placeholders = {};
+      }
+      
       setPrompt(response.data);
     } catch (err) {
       console.error('Error fetching prompt:', err);
