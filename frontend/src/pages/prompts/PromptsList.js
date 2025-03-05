@@ -79,7 +79,7 @@ const PromptsList = () => {
   
   const handleDuplicatePrompt = async (promptId) => {
     try {
-      await api.post(`/api/v1/prompts/${promptId}/duplicate`);
+      await api.post(`/api/prompts/templates/${promptId}/duplicate`);
       fetchPrompts();
     } catch (err) {
       console.error('Error duplicating prompt:', err);
@@ -93,7 +93,7 @@ const PromptsList = () => {
     setDeleteLoading(true);
     
     try {
-      await api.delete(`/api/v1/prompts/${promptToDelete.id}`);
+      await api.delete(`/api/prompts/templates/${promptToDelete.id}`);
       setPrompts(prompts.filter(p => p.id !== promptToDelete.id));
       setDeleteDialogOpen(false);
       setPromptToDelete(null);
