@@ -39,9 +39,16 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      const response = await api.post('/api/auth/token', {
-        username: email,
-        password: password,
+      
+      // Create form data instead of JSON
+      const formData = new FormData();
+      formData.append('username', email);
+      formData.append('password', password);
+      
+      const response = await api.post('/api/auth/token', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       
       const { access_token } = response.data;
@@ -53,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       
       return true;
     } catch (error) {
-      setError(error.response?.data?.detail || 'Login failed');
+      setError(error.response?.data?.detail || error.message || 'Login failed');
       return false;
     }
   };
@@ -65,13 +72,13 @@ export const AuthProvider = ({ children }) => {
       await api.post('/api/auth/register', {
         email,
         password,
-        name,
+        full_name: name,
       });
       
       // Login after registration
       return await login(email, password);
     } catch (error) {
-      setError(error.response?.data?.detail || 'Registration failed');
+      setError(error.response?.data?.detail || error.message || 'Registration failed');
       return false;
     }
   };

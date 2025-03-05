@@ -36,50 +36,73 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
+      // Fetch WordPress sites count
       try {
-        // Fetch WordPress sites count
-        const sitesResponse = await api.get('/api/v1/sites');
+        const sitesResponse = await api.get('/api/sites/');
         setStats(prev => ({
           ...prev,
           sites: { count: sitesResponse.data.length, loading: false, error: null },
         }));
-
-        // Fetch prompt templates count
-        const promptsResponse = await api.get('/api/v1/prompts');
+      } catch (error) {
+        console.error('Error fetching sites:', error);
         setStats(prev => ({
           ...prev,
-          prompts: { count: promptsResponse.data.length, loading: false, error: null },
+          sites: { count: 0, loading: false, error: 'Failed to load sites' },
         }));
+      }
 
-        // Fetch schedules count
-        const schedulesResponse = await api.get('/api/v1/schedules');
+      // Fetch prompt templates count
+      try {
+        const promptsResponse = await api.get('/api/prompts/templates');
         setStats(prev => ({
           ...prev,
-          schedules: { count: schedulesResponse.data.length, loading: false, error: null },
+          prompts: { count: Array.isArray(promptsResponse.data) ? promptsResponse.data.length : 0, loading: false, error: null },
         }));
-
-        // Fetch posts count
-        const postsResponse = await api.get('/api/v1/posts');
+      } catch (error) {
+        console.error('Error fetching prompts:', error);
         setStats(prev => ({
           ...prev,
-          posts: { count: postsResponse.data.length, loading: false, error: null },
+          prompts: { count: 0, loading: false, error: 'Failed to load prompts' },
+        }));
+      }
+
+      // Fetch schedules count
+      try {
+        const schedulesResponse = await api.get('/api/schedules/');
+        setStats(prev => ({
+          ...prev,
+          schedules: { count: Array.isArray(schedulesResponse.data) ? schedulesResponse.data.length : 0, loading: false, error: null },
+        }));
+      } catch (error) {
+        console.error('Error fetching schedules:', error);
+        setStats(prev => ({
+          ...prev,
+          schedules: { count: 0, loading: false, error: 'Failed to load schedules' },
+        }));
+      }
+
+      // Fetch posts count
+      try {
+        const postsResponse = await api.get('/api/posts/');
+        setStats(prev => ({
+          ...prev,
+          posts: { count: Array.isArray(postsResponse.data) ? postsResponse.data.length : 0, loading: false, error: null },
         }));
 
         // Fetch recent posts
-        const recentPostsResponse = await api.get('/api/v1/posts?limit=5');
-        setRecentPosts({
-          data: recentPostsResponse.data,
-          loading: false,
-          error: null,
-        });
+        if (Array.isArray(postsResponse.data)) {
+          const recentPostsData = postsResponse.data.slice(0, 5);
+          setRecentPosts({
+            data: recentPostsData,
+            loading: false,
+            error: null,
+          });
+        }
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error('Error fetching posts:', error);
         setStats(prev => ({
           ...prev,
-          sites: { ...prev.sites, loading: false, error: 'Failed to load sites' },
-          prompts: { ...prev.prompts, loading: false, error: 'Failed to load prompts' },
-          schedules: { ...prev.schedules, loading: false, error: 'Failed to load schedules' },
-          posts: { ...prev.posts, loading: false, error: 'Failed to load posts' },
+          posts: { count: 0, loading: false, error: 'Failed to load posts' },
         }));
         setRecentPosts({
           data: [],
