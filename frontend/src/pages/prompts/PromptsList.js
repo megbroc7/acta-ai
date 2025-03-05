@@ -52,7 +52,16 @@ const PromptsList = () => {
     
     try {
       const response = await api.get('/api/prompts/templates');
-      setPrompts(response.data);
+      
+      // Ensure each prompt has a placeholders property
+      const promptsWithPlaceholders = response.data.map(prompt => {
+        if (!prompt.placeholders) {
+          prompt.placeholders = {};
+        }
+        return prompt;
+      });
+      
+      setPrompts(promptsWithPlaceholders);
     } catch (err) {
       setError('Failed to load prompt templates. Please try again.');
       console.error('Error fetching prompts:', err);
