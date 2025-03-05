@@ -59,7 +59,7 @@ const PromptDetail = () => {
     setError(null);
     
     try {
-      const response = await api.get(`/api/v1/prompts/${id}`);
+      const response = await api.get(`/api/prompts/templates/${id}`);
       setPrompt(response.data);
     } catch (err) {
       console.error('Error fetching prompt:', err);
@@ -73,7 +73,7 @@ const PromptDetail = () => {
     setDeleteLoading(true);
     
     try {
-      await api.delete(`/api/v1/prompts/${id}`);
+      await api.delete(`/api/prompts/templates/${id}`);
       navigate('/prompts');
     } catch (err) {
       setError('Failed to delete prompt template. Please try again.');
@@ -86,7 +86,7 @@ const PromptDetail = () => {
   
   const handleDuplicate = async () => {
     try {
-      await api.post(`/api/v1/prompts/${id}/duplicate`);
+      await api.post(`/api/prompts/templates/${id}/duplicate`);
       navigate('/prompts');
     } catch (err) {
       setError('Failed to duplicate prompt template. Please try again.');
