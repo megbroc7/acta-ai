@@ -6,7 +6,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./backend/.env
+      - ./config/environments/${ENV:-development}/backend.env
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=postgres
@@ -27,7 +27,7 @@ services:
       db:
         condition: service_healthy
     env_file:
-      - ./backend/.env
+      - ./config/environments/${ENV:-development}/backend.env
     ports:
       - "8000:8000"
     volumes:
@@ -43,6 +43,8 @@ services:
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
+    env_file:
+      - ./config/environments/${ENV:-development}/frontend.env
     depends_on:
       - backend
     restart: always

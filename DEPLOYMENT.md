@@ -1,6 +1,83 @@
 # Acta AI Deployment Guide
 
-This guide provides instructions for deploying Acta AI on Digital Ocean.
+This guide explains how to deploy and update the Acta AI application.
+
+## Environment Configuration
+
+The application uses environment-specific configuration files located in:
+- `config/environments/development/` - For development environment
+- `config/environments/production/` - For production environment
+
+### Required Environment Files
+
+For each environment, you need:
+1. `backend.env` - Backend environment variables
+2. `frontend.env` - Frontend environment variables
+
+## Initial Production Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/megbroc7/acta-ai.git
+   cd acta-ai
+   ```
+
+2. Create production environment files:
+   ```bash
+   mkdir -p config/environments/production
+   cp config/environments/production/backend.env.example config/environments/production/backend.env
+   cp config/environments/production/frontend.env.example config/environments/production/frontend.env
+   ```
+
+3. Edit the production environment files with your actual values:
+   ```bash
+   nano config/environments/production/backend.env
+   nano config/environments/production/frontend.env
+   ```
+
+4. Deploy the application:
+   ```bash
+   export ENV=production
+   docker-compose build
+   docker-compose up -d
+   ```
+
+## Updating the Application
+
+To update the application with the latest code:
+
+1. Use the deployment script:
+   ```bash
+   ./deploy.sh
+   ```
+
+   This script will:
+   - Set the environment to production
+   - Pull the latest code
+   - Build and restart the containers
+
+## Troubleshooting
+
+If you encounter issues during deployment:
+
+1. Check the environment files exist and have correct values
+2. Verify Docker is running
+3. Check the logs:
+   ```bash
+   docker-compose logs
+   ```
+
+## Backup and Restore
+
+### Database Backup
+```bash
+docker-compose exec db pg_dump -U postgres actaai > backup.sql
+```
+
+### Database Restore
+```bash
+cat backup.sql | docker-compose exec -T db psql -U postgres actaai
+```
 
 ## Prerequisites
 
