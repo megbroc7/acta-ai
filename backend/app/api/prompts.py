@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
+from datetime import datetime
 
 from ..core.database import get_db
 from ..models.prompt_template import PromptTemplate
@@ -40,8 +41,14 @@ class PromptTemplateResponse(BaseModel):
     default_tone: str
     placeholders: Dict[str, str] = {}
     is_default: bool
-    created_at: str
-    updated_at: Optional[str] = None
+    created_at: Any
+    updated_at: Optional[Any] = None
+    
+    @validator('created_at', 'updated_at', pre=True)
+    def parse_datetime(cls, value):
+        if isinstance(value, datetime):
+            return value.isoformat()
+        return value
 
 class TestTopicRequest(BaseModel):
     prompt_template_id: Optional[int] = None
