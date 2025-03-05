@@ -75,6 +75,12 @@ const PromptDetail = () => {
     
     try {
       const response = await api.get(`/api/prompts/templates/${id}`);
+      console.log('Prompt data:', response.data);
+      console.log('Placeholders:', response.data.placeholders);
+      console.log('Placeholders type:', typeof response.data.placeholders);
+      if (response.data.placeholders) {
+        console.log('Placeholders keys:', Object.keys(response.data.placeholders));
+      }
       setPrompt(response.data);
     } catch (err) {
       console.error('Error fetching prompt:', err);
