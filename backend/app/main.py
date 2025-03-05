@@ -7,6 +7,7 @@ from .core.config import settings
 from .services.scheduler import SchedulerService
 import asyncio
 from prometheus_fastapi_instrumentator import Instrumentator
+import fastapi
 
 # Initialize scheduler service
 scheduler_service = SchedulerService()
@@ -69,6 +70,37 @@ app.include_router(sites.router, prefix=f"{settings.API_V1_STR}/sites", tags=["W
 app.include_router(schedules.router, prefix=f"{settings.API_V1_STR}/schedules", tags=["Schedules"])
 app.include_router(posts.router, prefix=f"{settings.API_V1_STR}/posts", tags=["Blog Posts"])
 app.include_router(prompts.router, prefix=f"{settings.API_V1_STR}/prompts", tags=["Prompt Templates"])
+
+# Add a route handler for the old API endpoint
+@app.api_route("/api/v1/prompts/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+async def legacy_prompt_redirect(path: str, request: fastapi.Request):
+    # This endpoint is no longer used, but some clients might still be requesting it
+    # Log the request for debugging
+    print(f"Legacy API request: {request.method} /api/v1/prompts/{path}")
+    
+    # For OPTIONS requests, return a 200 OK response with CORS headers
+    if request.method == "OPTIONS":
+        from fastapi.responses import Response
+        return Response(
+            status_code=200,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        )
+    
+    # For GET requests to a specific prompt, redirect to the new endpoint
+    if request.method == "GET" and path.isdigit():
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=f"/api/prompts/templates/{path}")
+    
+    # For other requests, return a 404 Not Found response
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        status_code=404,
+        content={"detail": "Endpoint not found. The API has been updated."}
+    )
 
 @app.get("/")
 async def root():
