@@ -244,6 +244,40 @@ async def get_template(
     
     return template
 
+@router.get("/templates/{template_id}/debug", response_model=dict)
+async def debug_template(
+    template_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """Debug endpoint to check template data."""
+    stmt = select(PromptTemplate).where(PromptTemplate.id == template_id)
+    result = await db.execute(stmt)
+    template = result.scalars().first()
+    
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template not found"
+        )
+    
+    # Convert to dict for debugging
+    template_dict = {
+        "id": template.id,
+        "name": template.name,
+        "description": template.description,
+        "system_prompt": template.system_prompt,
+        "topic_generation_prompt": template.topic_generation_prompt,
+        "content_generation_prompt": template.content_generation_prompt,
+        "default_word_count": template.default_word_count,
+        "default_tone": template.default_tone,
+        "placeholders": template.placeholders,
+        "is_default": template.is_default,
+        "created_at": template.created_at.isoformat() if template.created_at else None,
+        "updated_at": template.updated_at.isoformat() if template.updated_at else None
+    }
+    
+    return template_dict
+
 @router.post("/test/topic", response_model=TestTopicResponse)
 async def test_topic_generation(
     request: TestTopicRequest,
