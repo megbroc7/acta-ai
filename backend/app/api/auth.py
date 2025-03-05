@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import timedelta
 from jose import jwt, JWTError
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from ..core.security import create_access_token, verify_password, get_password_hash
 from ..core.config import settings
@@ -24,12 +24,12 @@ class TokenData(BaseModel):
 class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
-    full_name: str = None
+    full_name: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: int
     email: str
-    full_name: str = None
+    full_name: Optional[str] = None
     is_active: bool
 
 router = APIRouter()
