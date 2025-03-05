@@ -37,6 +37,7 @@ import ErrorState from '../../components/common/ErrorState';
 import EmptyState from '../../components/common/EmptyState';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import api from '../../services/api';
+import { toast } from 'react-hot-toast';
 
 const SchedulesList = () => {
   const [schedules, setSchedules] = useState([]);
@@ -89,11 +90,12 @@ const SchedulesList = () => {
     setDeleteLoading(true);
     
     try {
-      await api.delete(`/api/v1/schedules/${scheduleToDelete.id}`);
-      setSchedules(schedules.filter(s => s.id !== scheduleToDelete.id));
+      await api.delete(`/api/schedules/${scheduleToDelete.id}`);
+      setSchedules(schedules.filter(schedule => schedule.id !== scheduleToDelete.id));
       setDeleteDialogOpen(false);
       setScheduleToDelete(null);
     } catch (err) {
+      setError('Failed to delete schedule. Please try again.');
       console.error('Error deleting schedule:', err);
     } finally {
       setDeleteLoading(false);
@@ -104,18 +106,18 @@ const SchedulesList = () => {
     setStatusUpdateLoading(scheduleId);
     
     try {
-      const newStatus = !currentStatus;
-      await api.patch(`/api/v1/schedules/${scheduleId}`, {
-        is_active: newStatus
+      await api.patch(`/api/schedules/${scheduleId}`, {
+        is_active: !currentStatus
       });
       
-      // Update the local state
+      // Update the schedule in the list
       setSchedules(schedules.map(schedule => 
         schedule.id === scheduleId 
-          ? { ...schedule, is_active: newStatus } 
+          ? { ...schedule, is_active: !currentStatus } 
           : schedule
       ));
     } catch (err) {
+      setError('Failed to update schedule status. Please try again.');
       console.error('Error updating schedule status:', err);
     } finally {
       setStatusUpdateLoading(null);
@@ -123,13 +125,19 @@ const SchedulesList = () => {
   };
   
   const runScheduleNow = async (scheduleId) => {
+    setStatusUpdateLoading(scheduleId);
+    
     try {
-      await api.post(`/api/v1/schedules/${scheduleId}/run-now`);
-      // Optionally show a success message or update the UI
+      await api.post(`/api/schedules/${scheduleId}/run-now`);
+      
+      // Show success message
+      toast.success('Schedule execution started successfully');
     } catch (err) {
+      setError('Failed to run schedule. Please try again.');
       console.error('Error running schedule:', err);
+    } finally {
+      setStatusUpdateLoading(null);
     }
-    handleMenuClose();
   };
   
   const filteredSchedules = schedules.filter(schedule => 

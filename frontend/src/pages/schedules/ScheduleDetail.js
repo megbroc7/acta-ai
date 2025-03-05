@@ -42,6 +42,7 @@ import ErrorState from '../../components/common/ErrorState';
 import EmptyState from '../../components/common/EmptyState';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import api from '../../services/api';
+import { toast } from 'react-hot-toast';
 
 const ScheduleDetail = () => {
   const { id } = useParams();
@@ -67,38 +68,35 @@ const ScheduleDetail = () => {
     setError(null);
     
     try {
-      const response = await api.get(`/api/v1/schedules/${id}`);
+      const response = await api.get(`/api/schedules/${id}`);
       setSchedule(response.data);
+      
+      // Fetch posts for this schedule
+      try {
+        const postsResponse = await api.get(`/api/posts?schedule_id=${id}`);
+        setRelatedData(prev => ({
+          ...prev,
+          posts: { data: postsResponse.data, loading: false, error: null },
+        }));
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+      }
+      
+      // Fetch stats for this schedule
+      try {
+        const statsResponse = await api.get(`/api/schedules/${id}/stats`);
+        setRelatedData(prev => ({
+          ...prev,
+          stats: statsResponse.data,
+        }));
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+      }
     } catch (err) {
+      setError('Failed to load schedule details. Please try again.');
       console.error('Error fetching schedule:', err);
-      setError('Failed to load schedule. Please try again.');
     } finally {
       setLoading(false);
-    }
-  }, [id]);
-  
-  // Wrap fetchRelatedData in useCallback
-  const fetchRelatedData = useCallback(async () => {
-    try {
-      // Schedule posts
-      const postsResponse = await api.get(`/api/v1/posts?schedule_id=${id}`);
-      setRelatedData(prev => ({
-        ...prev,
-        posts: { data: postsResponse.data, loading: false, error: null },
-      }));
-      
-      // Schedule stats
-      const statsResponse = await api.get(`/api/v1/schedules/${id}/stats`);
-      setRelatedData(prev => ({
-        ...prev,
-        stats: statsResponse.data,
-      }));
-    } catch (err) {
-      console.error('Error fetching related data:', err);
-      setRelatedData(prev => ({
-        ...prev,
-        posts: { data: [], loading: false, error: 'Failed to load posts' },
-      }));
     }
   }, [id]);
   
@@ -106,32 +104,29 @@ const ScheduleDetail = () => {
     setDeleteLoading(true);
     
     try {
-      await api.delete(`/api/v1/schedules/${id}`);
+      await api.delete(`/api/schedules/${id}`);
       navigate('/schedules');
     } catch (err) {
       setError('Failed to delete schedule. Please try again.');
       console.error('Error deleting schedule:', err);
-      setDeleteDialogOpen(false);
     } finally {
       setDeleteLoading(false);
+      setDeleteDialogOpen(false);
     }
   };
   
   const toggleScheduleStatus = async () => {
-    if (!schedule) return;
-    
     setStatusUpdateLoading(true);
     
     try {
-      const newStatus = !schedule.is_active;
-      await api.patch(`/api/v1/schedules/${id}`, {
-        is_active: newStatus
+      await api.patch(`/api/schedules/${id}`, {
+        is_active: !schedule.is_active
       });
       
-      // Update the local state
+      // Update the schedule in state
       setSchedule(prev => ({
         ...prev,
-        is_active: newStatus
+        is_active: !prev.is_active
       }));
     } catch (err) {
       setError('Failed to update schedule status. Please try again.');
@@ -146,13 +141,10 @@ const ScheduleDetail = () => {
     setRunNowSuccess(false);
     
     try {
-      await api.post(`/api/v1/schedules/${id}/run-now`);
-      setRunNowSuccess(true);
+      await api.post(`/api/schedules/${id}/run-now`);
       
-      // Refresh the posts data after a short delay
-      setTimeout(() => {
-        fetchRelatedData();
-      }, 2000);
+      // Show success message
+      toast.success('Schedule execution started successfully');
     } catch (err) {
       setError('Failed to run schedule. Please try again.');
       console.error('Error running schedule:', err);
@@ -215,8 +207,7 @@ const ScheduleDetail = () => {
   
   useEffect(() => {
     fetchSchedule();
-    fetchRelatedData();
-  }, [id, fetchSchedule, fetchRelatedData]);
+  }, [id, fetchSchedule]);
   
   if (loading) {
     return <LoadingState message="Loading schedule details..." />;

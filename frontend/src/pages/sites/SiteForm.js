@@ -36,6 +36,7 @@ const SiteForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [testingConnection, setTestingConnection] = useState(false);
   const [connectionResult, setConnectionResult] = useState(null);
+  const [site, setSite] = useState(null);
 
   const validationSchema = Yup.object({
     name: Yup.string().required('Site name is required'),
@@ -70,14 +71,14 @@ const SiteForm = () => {
             delete dataToSend.app_password;
           }
           
-          await api.put(`/api/v1/sites/${id}`, dataToSend);
+          await api.put(`/api/sites/${id}`, dataToSend);
         } else {
-          await api.post('/api/v1/sites', values);
+          await api.post('/api/sites', values);
         }
         
         navigate('/sites');
       } catch (err) {
-        setError(err.response?.data?.detail || 'Failed to save site. Please try again.');
+        setError('Failed to save site. Please try again.');
         console.error('Error saving site:', err);
       } finally {
         setSubmitting(false);
@@ -85,77 +86,46 @@ const SiteForm = () => {
     },
   });
 
-  // Wrap fetchSite in useCallback
   const fetchSite = useCallback(async () => {
     setLoading(true);
+    setError(null);
     
     try {
-      const response = await api.get(`/api/v1/sites/${id}`);
-      const site = response.data;
-      
-      // Update form values with site data
-      formik.setValues({
-        name: site.name,
-        url: site.url,
-        api_url: site.api_url,
-        username: site.username,
-        password: '',  // Don't prefill password for security
-      });
+      const response = await api.get(`/api/sites/${id}`);
+      setSite(response.data);
     } catch (err) {
       console.error('Error fetching site:', err);
+      setError('Failed to load site. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [id, formik]);
+  }, [id]);
 
-  const testConnection = async () => {
-    // Validate form first
-    const errors = await formik.validateForm();
-    if (Object.keys(errors).length > 0) {
-      formik.setTouched({
-        name: true,
-        url: true,
-        api_url: true,
-        username: true,
-        app_password: true,
-      });
-      return;
-    }
-    
+  const testConnection = async (values) => {
     setTestingConnection(true);
     setConnectionResult(null);
     
     try {
-      // If editing an existing site
+      const dataToSend = {
+        url: values.url,
+        api_url: values.api_url,
+        username: values.username,
+        password: values.password,
+      };
+      
+      let response;
       if (isEditMode) {
-        const response = await api.post(`/api/v1/sites/${id}/test-connection`, {
-          api_url: formik.values.api_url,
-          username: formik.values.username,
-          app_password: formik.values.app_password || undefined,
-        });
-        
-        setConnectionResult({
-          success: response.data.success,
-          message: response.data.success 
-            ? 'Connection successful! WordPress API is accessible.'
-            : response.data.detail || 'Connection failed. Please check your credentials.',
-        });
-      } 
-      // If creating a new site
-      else {
-        const response = await api.post('/api/v1/sites/test-connection', {
-          api_url: formik.values.api_url,
-          username: formik.values.username,
-          app_password: formik.values.app_password,
-        });
-        
-        setConnectionResult({
-          success: response.data.success,
-          message: response.data.success 
-            ? 'Connection successful! WordPress API is accessible.'
-            : response.data.detail || 'Connection failed. Please check your credentials.',
-        });
+        response = await api.post(`/api/sites/${id}/test-connection`, dataToSend);
+      } else {
+        response = await api.post('/api/sites/test-connection', dataToSend);
       }
+      
+      setConnectionResult({
+        success: response.data.success,
+        message: response.data.success 
+          ? 'Connection successful! WordPress API is accessible.'
+          : response.data.detail || 'Connection failed. Please check your credentials.',
+      });
     } catch (err) {
       setConnectionResult({
         success: false,
@@ -331,7 +301,7 @@ const SiteForm = () => {
                 <Box sx={{ mt: 2 }}>
                   <Button
                     variant="outlined"
-                    onClick={testConnection}
+                    onClick={() => testConnection(formik.values)}
                     disabled={testingConnection}
                     sx={{ mr: 2 }}
                   >

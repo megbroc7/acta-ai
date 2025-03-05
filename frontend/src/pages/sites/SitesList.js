@@ -81,7 +81,7 @@ const SitesList = () => {
     setDeleteLoading(true);
     
     try {
-      await api.delete(`/api/v1/sites/${selectedSite.id}`);
+      await api.delete(`/api/sites/${selectedSite.id}`);
       setSites(sites.filter(site => site.id !== selectedSite.id));
       closeDeleteDialog();
     } catch (err) {
@@ -97,7 +97,7 @@ const SitesList = () => {
     setTestingConnection(true);
     
     try {
-      const response = await api.post(`/api/v1/sites/${siteId}/test-connection`);
+      const response = await api.post(`/api/sites/${siteId}/test-connection`);
       
       // Update the site's connection status in the list
       setSites(sites.map(site => 

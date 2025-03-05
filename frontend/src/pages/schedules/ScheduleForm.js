@@ -141,7 +141,7 @@ const ScheduleForm = () => {
     setError(null);
     
     try {
-      const response = await api.get(`/api/v1/schedules/${id}`);
+      const response = await api.get(`/api/schedules/${id}`);
       setSchedule(response.data);
     } catch (err) {
       console.error('Error fetching schedule:', err);
@@ -155,7 +155,7 @@ const ScheduleForm = () => {
     setLoadingSites(true);
     
     try {
-      const response = await api.get('/api/v1/sites');
+      const response = await api.get('/api/sites');
       setSites(response.data);
     } catch (err) {
       console.error('Error fetching sites:', err);
@@ -164,50 +164,43 @@ const ScheduleForm = () => {
     }
   };
   
-  const fetchPrompts = async () => {
-    setLoadingPrompts(true);
-    
+  const fetchPromptTemplates = async () => {
     try {
-      const response = await api.get('/api/v1/prompts');
+      const response = await api.get('/api/prompts/templates');
       setPrompts(response.data);
     } catch (err) {
-      console.error('Error fetching prompts:', err);
-    } finally {
-      setLoadingPrompts(false);
+      console.error('Error fetching prompt templates:', err);
+      setError('Failed to load prompt templates');
     }
   };
   
-  const fetchCategories = async (siteId) => {
-    if (!siteId) {
-      setCategories([]);
-      return;
-    }
+  const fetchSiteCategories = async (siteId) => {
+    if (!siteId) return;
     
     setLoadingCategories(true);
     
     try {
-      const response = await api.get(`/api/v1/sites/${siteId}/categories`);
+      const response = await api.get(`/api/sites/${siteId}/categories`);
       setCategories(response.data);
     } catch (err) {
       console.error('Error fetching categories:', err);
+      setError('Failed to load categories. Please try again.');
     } finally {
       setLoadingCategories(false);
     }
   };
   
-  const fetchTags = async (siteId) => {
-    if (!siteId) {
-      setTags([]);
-      return;
-    }
+  const fetchSiteTags = async (siteId) => {
+    if (!siteId) return;
     
     setLoadingTags(true);
     
     try {
-      const response = await api.get(`/api/v1/sites/${siteId}/tags`);
+      const response = await api.get(`/api/sites/${siteId}/tags`);
       setTags(response.data);
     } catch (err) {
       console.error('Error fetching tags:', err);
+      setError('Failed to load tags. Please try again.');
     } finally {
       setLoadingTags(false);
     }
@@ -218,17 +211,29 @@ const ScheduleForm = () => {
     setError(null);
     
     try {
-      // Format the time value
+      // Format values for API
       const formattedValues = {
         ...values,
-        time: values.time ? new Date(values.time).toISOString() : null,
+        frequency: {
+          type: values.frequency_type,
+          interval: values.frequency_interval,
+          day_of_week: values.day_of_week,
+          time: values.time,
+        },
       };
       
+      // Remove temporary fields
+      delete formattedValues.frequency_type;
+      delete formattedValues.frequency_interval;
+      delete formattedValues.day_of_week;
+      delete formattedValues.time;
+      
       if (isEditMode) {
-        await api.put(`/api/v1/schedules/${id}`, formattedValues);
+        await api.put(`/api/schedules/${id}`, formattedValues);
       } else {
-        await api.post('/api/v1/schedules', formattedValues);
+        await api.post('/api/schedules', formattedValues);
       }
+      
       navigate('/schedules');
     } catch (err) {
       setError('Failed to save schedule. Please try again.');
@@ -242,7 +247,7 @@ const ScheduleForm = () => {
   // useEffect to load initial data
   useEffect(() => {
     fetchSites();
-    fetchPrompts();
+    fetchPromptTemplates();
     
     if (isEditMode) {
       fetchSchedule();
@@ -252,8 +257,8 @@ const ScheduleForm = () => {
   // useEffect to fetch categories and tags for the selected site when editing
   useEffect(() => {
     if (isEditMode && schedule && schedule.site_id) {
-      fetchCategories(schedule.site_id);
-      fetchTags(schedule.site_id);
+      fetchSiteCategories(schedule.site_id);
+      fetchSiteTags(schedule.site_id);
     }
   }, [isEditMode, schedule]);
   
@@ -263,8 +268,8 @@ const ScheduleForm = () => {
     setFieldValue('categories', []);
     setFieldValue('tags', []);
     
-    fetchCategories(siteId);
-    fetchTags(siteId);
+    fetchSiteCategories(siteId);
+    fetchSiteTags(siteId);
   };
   
   // Update variable values when prompt changes

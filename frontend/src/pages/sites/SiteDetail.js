@@ -60,33 +60,35 @@ const SiteDetail = () => {
     setError(null);
     
     try {
-      const response = await api.get(`/api/v1/sites/${id}`);
+      const response = await api.get(`/api/sites/${id}`);
       setSite(response.data);
-    } catch (err) {
-      console.error('Error fetching site:', err);
-      setError('Failed to load site. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  const fetchRelatedData = useCallback(async () => {
-    try {
+      
       // Fetch schedules for this site
-      const schedulesResponse = await api.get(`/api/v1/schedules?site_id=${id}`);
-      setRelatedData(prev => ({
-        ...prev,
-        schedules: { data: schedulesResponse.data, loading: false, error: null },
-      }));
+      try {
+        const schedulesResponse = await api.get(`/api/schedules?site_id=${id}`);
+        setRelatedData(prev => ({
+          ...prev,
+          schedules: { data: schedulesResponse.data, loading: false, error: null },
+        }));
+      } catch (err) {
+        console.error('Error fetching schedules:', err);
+      }
       
       // Fetch posts for this site
-      const postsResponse = await api.get(`/api/v1/posts?site_id=${id}`);
-      setRelatedData(prev => ({
-        ...prev,
-        posts: { data: postsResponse.data, loading: false, error: null },
-      }));
+      try {
+        const postsResponse = await api.get(`/api/posts?site_id=${id}`);
+        setRelatedData(prev => ({
+          ...prev,
+          posts: { data: postsResponse.data, loading: false, error: null },
+        }));
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+      }
     } catch (err) {
-      console.error('Error fetching related data:', err);
+      setError('Failed to load site details. Please try again.');
+      console.error('Error fetching site:', err);
+    } finally {
+      setLoading(false);
     }
   }, [id]);
 
@@ -94,7 +96,7 @@ const SiteDetail = () => {
     setTestingConnection(true);
     
     try {
-      const response = await api.post(`/api/v1/sites/${id}/test-connection`);
+      const response = await api.post(`/api/sites/${id}/test-connection`);
       
       // Update the site's connection status
       setSite(prev => ({
@@ -118,7 +120,7 @@ const SiteDetail = () => {
     setDeleteLoading(true);
     
     try {
-      await api.delete(`/api/v1/sites/${id}`);
+      await api.delete(`/api/sites/${id}`);
       navigate('/sites');
     } catch (err) {
       setError('Failed to delete site. Please try again.');
@@ -135,8 +137,7 @@ const SiteDetail = () => {
 
   useEffect(() => {
     fetchSite();
-    fetchRelatedData();
-  }, [id, fetchSite, fetchRelatedData]);
+  }, [id, fetchSite]);
 
   if (loading) {
     return <LoadingState message="Loading site details..." />;
