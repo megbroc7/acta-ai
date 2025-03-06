@@ -5,8 +5,51 @@ import sys
 from alembic.config import Config
 from alembic import command
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.future import select
 from app.core.config import settings
 from app.models import Base
+from app.models.user import User
+from app.core.security import get_password_hash
+
+async def create_admin_user(engine):
+    """Create an admin user if it doesn't exist."""
+    print("Checking if admin user exists...")
+    
+    # Create async session
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from sqlalchemy.orm import sessionmaker
+    
+    async_session = sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
+    
+    async with async_session() as session:
+        # Check if any user exists
+        stmt = select(User)
+        result = await session.execute(stmt)
+        existing_user = result.scalars().first()
+        
+        if existing_user:
+            print("Admin user already exists.")
+            return
+        
+        # Create admin user
+        print("Creating admin user...")
+        admin_email = "admin@example.com"
+        admin_password = "adminpassword"
+        hashed_password = get_password_hash(admin_password)
+        
+        admin_user = User(
+            email=admin_email,
+            hashed_password=hashed_password,
+            full_name="Admin User",
+            is_active=True
+        )
+        
+        session.add(admin_user)
+        await session.commit()
+        
+        print(f"Admin user created successfully with email: {admin_email} and password: {admin_password}")
 
 async def init_db():
     """Initialize the database with tables and initial data."""
@@ -18,6 +61,9 @@ async def init_db():
     # Create tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    
+    # Create admin user
+    await create_admin_user(engine)
     
     # Close engine
     await engine.dispose()
