@@ -63,7 +63,48 @@ const PromptForm = () => {
     content_generation_prompt: '',
     default_word_count: 1500,
     default_tone: 'informative',
-    variables: [],
+    variables: [
+      {
+        name: 'Topic',
+        key: 'topic',
+        type: 'text',
+        description: 'The main subject of the content',
+        default_value: '',
+        options: []
+      },
+      {
+        name: 'Industry',
+        key: 'industry',
+        type: 'text',
+        description: 'The industry or niche for the content',
+        default_value: '',
+        options: []
+      },
+      {
+        name: 'Word Count',
+        key: 'word_count',
+        type: 'number',
+        description: 'The desired length of the content',
+        default_value: '1500',
+        options: []
+      },
+      {
+        name: 'Tone',
+        key: 'tone',
+        type: 'select',
+        description: 'The writing style for the content',
+        default_value: 'professional',
+        options: ['professional', 'casual', 'persuasive', 'informative', 'entertaining']
+      },
+      {
+        name: 'Target Audience',
+        key: 'target_audience',
+        type: 'text',
+        description: 'The intended readers of the content',
+        default_value: '',
+        options: []
+      }
+    ],
   };
   
   // Validation schema
@@ -101,13 +142,29 @@ const PromptForm = () => {
     ),
   });
   
-  // Wrap fetchPrompt in useCallback
+  // Fetch prompt template
   const fetchPrompt = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
       const response = await api.get(`/api/prompts/templates/${id}`);
+      
+      // Convert placeholders to variables format if they exist
+      if (response.data.placeholders) {
+        const convertedVariables = Object.entries(response.data.placeholders).map(([key, defaultValue]) => ({
+          name: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '), // Convert snake_case to Title Case
+          key: key,
+          type: typeof defaultValue === 'number' ? 'number' : 'text', // Basic type inference
+          description: '',
+          default_value: defaultValue.toString(),
+          options: []
+        }));
+        response.data.variables = convertedVariables;
+      } else {
+        response.data.variables = [];
+      }
+      
       setPrompt(response.data);
     } catch (err) {
       console.error('Error fetching prompt:', err);
@@ -122,10 +179,25 @@ const PromptForm = () => {
     setError(null);
     
     try {
+      // Convert variables to placeholders format for the backend
+      const placeholders = {};
+      if (values.variables && values.variables.length > 0) {
+        values.variables.forEach(variable => {
+          if (variable.key) {
+            placeholders[variable.key] = variable.default_value || '';
+          }
+        });
+      }
+      
+      const payload = {
+        ...values,
+        placeholders
+      };
+      
       if (isEditMode) {
-        await api.put(`/api/prompts/templates/${id}`, values);
+        await api.put(`/api/prompts/templates/${id}`, payload);
       } else {
-        await api.post('/api/prompts/templates', values);
+        await api.post('/api/prompts/templates', payload);
       }
       navigate('/prompts');
     } catch (err) {
@@ -133,7 +205,6 @@ const PromptForm = () => {
       console.error('Error saving prompt:', err);
     } finally {
       setSaving(false);
-      setSubmitting(false);
     }
   };
   
@@ -392,7 +463,7 @@ const PromptForm = () => {
                       error={formik.touched.content_generation_prompt && Boolean(formik.errors.content_generation_prompt)}
                       helperText={
                         (formik.touched.content_generation_prompt && formik.errors.content_generation_prompt) ||
-                        "Example: Write a {word_count}-word blog post about {topic} in a {tone} tone."
+                        "Example: Write a {word_count}-word blog post about {topic} in a {tone} tone. Include practical advice, examples, actionable takeaways, and tables of information where appropriate."
                       }
                       disabled={saving}
                       sx={{ fontFamily: 'monospace' }}
@@ -648,9 +719,41 @@ const PromptForm = () => {
                               </Paper>
                             ))
                           ) : (
-                            <Typography color="textSecondary" sx={{ mb: 2 }}>
-                              No variables defined yet. Add variables to make your prompt template dynamic.
-                            </Typography>
+                            <Box sx={{ mb: 3 }}>
+                              <Typography variant="body2" color="textSecondary" paragraph>
+                                No variables defined yet. Add variables to make your prompt template dynamic.
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary" paragraph>
+                                Sample variables you might want to add:
+                              </Typography>
+                              <ul>
+                                <li>
+                                  <Typography variant="body2" color="textSecondary">
+                                    <strong>topic</strong> (Text): The main subject of the content
+                                  </Typography>
+                                </li>
+                                <li>
+                                  <Typography variant="body2" color="textSecondary">
+                                    <strong>industry</strong> (Text): The industry or niche for the content
+                                  </Typography>
+                                </li>
+                                <li>
+                                  <Typography variant="body2" color="textSecondary">
+                                    <strong>word_count</strong> (Number): The desired length of the content
+                                  </Typography>
+                                </li>
+                                <li>
+                                  <Typography variant="body2" color="textSecondary">
+                                    <strong>tone</strong> (Select): The writing style (e.g., professional, casual, persuasive)
+                                  </Typography>
+                                </li>
+                                <li>
+                                  <Typography variant="body2" color="textSecondary">
+                                    <strong>target_audience</strong> (Text): The intended readers of the content
+                                  </Typography>
+                                </li>
+                              </ul>
+                            </Box>
                           )}
                           
                           <Button
