@@ -33,6 +33,9 @@ import ScheduleDetail from './pages/schedules/ScheduleDetail';
 import PostsList from './pages/posts/PostsList';
 import PostDetail from './pages/posts/PostDetail';
 
+// Help Pages
+import FAQs from './pages/help/FAQs';
+
 // Other Pages
 import NotFound from './pages/NotFound';
 
@@ -90,6 +93,9 @@ function App() {
         {/* Blog Posts */}
         <Route path="/posts" element={<PostsList />} />
         <Route path="/posts/:id" element={<PostDetail />} />
+        
+        {/* Help Pages */}
+        <Route path="/help/faqs" element={<FAQs />} />
       </Route>
 
       {/* 404 Route */}

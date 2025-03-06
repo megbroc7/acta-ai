@@ -26,6 +26,7 @@ import {
   Schedule as ScheduleIcon,
   Article as ArticleIcon,
   AccountCircle,
+  Help as HelpIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -62,6 +63,7 @@ const MainLayout = () => {
     { text: 'Prompt Templates', icon: <DescriptionIcon />, path: '/prompts' },
     { text: 'Schedules', icon: <ScheduleIcon />, path: '/schedules' },
     { text: 'Blog Posts', icon: <ArticleIcon />, path: '/posts' },
+    { text: 'Help & FAQs', icon: <HelpIcon />, path: '/help/faqs' },
   ];
 
   const drawer = (
