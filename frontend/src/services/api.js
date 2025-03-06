@@ -1,15 +1,22 @@
 import axios from 'axios';
 
-// Function to determine the base URL for API calls
+/**
+ * Determines the base URL for API calls based on the environment and deployment configuration.
+ * 
+ * In production:
+ * - If REACT_APP_API_URL is set, use it
+ * - Otherwise, use the same origin but with port 8000 for direct backend access
+ * - If we're behind nginx, use the /api path on the same origin
+ */
 const getBaseUrl = () => {
-  // If REACT_APP_API_URL is set, use it
-  if (process.env.REACT_APP_API_URL) {
+  // If REACT_APP_API_URL is explicitly set, use it
+  if (process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL.trim() !== '') {
     return process.env.REACT_APP_API_URL;
   }
   
-  // Otherwise, use the current window location
-  const { protocol, hostname } = window.location;
-  return `${protocol}//${hostname}:8000`;
+  // In production, we're likely behind nginx which proxies /api to the backend
+  // So we can just use the relative /api path
+  return '/api';
 };
 
 const api = axios.create({
