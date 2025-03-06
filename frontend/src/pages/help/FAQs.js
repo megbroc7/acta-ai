@@ -99,7 +99,17 @@ const FAQs = () => {
               <FAQItem 
                 question="Why Acta AI?" 
                 answer={`
-                  Acta AI stands out from other AI content tools for several key reasons:
+                  <p><strong>The Historical Significance of Our Name</strong></p>
+                  
+                  <p>In ancient Rome, the Acta Diurna was the world's first recorded newspaper—a daily journal carved onto stone or metal and displayed in public spaces for all to see. It chronicled everything from political events to military victories, legal proceedings, and even social gossip. It was how Rome kept its citizens informed, a testament to the power of recorded words shaping history.</p>
+                  
+                  <p>Acta AI carries that tradition into the digital age. Just as the Acta Diurna transformed communication in the ancient world, Acta AI automates and refines content creation, ensuring your words are recorded, published, and impactful. Whether generating blog posts, transcribing ideas, or streamlining information, Acta AI is your modern-day scribe—efficient, intelligent, and tireless.</p>
+                  
+                  <p>From the stone tablets of Rome to the digital pages of today, the act of writing has always driven progress. Let Acta AI take your words further.</p>
+                  
+                  <p><strong>Why Choose Acta AI?</strong></p>
+                  
+                  <p>Acta AI stands out from other AI content tools for several key reasons:</p>
                   
                   <p><strong>Seamless WordPress Integration</strong> - Unlike generic AI writing tools, Acta AI is specifically designed to work with WordPress. It handles the entire publishing process from content creation to scheduling and posting.</p>
                   
