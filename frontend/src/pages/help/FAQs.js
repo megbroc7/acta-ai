@@ -30,7 +30,19 @@ const FAQs = () => {
         <Typography variant="subtitle1" fontWeight="medium">{question}</Typography>
       </AccordionSummary>
       <AccordionDetails>
-        <Typography variant="body1" style={{ whiteSpace: 'pre-line' }}>
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            whiteSpace: 'pre-line',
+            '& ul, & ol': {
+              marginTop: '0.5rem',
+              paddingLeft: '1.5rem',
+            },
+            '& li': {
+              marginBottom: '0.5rem',
+            }
+          }}
+        >
           {answer}
         </Typography>
       </AccordionDetails>

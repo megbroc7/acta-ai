@@ -38,6 +38,7 @@ import NotFound from './pages/NotFound';
 
 // Help Pages
 import FAQs from './pages/help/FAQs';
+import WhyActaAI from './pages/help/WhyActaAI';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -96,6 +97,7 @@ function App() {
         
         {/* Help & Support */}
         <Route path="/help/faqs" element={<FAQs />} />
+        <Route path="/help/why-acta-ai" element={<WhyActaAI />} />
       </Route>
 
       {/* 404 Route */}

@@ -27,6 +27,7 @@ import {
   Article as ArticleIcon,
   AccountCircle,
   HelpOutline as HelpOutlineIcon,
+  InfoOutlined as InfoOutlinedIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -67,6 +68,7 @@ const MainLayout = () => {
 
   const helpMenuItems = [
     { text: 'FAQs', icon: <HelpOutlineIcon />, path: '/help/faqs' },
+    { text: 'Why Acta AI', icon: <InfoOutlinedIcon />, path: '/help/why-acta-ai' },
   ];
 
   const drawer = (
