@@ -36,6 +36,9 @@ import PostDetail from './pages/posts/PostDetail';
 // Other Pages
 import NotFound from './pages/NotFound';
 
+// Help Pages
+import FAQs from './pages/help/FAQs';
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -90,6 +93,9 @@ function App() {
         {/* Blog Posts */}
         <Route path="/posts" element={<PostsList />} />
         <Route path="/posts/:id" element={<PostDetail />} />
+        
+        {/* Help & Support */}
+        <Route path="/help/faqs" element={<FAQs />} />
       </Route>
 
       {/* 404 Route */}

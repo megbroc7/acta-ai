@@ -26,6 +26,7 @@ import {
   Schedule as ScheduleIcon,
   Article as ArticleIcon,
   AccountCircle,
+  HelpOutline as HelpOutlineIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -64,6 +65,10 @@ const MainLayout = () => {
     { text: 'Blog Posts', icon: <ArticleIcon />, path: '/posts' },
   ];
 
+  const helpMenuItems = [
+    { text: 'FAQs', icon: <HelpOutlineIcon />, path: '/help/faqs' },
+  ];
+
   const drawer = (
     <div>
       <Toolbar sx={{ height: 80 }}>
@@ -80,7 +85,7 @@ const MainLayout = () => {
         </Typography>
       </Toolbar>
       <Divider />
-      <List sx={{ mt: 2 }}>
+      <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
@@ -105,10 +110,10 @@ const MainLayout = () => {
                 },
               }}
             >
-              <ListItemIcon 
-                sx={{ 
-                  color: location.pathname === item.path ? 'primary.main' : 'inherit',
+              <ListItemIcon
+                sx={{
                   minWidth: 40,
+                  color: location.pathname === item.path ? 'primary.main' : 'inherit',
                 }}
               >
                 {item.icon}
@@ -116,8 +121,54 @@ const MainLayout = () => {
               <ListItemText 
                 primary={item.text} 
                 primaryTypographyProps={{ 
-                  fontWeight: location.pathname === item.path ? 700 : 500,
-                  fontSize: '0.95rem',
+                  fontWeight: location.pathname === item.path ? 500 : 400 
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+      <Divider sx={{ mt: 2, mb: 2 }} />
+      <Typography variant="subtitle2" sx={{ pl: 3, pb: 1, color: 'text.secondary' }}>
+        Help & Support
+      </Typography>
+      <List>
+        {helpMenuItems.map((item) => (
+          <ListItem key={item.text} disablePadding>
+            <ListItemButton
+              selected={location.pathname === item.path}
+              onClick={() => {
+                navigate(item.path);
+                setMobileOpen(false);
+              }}
+              sx={{
+                py: 1.5,
+                pl: 3,
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(46, 125, 50, 0.08)',
+                  borderRight: '4px solid',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'rgba(46, 125, 50, 0.12)',
+                  },
+                },
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                },
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 40,
+                  color: location.pathname === item.path ? 'primary.main' : 'inherit',
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={item.text} 
+                primaryTypographyProps={{ 
+                  fontWeight: location.pathname === item.path ? 500 : 400 
                 }}
               />
             </ListItemButton>
