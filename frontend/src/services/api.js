@@ -1,7 +1,19 @@
 import axios from 'axios';
 
+// Function to determine the base URL for API calls
+const getBaseUrl = () => {
+  // If REACT_APP_API_URL is set, use it
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Otherwise, use the current window location
+  const { protocol, hostname } = window.location;
+  return `${protocol}//${hostname}:8000`;
+};
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '',
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
