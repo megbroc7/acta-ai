@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import api from '../services/api';
+// Import jwt-decode for token validation
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -11,17 +13,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // We'll mark this as unused with a comment or remove it if not needed
-  // const isTokenValid = (token) => {
-  //   if (!token) return false;
-  //   try {
-  //     const decoded = jwt.decode(token);
-  //     const currentTime = Date.now() / 1000;
-  //     return decoded.exp > currentTime;
-  //   } catch (err) {
-  //     return false;
-  //   }
-  // };
+  // Token validation function
+  const isTokenValid = (token) => {
+    if (!token) return false;
+    try {
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+      return decoded.exp > currentTime;
+    } catch (err) {
+      console.error('Token validation error:', err);
+      return false;
+    }
+  };
 
   // Set auth token in axios headers
   const setAuthToken = (token) => {
@@ -39,10 +42,20 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      const response = await api.post('/api/auth/token', {
-        username: email,
-        password: password,
+      console.log(`Attempting login for: ${email}`);
+      
+      // Using URLSearchParams to format data as form-urlencoded (what the backend expects)
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+      
+      const response = await api.post('/api/auth/token', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
       });
+      
+      console.log('Login response:', response);
       
       const { access_token } = response.data;
       setToken(access_token);
@@ -53,7 +66,18 @@ export const AuthProvider = ({ children }) => {
       
       return true;
     } catch (error) {
-      setError(error.response?.data?.detail || 'Login failed');
+      console.error('Login error details:', error);
+      
+      // Handle different error types
+      if (error.code === 'ECONNABORTED') {
+        setError('Login request timed out. The server may be overloaded. Please try again.');
+      } else {
+        const errorMessage = error.response?.data?.detail || 
+                            error.message || 
+                            'Login failed. Please check your credentials.';
+        setError(errorMessage);
+      }
+      
       return false;
     }
   };
@@ -71,7 +95,11 @@ export const AuthProvider = ({ children }) => {
       // Login after registration
       return await login(email, password);
     } catch (error) {
-      setError(error.response?.data?.detail || 'Registration failed');
+      const errorMessage = error.response?.data?.detail || 
+                          error.message || 
+                          'Registration failed. Please try again.';
+      setError(errorMessage);
+      console.error('Registration error:', error);
       return false;
     }
   };
@@ -79,6 +107,15 @@ export const AuthProvider = ({ children }) => {
   // Load user data
   const loadUser = useCallback(async () => {
     if (!token) {
+      setLoading(false);
+      return;
+    }
+    
+    // Check if token is valid before making the API call
+    if (!isTokenValid(token)) {
+      setToken(null);
+      setAuthToken(null);
+      setUser(null);
       setLoading(false);
       return;
     }

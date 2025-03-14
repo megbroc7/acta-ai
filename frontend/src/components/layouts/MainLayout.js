@@ -27,8 +27,11 @@ import {
   Article as ArticleIcon,
   AccountCircle,
   Help as HelpIcon,
+  Update as UpdateIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import ConnectionStatus from '../common/ConnectionStatus';
+import { setBackendStatus } from '../../services/api';
 
 const drawerWidth = 260;
 
@@ -57,18 +60,23 @@ const MainLayout = () => {
     handleProfileMenuClose();
   };
 
+  const handleConnectionChange = (connected) => {
+    setBackendStatus(connected);
+  };
+
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'WordPress Sites', icon: <LanguageIcon />, path: '/sites' },
     { text: 'Prompt Templates', icon: <DescriptionIcon />, path: '/prompts' },
     { text: 'Schedules', icon: <ScheduleIcon />, path: '/schedules' },
     { text: 'Blog Posts', icon: <ArticleIcon />, path: '/posts' },
+    { text: 'Latest Updates', icon: <UpdateIcon />, path: '/updates' },
     { text: 'Help & FAQs', icon: <HelpIcon />, path: '/help/faqs' },
   ];
 
   const drawer = (
     <div>
-      <Toolbar sx={{ height: 80 }}>
+      <Toolbar sx={{ height: 80, backgroundColor: '#000000' }}>
         <Typography 
           variant="h5" 
           component="div"
@@ -76,13 +84,14 @@ const MainLayout = () => {
             fontWeight: 900, 
             letterSpacing: '-0.02em',
             textTransform: 'uppercase',
+            color: '#FFFFFF'
           }}
         >
           Acta AI
         </Typography>
       </Toolbar>
-      <Divider />
-      <List sx={{ mt: 2 }}>
+      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)' }} />
+      <List sx={{ mt: 2, backgroundColor: '#000000' }}>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
@@ -94,22 +103,23 @@ const MainLayout = () => {
               sx={{
                 py: 1.5,
                 pl: 3,
+                color: '#FFFFFF',
                 '&.Mui-selected': {
-                  backgroundColor: 'rgba(46, 125, 50, 0.08)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderRight: '4px solid',
                   borderColor: 'primary.main',
                   '&:hover': {
-                    backgroundColor: 'rgba(46, 125, 50, 0.12)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   },
                 },
                 '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
                 },
               }}
             >
               <ListItemIcon 
                 sx={{ 
-                  color: location.pathname === item.path ? 'primary.main' : 'inherit',
+                  color: location.pathname === item.path ? 'primary.light' : '#FFFFFF',
                   minWidth: 40,
                 }}
               >
@@ -120,6 +130,7 @@ const MainLayout = () => {
                 primaryTypographyProps={{ 
                   fontWeight: location.pathname === item.path ? 700 : 500,
                   fontSize: '0.95rem',
+                  color: '#FFFFFF'
                 }}
               />
             </ListItemButton>
@@ -137,10 +148,10 @@ const MainLayout = () => {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          backgroundColor: '#FFFFFF',
-          color: '#000000',
+          backgroundColor: '#000000',
+          color: '#FFFFFF',
           boxShadow: 'none',
-          borderBottom: '1px solid #E0E0E0',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
         }}
       >
         <Toolbar sx={{ height: 80 }}>
@@ -162,17 +173,22 @@ const MainLayout = () => {
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               fontSize: '1rem',
+              color: '#FFFFFF'
             }}
           >
             {menuItems.find((item) => item.path === location.pathname)?.text || 'Acta AI'}
           </Typography>
+          <Box sx={{ mr: 3 }}>
+            <ConnectionStatus onConnectionChange={handleConnectionChange} />
+          </Box>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography 
               variant="body1" 
               sx={{ 
                 mr: 2,
                 fontWeight: 500,
-                display: { xs: 'none', md: 'block' }
+                display: { xs: 'none', md: 'block' },
+                color: '#FFFFFF'
               }}
             >
               {user?.email}
@@ -191,17 +207,30 @@ const MainLayout = () => {
                 p: 1,
               }}
             >
-              <Avatar 
-                sx={{ 
-                  width: 32, 
-                  height: 32,
-                  bgcolor: 'primary.main',
-                  color: 'white',
-                  fontWeight: 700,
-                }}
-              >
-                {user?.name?.charAt(0) || user?.email?.charAt(0) || <AccountCircle />}
-              </Avatar>
+              {user?.avatar ? (
+                <Avatar 
+                  src={user.avatar} 
+                  sx={{ 
+                    width: 32, 
+                    height: 32,
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    fontWeight: 700,
+                  }}
+                />
+              ) : (
+                <Avatar 
+                  sx={{ 
+                    width: 32, 
+                    height: 32,
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    fontWeight: 700,
+                  }}
+                >
+                  {user?.name?.charAt(0) || user?.email?.charAt(0) || <AccountCircle />}
+                </Avatar>
+              )}
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -256,7 +285,8 @@ const MainLayout = () => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: drawerWidth,
-              borderRight: '1px solid #E0E0E0',
+              borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: '#000000',
             },
           }}
         >
@@ -269,7 +299,8 @@ const MainLayout = () => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: drawerWidth,
-              borderRight: '1px solid #E0E0E0',
+              borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: '#000000',
             },
           }}
           open
@@ -283,7 +314,8 @@ const MainLayout = () => {
           flexGrow: 1, 
           p: 4, 
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          backgroundColor: '#FFFFFF',
+          backgroundColor: '#222222',
+          color: '#EEEEEE',
         }}
       >
         <Toolbar sx={{ height: 80 }} />
