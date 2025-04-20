@@ -1,0 +1,1702 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Formik, Form, FieldArray } from 'formik';
+import * as Yup from 'yup';
+import {
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  Tooltip,
+  Alert,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
+  Paper,
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Save as SaveIcon,
+  ArrowBack as ArrowBackIcon,
+  Help as HelpIcon,
+  Code as CodeIcon,
+} from '@mui/icons-material';
+import PageHeader from '../../components/common/PageHeader';
+import LoadingState from '../../components/common/LoadingState';
+import ErrorState from '../../components/common/ErrorState';
+import api from '../../services/api';
+import { useSnackbar } from 'notistack';
+import { useFormik } from 'formik';
+
+// Variable types for prompt templates
+const VARIABLE_TYPES = [
+  { value: 'text', label: 'Text' },
+  { value: 'number', label: 'Number' },
+  { value: 'select', label: 'Select (Dropdown)' },
+  { value: 'multiselect', label: 'Multi-Select' },
+  { value: 'boolean', label: 'Boolean (Yes/No)' },
+];
+
+const PromptForm = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEditMode = !!id;
+  
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [prompt, setPrompt] = useState(null);
+  
+  const { enqueueSnackbar } = useSnackbar();
+  
+  // Initial form values
+  const initialValues = {
+    name: '',
+    description: '',
+    system_prompt: '',
+    topic_generation_prompt: '',
+    content_generation_prompt: '',
+    default_word_count: 800,
+    default_tone: 'informative',
+    content_type: 'blog_post',
+    writing_style: 'standard',
+    industry: '',
+    audience_level: 'general',
+    special_requirements: '',
+    variables: []
+  };
+  
+  // Custom validation function for template content
+  const validateTemplateContent = (value) => {
+    // Check for null or undefined value
+    if (!value) {
+      return true; // Empty templates are valid
+    }
+    
+    // Check for properly formed variable placeholders
+    try {
+      // Simple validation for matching {{ and }} pairs
+      const openBraces = (value.match(/\{\{/g) || []).length;
+      const closeBraces = (value.match(/\}\}/g) || []).length;
+      
+      if (openBraces !== closeBraces) {
+        return "Template contains unmatched {{ or }} pairs";
+      }
+      
+      // More detailed validation can be added here
+      
+      return true;
+    } catch (error) {
+      console.error("Template validation error:", error);
+      return "Invalid template syntax";
+    }
+  };
+  
+  // Form validation schema
+  const validationSchema = Yup.object({
+    name: Yup.string().required('Name is required'),
+    system_prompt: Yup.string().required('System prompt is required'),
+    topic_generation_prompt: Yup.string().required('Topic generation prompt is required'),
+    content_generation_prompt: Yup.string().required('Content generation prompt is required'),
+    default_word_count: Yup.number().required('Default word count is required').min(100, 'Minimum word count is 100'),
+    default_tone: Yup.string().required('Default tone is required'),
+    content_type: Yup.string(),
+    writing_style: Yup.string(),
+    industry: Yup.string(),
+    audience_level: Yup.string(),
+    special_requirements: Yup.string(),
+    variables: Yup.array().of(
+      Yup.object().shape({
+        name: Yup.string().required('Name is required'),
+        key: Yup.string().required('Key is required'),
+        type: Yup.string().required('Type is required'),
+        options: Yup.mixed().when('type', {
+          is: 'select',
+          then: (schema) => 
+            Yup.array()
+              .of(Yup.string().required('Option is required'))
+              .min(1, 'At least one option is required'),
+          otherwise: (schema) => Yup.mixed().notRequired()
+        })
+      })
+    )
+  });
+  
+  // Utility function to safely get error message
+  const getSafeErrorMessage = (error) => {
+    if (typeof error === 'string') return error;
+    if (error && typeof error === 'object') {
+      // Extract msg field if this is a parser error object
+      if (error.msg) return error.msg;
+      // Try to stringify the object
+      try {
+        return JSON.stringify(error);
+      } catch (e) {
+        return "An error occurred";
+      }
+    }
+    return "Unknown error";
+  };
+  
+  // Handle form submission
+  const handleSubmit = async (values) => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      // Check for template syntax errors before submitting
+      const contentValidation = validateTemplateContent(values.content_generation_prompt);
+      if (contentValidation !== true) {
+        setError(contentValidation);
+        enqueueSnackbar(contentValidation, { variant: 'error' });
+        setSubmitting(false);
+        return;
+      }
+      
+      // Ensure variables is always an array before submitting
+      const formData = {
+        ...values,
+        variables: Array.isArray(values.variables) ? values.variables : []
+      };
+      
+      // Always set required fields for backend validation
+      // These are required fields according to the PromptTemplateCreate model
+      if (!formData.system_prompt) {
+        formData.system_prompt = "You are a helpful assistant that generates blog content.";
+      }
+      
+      if (!formData.topic_generation_prompt) {
+        formData.topic_generation_prompt = "Generate an interesting topic for a blog post.";
+      }
+      
+      // Set content_generation_prompt to the content value
+      formData.content_generation_prompt = values.content_generation_prompt;
+      
+      // Add default values for other required fields if they don't exist
+      if (!formData.default_word_count) {
+        formData.default_word_count = 1500;
+      }
+      
+      if (!formData.default_tone) {
+        formData.default_tone = "informative";
+      }
+      
+      // Ensure placeholders exists
+      if (!formData.placeholders) {
+        formData.placeholders = {};
+      }
+      
+      // If in edit mode, copy over additional fields from the original prompt
+      if (isEditMode && prompt) {
+        // Keep any existing values from the prompt that weren't updated
+        formData.system_prompt = formData.system_prompt || prompt.system_prompt;
+        formData.topic_generation_prompt = formData.topic_generation_prompt || prompt.topic_generation_prompt;
+        formData.content_generation_prompt = values.content_generation_prompt;
+        formData.default_word_count = formData.default_word_count || prompt.default_word_count;
+        formData.default_tone = formData.default_tone || prompt.default_tone;
+        formData.placeholders = formData.placeholders || prompt.placeholders;
+        
+        // Ensure advanced fields are set properly
+        formData.content_type = formData.content_type || prompt.content_type || 'blog_post';
+        formData.writing_style = formData.writing_style || prompt.writing_style || 'standard';
+        formData.industry = formData.industry || prompt.industry || '';
+        formData.audience_level = formData.audience_level || prompt.audience_level || 'general';
+        formData.special_requirements = formData.special_requirements || prompt.special_requirements || '';
+      } else {
+        // For new templates, set defaults for advanced fields if not provided
+        formData.content_type = formData.content_type || 'blog_post';
+        formData.writing_style = formData.writing_style || 'standard';
+        formData.audience_level = formData.audience_level || 'general';
+      }
+      
+      // Trim the name field to remove any trailing spaces
+      formData.name = formData.name.trim();
+      
+      // Ensure is_default is set (most templates are not default)
+      if (formData.is_default === undefined) {
+        formData.is_default = false;
+      }
+      
+      console.log("Submitting template:", formData);
+      
+      if (isEditMode) {
+        await api.put(`/api/templates/${id}`, formData);
+      } else {
+        await api.post('/api/templates/', formData);
+      }
+      navigate('/prompts');
+      enqueueSnackbar(`Prompt template ${isEditMode ? 'updated' : 'created'} successfully`, { variant: 'success' });
+    } catch (err) {
+      const errorMessage = getSafeErrorMessage(err);
+      setError(errorMessage);
+      enqueueSnackbar(errorMessage, { variant: 'error' });
+      console.error("Template submission error:", err);
+      if (err.response?.data) {
+        console.error("Server response:", err.response.data);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  
+  // Initialize formik
+  const formik = useFormik({
+    initialValues,
+    validationSchema,
+    onSubmit: handleSubmit,
+    enableReinitialize: true
+  });
+  
+  // Wrap fetchPrompt in useCallback
+  const fetchPrompt = useCallback(async (promptId) => {
+    // Prevent duplicate calls or calls with invalid IDs
+    if (loading || !promptId) return;
+    
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.get(`/api/templates/${promptId}`);
+      
+      // Process variables with better error handling
+      let variables = [];
+      if (response.data.variables) {
+        if (Array.isArray(response.data.variables)) {
+          variables = response.data.variables;
+        } else if (typeof response.data.variables === 'string') {
+          // Try to parse if it's a JSON string
+          try {
+            const parsed = JSON.parse(response.data.variables);
+            variables = Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            // Failed to parse variables string - default to empty array
+          }
+        } else if (typeof response.data.variables === 'object') {
+          // Handle case where it might be an object but not an array
+          // Converting to empty array as a fallback
+        }
+      }
+      
+      // Create a properly formatted prompt object for the state
+      const promptData = {
+        id: response.data.id,
+        name: response.data.name || '',
+        description: response.data.description || '',
+        content_generation_prompt: response.data.content_generation_prompt || response.data.system_prompt || '', // Map to content field
+        variables: variables,
+        // Store original fields as well
+        system_prompt: response.data.system_prompt || '',
+        topic_generation_prompt: response.data.topic_generation_prompt || '',
+        default_word_count: response.data.default_word_count || 800,
+        default_tone: response.data.default_tone || 'informative',
+        content_type: response.data.content_type || 'blog_post',
+        writing_style: response.data.writing_style || 'standard',
+        industry: response.data.industry || '',
+        audience_level: response.data.audience_level || 'general',
+        special_requirements: response.data.special_requirements || '',
+        placeholders: response.data.placeholders || {},
+      };
+      
+      // Update both the prompt state and form values
+      setPrompt(promptData);
+      
+      // Ensure all template data fields have valid defaults for the form
+      const formData = {
+        name: promptData.name,
+        description: promptData.description,
+        content_generation_prompt: promptData.content_generation_prompt,
+        system_prompt: promptData.system_prompt,
+        topic_generation_prompt: promptData.topic_generation_prompt,
+        default_word_count: promptData.default_word_count,
+        default_tone: promptData.default_tone,
+        content_type: response.data.content_type || 'blog_post',
+        writing_style: response.data.writing_style || 'standard',
+        industry: response.data.industry || '',
+        audience_level: response.data.audience_level || 'general',
+        special_requirements: response.data.special_requirements || '',
+        placeholders: promptData.placeholders,
+        variables: promptData.variables
+      };
+      
+      formik.setValues(formData);
+    } catch (err) {
+      console.error('Error fetching prompt:', err);
+      const errorMessage = getSafeErrorMessage(err);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [formik.setValues, loading, setLoading, setError]);
+  
+  // Generate a unique key from the variable name
+  const generateVariableKey = (name) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9_]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '');
+  };
+  
+  // Insert variable placeholder into prompt content
+  const insertVariablePlaceholder = (formik, variableKey) => {
+    const content = formik.values.content_generation_prompt || '';
+    const placeholder = `{{${variableKey}}}`;
+    
+    // Get the textarea element - using the correct ID
+    const textareaElement = document.getElementById('content_generation_prompt');
+    
+    // Default to adding at the end if no cursor position is available
+    let cursorPosition = content.length;
+    
+    // Only try to get selection if the element exists
+    if (textareaElement) {
+      cursorPosition = textareaElement.selectionStart || content.length;
+    } else {
+      console.warn('Content textarea element not found, appending at the end');
+    }
+    
+    const newContent = 
+      content.substring(0, cursorPosition) + 
+      placeholder + 
+      content.substring(cursorPosition);
+    
+    formik.setFieldValue('content_generation_prompt', newContent);
+  };
+  
+  useEffect(() => {
+    if (isEditMode) {
+      fetchPrompt(id);
+    }
+  }, [id, isEditMode, fetchPrompt]);
+  
+  if (loading) {
+    return <LoadingState message="Loading prompt template..." />;
+  }
+  
+  if (isEditMode && error) {
+    return (
+      <ErrorState
+        message="Error Loading Prompt Template"
+        details={error}
+        onRetry={() => fetchPrompt(id)}
+      />
+    );
+  }
+  
+  // Prepare form values for edit mode
+  const formInitialValues = isEditMode && prompt ? {
+    name: prompt.name,
+    description: prompt.description,
+    content_generation_prompt: prompt.content_generation_prompt,
+    variables: prompt.variables || [],
+  } : initialValues;
+  
+  return (
+    <Box>
+      <PageHeader
+        title={isEditMode ? 'Edit Prompt Template' : 'Create Prompt Template'}
+        breadcrumbs={[
+          { text: 'Prompt Templates', link: '/prompts' },
+          { text: isEditMode ? 'Edit Template' : 'New Template' },
+        ]}
+        actionButton={true}
+        actionButtonText="Back to Templates"
+        actionButtonLink="/prompts"
+        actionButtonIcon={<ArrowBackIcon />}
+        actionButtonVariant="outlined"
+      />
+      
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {getSafeErrorMessage(error)}
+        </Alert>
+      )}
+      
+      {/* Prompt Engineering Golden Rules moved to top of page */}
+      <Card sx={{ mb: 3, border: '1px solid rgba(111, 207, 117, 0.3)', boxShadow: '0 0 15px rgba(111, 207, 117, 0.2)' }}>
+        <CardContent sx={{ 
+          backgroundColor: 'rgba(46, 125, 50, 0.1)', 
+          backgroundImage: 'linear-gradient(to bottom, rgba(111, 207, 117, 0.12), rgba(46, 125, 50, 0.05))'
+        }}>
+          <Typography variant="subtitle1" gutterBottom sx={{ color: '#6FCF75', fontWeight: 'bold' }}>
+            💡 Prompt Engineering Golden Rules 💡
+          </Typography>
+          
+          <Box sx={{ 
+            backgroundColor: 'rgba(17, 25, 18, 0.6)', 
+            p: 2, 
+            borderRadius: 2, 
+            mb: 2, 
+            border: '1px solid rgba(111, 207, 117, 0.15)',
+            boxShadow: 'inset 0 0 10px rgba(111, 207, 117, 0.1)'
+          }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
+                  <Box component="span" sx={{ color: '#6FCF75', mr: 1, mt: 0.3, fontWeight: 'bold' }}>1.</Box>
+                  <Typography variant="body2" sx={{ color: '#EEEEEE' }}>
+                    <strong style={{ color: '#6FCF75' }}>Be absurdly specific</strong> - The difference between "write a blog post about gardening" and "write a 1200-word beginner's guide to growing tomatoes in small apartments with step-by-step instructions" is night and day! Details = better results.
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
+                  <Box component="span" sx={{ color: '#6FCF75', mr: 1, mt: 0.3, fontWeight: 'bold' }}>2.</Box>
+                  <Typography variant="body2" sx={{ color: '#EEEEEE' }}>
+                    <strong style={{ color: '#6FCF75' }}>Structure explicitly</strong> - Don't let the AI guess the outline. Tell it exactly what sections you want, how many paragraphs each should contain, and what information belongs where.
+                  </Typography>
+                </Box>
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
+                  <Box component="span" sx={{ color: '#6FCF75', mr: 1, mt: 0.3, fontWeight: 'bold' }}>3.</Box>
+                  <Typography variant="body2" sx={{ color: '#EEEEEE' }}>
+                    <strong style={{ color: '#6FCF75' }}>Show, don't just tell</strong> - Include examples of what good looks like: "Use engaging opening sentences like 'Have you ever wondered...' or 'Imagine a world where...'"
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <Box component="span" sx={{ color: '#6FCF75', mr: 1, mt: 0.3, fontWeight: 'bold' }}>4.</Box>
+                  <Typography variant="body2" sx={{ color: '#EEEEEE' }}>
+                    <strong style={{ color: '#6FCF75' }}>Test and refine</strong> - Your first prompt will rarely be perfect. Generate content, see what works and what doesn't, then tweak your prompt. Rinse and repeat until it's awesome!
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+        </CardContent>
+      </Card>
+      
+      {/* Submit button at top */}
+      {isEditMode && (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<SaveIcon />}
+            type="submit"
+            disabled={saving || !formik.isValid}
+            sx={{ minWidth: 150 }}
+            onClick={() => document.querySelector('form').requestSubmit()}
+          >
+            {saving ? 'Saving...' : 'Update Template'}
+          </Button>
+        </Box>
+      )}
+      
+      <Formik
+        initialValues={formInitialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+        enableReinitialize
+      >
+        {(formik) => (
+          <Form>
+            {!isEditMode && (
+              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    // Load comprehensive example template
+                    formik.setValues({
+                      name: "Comprehensive SEO-Optimized Blog Post Template",
+                      description: "A detailed template for creating highly structured, SEO-friendly blog posts that engage readers and drive conversions",
+                      
+                      // System prompt - defines the AI's role and capabilities
+                      system_prompt: "You are an expert content strategist and SEO writer with 10+ years of experience creating high-performing blog content. You specialize in writing engaging, informative content that ranks well in search engines while providing genuine value to readers. You have a knack for explaining complex topics in simple terms and creating content that converts readers into customers. Your writing is always evidence-based, practical, and tailored to the target audience's needs.",
+                      
+                      // Topic generation prompt - helps create engaging titles
+                      topic_generation_prompt: `Generate an SEO-optimized blog post title about {{topic}} that will appeal to {{audience_level}} readers.
+
+Your title should:
+1. Be between 50-60 characters long (ideal for search engines)
+2. Include the primary keyword near the beginning
+3. Use one of these high-converting patterns:
+   - How to [Achieve Desired Outcome] in [Timeframe/Simplicity] (e.g., "How to Learn Python in Just 2 Weeks")
+   - [Number] [Adjective] Ways to [Solve Problem] (e.g., "7 Proven Ways to Increase Website Conversion")
+   - The Ultimate Guide to [Topic] for [Audience] (e.g., "The Ultimate Guide to Email Marketing for Small Businesses")
+   - Why [Common Belief] is Wrong and What to Do Instead
+   - [Achieve Desirable Outcome] Without [Common Obstacle]
+
+Create a title that is specific, indicates clear value, and creates curiosity or urgency.`,
+
+                      // Content generation prompt - comprehensive with clear structure and formatting
+                      content_generation_prompt: `Write a comprehensive {{word_count}}-word blog post about {{topic}} for {{audience_level}} readers using a {{tone}} tone.
+
+STRUCTURE:
+1. Start with an attention-grabbing introduction that:
+   - Highlights a surprising statistic, asks a compelling question, or shares a relevant story
+   - Clearly identifies the reader's pain point or challenge
+   - Establishes your credibility on this topic
+   - Promises specific value they'll get from reading (what they'll learn or be able to do)
+   - Ends with a brief overview of what the post will cover
+
+2. Create {{sections}} main sections, each with:
+   - A descriptive H2 heading that includes relevant keywords
+   - A strong opening paragraph explaining why this section matters
+   - 2-3 paragraphs of detailed explanation with evidence and reasoning
+   - At least one specific real-world example, case study, or data point
+   - A practical tip, actionable takeaway, or key insight in a callout box
+   - A transition to the next section that maintains reader flow
+
+3. Include a dedicated "Common Mistakes to Avoid" or "Pro Tips" section with:
+   - An H2 heading
+   - A brief introduction explaining why these insights matter
+   - A bulleted or numbered list of 5-7 specific tips or mistakes
+   - Brief explanation for each point (1-2 sentences)
+
+4. Include a "Comparison Table" section with:
+   - An H2 heading like "Feature Comparison" or "Options Comparison"
+   - A brief introduction explaining what the table compares
+   - An HTML table comparing at least 3 options (products, methods, tools, etc.)
+   - Format the table with proper <table>, <tr>, <th>, and <td> HTML tags
+   - Include a caption or explanation after the table summarizing key insights
+
+5. End with a conclusion that:
+   - Summarizes the key points covered
+   - Reinforces the main benefit or transformation
+   - Includes a specific next step or actionable advice
+   - Ends with a {{cta}} that feels natural and helpful
+
+FORMATTING:
+- Use ## for main (H2) headings
+- Use ### for subheadings (H3)
+- Use **bold** for key concepts, terms, or points
+- Use *italics* for emphasis or to highlight quotes
+- Use > for important callout boxes or quotes
+- Use numbered lists for sequential steps
+- Use bullet lists for non-sequential items
+- Keep paragraphs short (3-5 sentences maximum)
+- Include at least {{examples}} practical examples throughout the post
+- Break up long text with relevant subheadings every 200-300 words
+
+WRITING GUIDELINES:
+- Write in a {{tone}} but authoritative voice that builds trust
+- Use "you" and "your" to directly address the reader
+- Avoid jargon unless immediately explained in simple terms
+- Include specific numbers, percentages, or statistics with sources where possible
+- Use metaphors or analogies to explain complex concepts
+- Vary sentence length and structure for readability
+- Focus on practical value, not just theory
+- Address common objections or concerns the reader might have
+- Include transition phrases between sections to maintain flow
+- Write as if explaining to a smart friend who isn't an expert in this field
+
+The blog post should feel comprehensive, evidence-based, and genuinely helpful. Include your {{experience_years}} years of expertise in a natural way that builds credibility without bragging.`,
+
+                      // Advanced content settings
+                      default_word_count: 1500,
+                      default_tone: "conversational",
+                      content_type: "how_to",
+                      writing_style: "persuasive",
+                      industry: "marketing",
+                      audience_level: "intermediate",
+                      special_requirements: "Incorporate latest industry data and trends. Include actionable takeaways in each section. Optimize for both search engines and reader engagement. Use conversational tone but maintain professionalism.",
+                      
+                      // Comprehensive set of variables
+                      variables: [
+                        {
+                          name: "Blog Topic",
+                          key: "topic",
+                          type: "text",
+                          description: "The specific subject of your blog post",
+                          default_value: "Content Marketing Strategies for 2024",
+                          options: []
+                        },
+                        {
+                          name: "Word Count",
+                          key: "word_count",
+                          type: "number",
+                          description: "How long the blog post should be",
+                          default_value: "1500",
+                          options: []
+                        },
+                        {
+                          name: "Tone",
+                          key: "tone",
+                          type: "select",
+                          description: "The writing style for the blog post",
+                          default_value: "conversational",
+                          options: ["conversational", "professional", "friendly", "authoritative", "informative", "casual", "inspirational"]
+                        },
+                        {
+                          name: "Number of Sections",
+                          key: "sections",
+                          type: "number",
+                          description: "How many main sections the blog post should have",
+                          default_value: "4",
+                          options: []
+                        },
+                        {
+                          name: "Examples",
+                          key: "examples",
+                          type: "number",
+                          description: "Minimum number of examples to include",
+                          default_value: "3",
+                          options: []
+                        },
+                        {
+                          name: "Call to Action",
+                          key: "cta",
+                          type: "select",
+                          description: "The call-to-action for the end of the content",
+                          default_value: "Subscribe to our newsletter",
+                          options: ["Subscribe to our newsletter", "Contact us for more information", "Learn more about our services", "Start your free trial today", "Buy now and save 20%", "Download our free guide", "Register for the upcoming webinar", "Get started in just 5 minutes"]
+                        },
+                        {
+                          name: "Audience Level",
+                          key: "audience_level",
+                          type: "select",
+                          description: "The knowledge level of your target audience",
+                          default_value: "intermediate",
+                          options: ["beginner", "intermediate", "advanced", "expert"]
+                        },
+                        {
+                          name: "Experience Years",
+                          key: "experience_years",
+                          type: "number",
+                          description: "Years of expertise the content creator has (for authority)",
+                          default_value: "10",
+                          options: []
+                        }
+                      ]
+                    });
+                  }}
+                >
+                  Load Example Template
+                </Button>
+              </Box>
+            )}
+            
+            <Grid container spacing={3}>
+              {/* Basic Information */}
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Basic Information
+                    </Typography>
+                    
+                    <Alert severity="info" sx={{ 
+                      mb: 3, 
+                      backgroundColor: 'rgba(17, 25, 18, 0.6)', 
+                      color: '#EEEEEE',
+                      border: '1px solid rgba(111, 207, 117, 0.2)',
+                      '& .MuiAlert-icon': { color: '#6FCF75' } 
+                    }}>
+                      <strong style={{ color: '#6FCF75' }}>Getting Started with Prompt Templates</strong>
+                      <Typography variant="body2" sx={{ mt: 1, color: '#EEEEEE' }}>
+                        Think of prompt templates as your AI content recipe cards! A good recipe needs a clear name and description - future you will thank you when scrolling through dozens of templates. Be specific about what this template creates (e.g., "SEO-Optimized Blog Post for Tech Products" is much better than just "Blog Post").
+                      </Typography>
+                    </Alert>
+                    
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          id="name"
+                          name="name"
+                          label="Template Name"
+                          value={formik.values.name}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          error={formik.touched.name && Boolean(formik.errors.name)}
+                          helperText={(formik.touched.name && typeof formik.errors.name === 'string' ? formik.errors.name : "") || "Give your template a descriptive name (e.g., 'How-To Article Template')"}
+                          disabled={saving}
+                        />
+                      </Grid>
+                      
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          id="description"
+                          name="description"
+                          label="Description"
+                          multiline
+                          rows={2}
+                          value={formik.values.description}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          error={formik.touched.description && Boolean(formik.errors.description)}
+                          helperText={(formik.touched.description && typeof formik.errors.description === 'string' ? formik.errors.description : "") || "Explain what this template is best used for and any special instructions"}
+                          disabled={saving}
+                        />
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              {/* Advanced Settings */}
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Advanced Content Settings
+                    </Typography>
+                    
+                    <Alert severity="info" sx={{ 
+                      mb: 3, 
+                      backgroundColor: 'rgba(17, 25, 18, 0.6)', 
+                      color: '#EEEEEE',
+                      border: '1px solid rgba(111, 207, 117, 0.2)',
+                      '& .MuiAlert-icon': { color: '#6FCF75' } 
+                    }}>
+                      <strong style={{ color: '#6FCF75' }}>Let's Get Fancy! Custom Settings for Better Results</strong>
+                      <Typography variant="body2" sx={{ mt: 1, color: '#EEEEEE' }}>
+                        Here's where the magic happens! These settings tell the AI exactly what flavor of content you want. Writing for tech nerds? Select "advanced" audience level. Need a formal finance article? Choose "formal" writing style and "finance" industry. The more specific you are, the less you'll need to edit later. It's like giving the AI GPS coordinates instead of just saying "go north" and hoping for the best! 😉
+                      </Typography>
+                    </Alert>
+                    
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="content-type-label">Content Type</InputLabel>
+                          <Select
+                            labelId="content-type-label"
+                            id="content_type"
+                            name="content_type"
+                            value={formik.values.content_type}
+                            onChange={formik.handleChange}
+                            label="Content Type"
+                            disabled={saving}
+                          >
+                            <MenuItem value="blog_post">Blog Post</MenuItem>
+                            <MenuItem value="article">Article</MenuItem>
+                            <MenuItem value="tutorial">Tutorial</MenuItem>
+                            <MenuItem value="review">Review</MenuItem>
+                            <MenuItem value="news">News</MenuItem>
+                            <MenuItem value="opinion">Opinion</MenuItem>
+                            <MenuItem value="how_to">How-To Guide</MenuItem>
+                            <MenuItem value="listicle">Listicle</MenuItem>
+                          </Select>
+                          <FormHelperText>The type of content to generate</FormHelperText>
+                        </FormControl>
+                      </Grid>
+                      
+                      <Grid item xs={12} md={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="writing-style-label">Writing Style</InputLabel>
+                          <Select
+                            labelId="writing-style-label"
+                            id="writing_style"
+                            name="writing_style"
+                            value={formik.values.writing_style}
+                            onChange={formik.handleChange}
+                            label="Writing Style"
+                            disabled={saving}
+                          >
+                            <MenuItem value="standard">Standard</MenuItem>
+                            <MenuItem value="conversational">Conversational</MenuItem>
+                            <MenuItem value="formal">Formal</MenuItem>
+                            <MenuItem value="academic">Academic</MenuItem>
+                            <MenuItem value="technical">Technical</MenuItem>
+                            <MenuItem value="casual">Casual</MenuItem>
+                            <MenuItem value="storytelling">Storytelling</MenuItem>
+                          </Select>
+                          <FormHelperText>The overall writing style for the content</FormHelperText>
+                        </FormControl>
+                      </Grid>
+                      
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          id="industry"
+                          name="industry"
+                          label="Industry"
+                          value={formik.values.industry}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          error={formik.touched.industry && Boolean(formik.errors.industry)}
+                          helperText={(formik.touched.industry && typeof formik.errors.industry === 'string' ? formik.errors.industry : "") || "Specific industry focus (e.g., 'finance', 'health', 'technology')"}
+                          disabled={saving}
+                        />
+                      </Grid>
+                      
+                      <Grid item xs={12} md={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="audience-level-label">Audience Level</InputLabel>
+                          <Select
+                            labelId="audience-level-label"
+                            id="audience_level"
+                            name="audience_level"
+                            value={formik.values.audience_level}
+                            onChange={formik.handleChange}
+                            label="Audience Level"
+                            disabled={saving}
+                          >
+                            <MenuItem value="general">General</MenuItem>
+                            <MenuItem value="beginner">Beginner</MenuItem>
+                            <MenuItem value="intermediate">Intermediate</MenuItem>
+                            <MenuItem value="advanced">Advanced</MenuItem>
+                            <MenuItem value="expert">Expert</MenuItem>
+                          </Select>
+                          <FormHelperText>The knowledge level of the target audience</FormHelperText>
+                        </FormControl>
+                      </Grid>
+
+                      <Grid item xs={12} md={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="default-tone-label">Default Tone</InputLabel>
+                          <Select
+                            labelId="default-tone-label"
+                            id="default_tone"
+                            name="default_tone"
+                            value={formik.values.default_tone}
+                            onChange={formik.handleChange}
+                            label="Default Tone"
+                            disabled={saving}
+                          >
+                            <MenuItem value="friendly">Friendly</MenuItem>
+                            <MenuItem value="professional">Professional</MenuItem>
+                            <MenuItem value="casual">Casual</MenuItem>
+                            <MenuItem value="informative">Informative</MenuItem>
+                            <MenuItem value="authoritative">Authoritative</MenuItem>
+                            <MenuItem value="conversational">Conversational</MenuItem>
+                            <MenuItem value="humorous">Humorous</MenuItem>
+                            <MenuItem value="motivational">Motivational</MenuItem>
+                            <MenuItem value="educational">Educational</MenuItem>
+                            <MenuItem value="analytical">Analytical</MenuItem>
+                            <MenuItem value="persuasive">Persuasive</MenuItem>
+                            <MenuItem value="enthusiastic">Enthusiastic</MenuItem>
+                            <MenuItem value="empathetic">Empathetic</MenuItem>
+                            <MenuItem value="factual">Factual</MenuItem>
+                            <MenuItem value="scientific">Scientific</MenuItem>
+                            <MenuItem value="storytelling">Storytelling</MenuItem>
+                            <MenuItem value="inspirational">Inspirational</MenuItem>
+                            <MenuItem value="poetic">Poetic</MenuItem>
+                            <MenuItem value="provocative">Provocative</MenuItem>
+                            <MenuItem value="nostalgic">Nostalgic</MenuItem>
+                          </Select>
+                          <FormHelperText>The default tone for content generation</FormHelperText>
+                        </FormControl>
+                      </Grid>
+                      
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          id="special_requirements"
+                          name="special_requirements"
+                          label="Special Requirements"
+                          multiline
+                          rows={3}
+                          value={formik.values.special_requirements}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          error={formik.touched.special_requirements && Boolean(formik.errors.special_requirements)}
+                          helperText={(formik.touched.special_requirements && typeof formik.errors.special_requirements === 'string' ? formik.errors.special_requirements : "") || "Any special instructions or requirements for content generation"}
+                          disabled={saving}
+                        />
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              {/* System Prompt */}
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">
+                        System Prompt
+                      </Typography>
+                      <Tooltip title="This is the initial instruction that sets the AI's behavior and capabilities. It defines the AI's role and general approach to content creation.">
+                        <IconButton size="small">
+                          <HelpIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    
+                    <Alert severity="info" sx={{ 
+                      mb: 3, 
+                      backgroundColor: 'rgba(17, 25, 18, 0.6)', 
+                      color: '#EEEEEE',
+                      border: '1px solid rgba(111, 207, 117, 0.2)',
+                      '& .MuiAlert-icon': { color: '#6FCF75' } 
+                    }}>
+                      <strong style={{ color: '#6FCF75' }}>The Secret Sauce: System Prompt Magic ✨</strong>
+                      <Typography variant="body2" sx={{ mt: 1, color: '#EEEEEE' }}>
+                        This is where you set the AI's personality and expertise. Think of it as casting the perfect actor for your content:
+                        <br /><br />
+                        • <strong style={{ color: '#6FCF75' }}>Define their role:</strong> "You are an expert fintech blogger with 10+ years experience..." (The more specific, the better!)
+                        <br />
+                        • <strong style={{ color: '#6FCF75' }}>Set the tone:</strong> "Write in a conversational but authoritative tone that makes complex topics accessible..."
+                        <br />
+                        • <strong style={{ color: '#6FCF75' }}>Add guardrails:</strong> "Never use jargon without explanations. Always include real-world examples."
+                        <br /><br />
+                        Pro tip: A vague system prompt like "Write good content" is like telling a chef "make food" - you might get a sandwich when you wanted a soufflé! 🍳
+                      </Typography>
+                    </Alert>
+                    
+                    <TextField
+                      fullWidth
+                      id="system_prompt"
+                      name="system_prompt"
+                      multiline
+                      rows={6}
+                      value={formik.values.system_prompt}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.system_prompt && Boolean(formik.errors.system_prompt)}
+                      helperText={
+                        (formik.touched.system_prompt && typeof formik.errors.system_prompt === 'string' ? formik.errors.system_prompt : "") ||
+                        "Define the AI's role and general approach to content creation"
+                      }
+                      disabled={saving}
+                      sx={{ fontFamily: 'monospace' }}
+                      placeholder="You are a helpful content creation assistant who specializes in writing engaging and informative blog posts..."
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              {/* Topic Generation Prompt */}
+              <Grid item xs={12} md={6}>
+                <Card sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">
+                        Topic Generation Prompt
+                      </Typography>
+                      <Tooltip title="This prompt guides the AI in generating a specific topic or title based on a general idea.">
+                        <IconButton size="small">
+                          <HelpIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    
+                    <Alert severity="info" sx={{ 
+                      mb: 3, 
+                      backgroundColor: 'rgba(17, 25, 18, 0.6)', 
+                      color: '#EEEEEE',
+                      border: '1px solid rgba(111, 207, 117, 0.2)',
+                      '& .MuiAlert-icon': { color: '#6FCF75' } 
+                    }}>
+                      <strong style={{ color: '#6FCF75' }}>Title Talk: Getting Clickable Headlines 🔍</strong>
+                      <Typography variant="body2" sx={{ mt: 1, color: '#EEEEEE' }}>
+                        This prompt helps the AI generate engaging topics or titles. Great headlines are the difference between "meh" and "must read!"
+                        <br /><br />
+                        • <strong style={{ color: '#6FCF75' }}>Be specific about format:</strong> "Create a how-to title with 8-12 words that includes a number and a benefit"
+                        <br />
+                        • <strong style={{ color: '#6FCF75' }}>Show examples:</strong> "Titles should follow patterns like: '7 Ways to [Action] That Will [Benefit]' or 'How [Audience] Can [Action] in Just [Timeframe]'"
+                        <br />
+                        • <strong style={{ color: '#6FCF75' }}>Include SEO guidance:</strong> "Include at least one of these keywords: [keyword1], [keyword2]..."
+                        <br /><br />
+                        Remember: Even AI needs examples of what "good" looks like. Without them, it's shooting in the dark! 🎯
+                      </Typography>
+                    </Alert>
+                    
+                    <Box 
+                      sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center',
+                        mb: 3,
+                        p: 2,
+                        borderRadius: '8px',
+                        backgroundColor: 'rgba(17, 25, 18, 0.3)'
+                      }}
+                    >
+                      <img 
+                        src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAoHBwkHBgoJCAkLCwoMDxkQDw4ODx4WFxIZJCAmJSMgIyIoLTkwKCo2KyIjMkQyNjs9QEBAJjBGS0U+Sjk/QD3/2wBDAQsLCw8NDx0QEB09KSMpPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT3/wAARCAIAAgADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDy+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA"
+                        alt="Green statue"
+                        style={{
+                          maxWidth: "100%",
+                          width: "120px",
+                          height: "auto",
+                          borderRadius: "6px",
+                          boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+                        }}
+                      />
+                    </Box>
+                    
+                    <TextField
+                      fullWidth
+                      id="topic_generation_prompt"
+                      name="topic_generation_prompt"
+                      multiline
+                      rows={10}
+                      value={formik.values.topic_generation_prompt}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.topic_generation_prompt && Boolean(formik.errors.topic_generation_prompt)}
+                      helperText={
+                        (formik.touched.topic_generation_prompt && typeof formik.errors.topic_generation_prompt === 'string' ? formik.errors.topic_generation_prompt : "") ||
+                        "Instructions for generating a specific topic or title"
+                      }
+                      disabled={saving}
+                      sx={{ fontFamily: 'monospace' }}
+                      placeholder="Generate an engaging blog post title about {idea}. Make it clear, compelling, and between 40-60 characters..."
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              {/* Content Generation Prompt */}
+              <Grid item xs={12} md={6}>
+                <Card sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">
+                        Content Generation Prompt
+                      </Typography>
+                      <Tooltip title="This prompt tells the AI how to structure and write the actual content.">
+                        <IconButton size="small">
+                          <HelpIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    
+                    <Alert severity="info" sx={{ 
+                      mb: 3, 
+                      backgroundColor: 'rgba(17, 25, 18, 0.6)', 
+                      color: '#EEEEEE',
+                      border: '1px solid rgba(111, 207, 117, 0.2)',
+                      '& .MuiAlert-icon': { color: '#6FCF75' } 
+                    }}>
+                      <strong style={{ color: '#6FCF75' }}>The Main Event: Content That Actually Works! 🚀</strong>
+                      <Typography variant="body2" sx={{ mt: 1, color: '#EEEEEE' }}>
+                        This is your content blueprint - the more detailed, the better! Here's how to make it shine:
+                        <br /><br />
+                        • <strong style={{ color: '#6FCF75' }}>Be ultra-specific about structure:</strong> "Write an introduction that hooks with a surprising statistic, then 4 main sections with H2 headings, each section should have 1-2 paragraphs and at least one bullet list of examples, end with a conclusion that includes a call to action."
+                        <br />
+                        • <strong style={{ color: '#6FCF75' }}>Give formatting instructions:</strong> "Use Markdown formatting with ## for main headings, ### for subheadings, **bold** for key points, and {'>'} for quotes."
+                        <br />
+                        • <strong style={{ color: '#6FCF75' }}>Specify what to avoid:</strong> "Avoid clichés, overused phrases, and fluff. Don't use passive voice. Each paragraph should have a clear purpose."
+                        <br />
+                        • <strong style={{ color: '#6FCF75' }}>Include charts and tables:</strong>
+                        <br />
+                        <Box sx={{ pl: 2, pr: 2, py: 1, my: 1, backgroundColor: 'rgba(111, 207, 117, 0.08)', borderRadius: 1, border: '1px solid rgba(111, 207, 117, 0.15)' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#6FCF75' }}>How to Set This Up:</Typography>
+                          <Typography variant="body2" sx={{ color: '#EEEEEE' }}>
+                            In your prompt template, you would:
+                            <ul style={{ marginTop: '4px', marginBottom: '8px' }}>
+                              <li>Specify where charts/tables should appear</li>
+                              <li>Include details about what data to display</li>
+                              <li>Mention what format to use (HTML, shortcode, block)</li>
+                            </ul>
+                            <Typography variant="body2" sx={{ fontStyle: 'italic', mt: 1, color: '#B0B0B0' }}>Example:</Typography>
+                            <Typography variant="body2" component="div" sx={{ fontFamily: 'monospace', backgroundColor: 'rgba(17, 25, 18, 0.8)', p: 1, mt: 0.5, borderRadius: 1, fontSize: '0.8rem', color: '#EEEEEE', border: '1px solid rgba(111, 207, 117, 0.2)' }}>
+                              "In the 'Product Comparison' section, include an HTML table with the following:<br/>
+                              - Table should have 4 columns: Feature, Product A, Product B, Product C<br/>
+                              - Include rows for: Price, Key Benefits, Limitations, User Rating<br/>
+                              - Format using proper {'<table>'}, {'<tr>'}, {'<th>'}, and {'<td>'} HTML tags<br/>
+                              - Add a caption below the table summarizing the key differences"
+                            </Typography>
+                          </Typography>
+                        </Box>
+                        <br />
+                        Remember to use variables like <code style={{ color: '#6FCF75', backgroundColor: 'rgba(111, 207, 117, 0.1)', padding: '0 4px' }}>&#123;&#123;word_count&#125;&#125;</code>, <code style={{ color: '#6FCF75', backgroundColor: 'rgba(111, 207, 117, 0.1)', padding: '0 4px' }}>&#123;&#123;topic&#125;&#125;</code>, and <code style={{ color: '#6FCF75', backgroundColor: 'rgba(111, 207, 117, 0.1)', padding: '0 4px' }}>&#123;&#123;tone&#125;&#125;</code> to make your template customizable! The variables you create below will be available as <code style={{ color: '#6FCF75', backgroundColor: 'rgba(111, 207, 117, 0.1)', padding: '0 4px' }}>&#123;&#123;variable_name&#125;&#125;</code> in your content.
+                        <br /><br />
+                        Pro tip: Vague prompts = vague content. Be bossy with the AI - it won't mind! 😎
+                      </Typography>
+                    </Alert>
+                    
+                    <TextField
+                      fullWidth
+                      id="content_generation_prompt"
+                      name="content_generation_prompt"
+                      multiline
+                      rows={10}
+                      value={formik.values.content_generation_prompt}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.content_generation_prompt && Boolean(formik.errors.content_generation_prompt)}
+                      helperText={
+                        (formik.touched.content_generation_prompt && typeof formik.errors.content_generation_prompt === 'string' ? formik.errors.content_generation_prompt : "") ||
+                        "Instructions for generating the actual content"
+                      }
+                      disabled={saving}
+                      sx={{ fontFamily: 'monospace' }}
+                      placeholder="Write a {word_count}-word article about {topic} in a {tone} tone. Structure it with an introduction, 3-5 main sections, and a conclusion..."
+                    />
+                    
+                    {formik.values.variables.length > 0 && (
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="subtitle2" gutterBottom>
+                          Quick Insert Variables:
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                          {formik.values.variables.map((variable, index) => (
+                            <Chip
+                              key={index}
+                              label={variable.key}
+                              onClick={() => insertVariablePlaceholder(formik, variable.key)}
+                              icon={<CodeIcon fontSize="small" />}
+                              clickable
+                            />
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+            
+            {/* Template Variables Section */}
+            <Grid item xs={12}>
+              <Card sx={{ mt: 3 }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6">
+                      Template Variables
+                    </Typography>
+                    <Tooltip title="Define variables that users can customize when using this template.">
+                      <IconButton size="small">
+                        <HelpIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  
+                  <Alert severity="info" sx={{ 
+                    mb: 3, 
+                    backgroundColor: 'rgba(17, 25, 18, 0.6)', 
+                    color: '#EEEEEE',
+                    border: '1px solid rgba(111, 207, 117, 0.2)',
+                    '& .MuiAlert-icon': { color: '#6FCF75' } 
+                  }}>
+                    <strong style={{ color: '#6FCF75' }}>Variables: Where Templates Get Their Superpowers! ⚡</strong>
+                    <Typography variant="body2" sx={{ mt: 1, color: '#EEEEEE' }}>
+                      Variables are what make templates truly reusable. They're the "fill-in-the-blank" parts of your template that can be customized each time you generate content.
+                      <br /><br />
+                      <strong style={{ color: '#6FCF75' }}>How they work:</strong>
+                      <br />
+                      1. Define your variables below (e.g., "word_count", "topic", "tone")
+                      <br />
+                      2. Use them in your content prompt with double curly braces: {"{{"}<code style={{ color: '#6FCF75' }}>variable_name</code>{"}}"}
+                      <br />
+                      3. When generating content, you'll get a form to fill in these values
+                      <br /><br />
+                      <strong style={{ color: '#6FCF75' }}>Example:</strong> If your prompt says "Write a {"{{"}<code style={{ color: '#6FCF75' }}>word_count</code>{"}}"}-word article about {"{{"}<code style={{ color: '#6FCF75' }}>topic</code>{"}}"}", you can set different values each time without editing the template!
+                      <br /><br />
+                      Pro tip: For variables that have a limited set of options (like "tone"), use the Select type and specify your options separated by commas. This creates a dropdown menu for the user! 🔽
+                    </Typography>
+                  </Alert>
+                  
+                  <FieldArray name="variables">
+                    {({ push, remove }) => (
+                      <>
+                        {/* Standard Variables */}
+                        <Typography variant="subtitle1" gutterBottom sx={{ mt: 1 }}>
+                          Standard Variables
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          These common variables are included in most templates.
+                        </Typography>
+                        
+                        <Grid container spacing={2} sx={{ mb: 4 }}>
+                          {/* Ensure standard variables exist */}
+                          {(() => {
+                            const standardVars = {
+                              topic: {
+                                name: "Blog Topic",
+                                key: "topic",
+                                type: "text",
+                                description: "The specific title or subject of your blog post",
+                                default_value: "",
+                                options: []
+                              },
+                              word_count: {
+                                name: "Word Count",
+                                key: "word_count",
+                                type: "number",
+                                description: "How long the blog post should be",
+                                default_value: "800",
+                                options: []
+                              },
+                              cta: {
+                                name: "Call to Action",
+                                key: "cta",
+                                type: "select",
+                                description: "The call-to-action for the end of the content",
+                                default_value: "Subscribe to our newsletter",
+                                options: ["Subscribe to our newsletter", "Contact us for more information", "Learn more about our services", "Start your free trial today", "Buy now and save 20%", "Download our free guide", "Register for the upcoming webinar", "Get started in just 5 minutes"]
+                              }
+                            };
+                            
+                            // Check if standard variables exist
+                            const existingKeys = formik.values.variables.map(v => v.key);
+                            Object.entries(standardVars).forEach(([key, varData]) => {
+                              if (!existingKeys.includes(key)) {
+                                // Add the standard variable if it doesn't exist
+                                push(varData);
+                              }
+                            });
+                            
+                            // Find the indices of standard variables
+                            const standardVarIndices = {};
+                            formik.values.variables.forEach((variable, index) => {
+                              if (Object.keys(standardVars).includes(variable.key)) {
+                                standardVarIndices[variable.key] = index;
+                              }
+                            });
+                            
+                            // Render standard variable fields
+                            return Object.keys(standardVars).map(key => {
+                              const index = standardVarIndices[key] ?? -1;
+                              if (index === -1) return null;
+                              
+                              return (
+                                <Grid item xs={12} md={4} key={`standard-${key}`}>
+                                  <Card variant="outlined" sx={{ height: '100%' }}>
+                                    <CardContent>
+                                      <Typography variant="subtitle2" gutterBottom>
+                                        {formik.values.variables[index].name}
+                                      </Typography>
+                                      
+                                      <TextField
+                                        fullWidth
+                                        size="small"
+                                        label="Variable Key"
+                                        name={`variables.${index}.key`}
+                                        value={formik.values.variables[index].key}
+                                        onChange={formik.handleChange}
+                                        disabled // Standard variables have fixed keys
+                                        sx={{ mb: 2 }}
+                                      />
+                                      
+                                      <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                                        <InputLabel>Type</InputLabel>
+                                        <Select
+                                          label="Type"
+                                          name={`variables.${index}.type`}
+                                          value={formik.values.variables[index].type}
+                                          onChange={formik.handleChange}
+                                          disabled // Standard variables have fixed types
+                                        >
+                                          {VARIABLE_TYPES.map((type) => (
+                                            <MenuItem key={type.value} value={type.value}>
+                                              {type.label}
+                                            </MenuItem>
+                                          ))}
+                                        </Select>
+                                      </FormControl>
+                                      
+                                      <TextField
+                                        fullWidth
+                                        size="small"
+                                        label="Description"
+                                        name={`variables.${index}.description`}
+                                        value={formik.values.variables[index].description}
+                                        onChange={formik.handleChange}
+                                        sx={{ mb: 2 }}
+                                      />
+                                      
+                                      <TextField
+                                        fullWidth
+                                        size="small"
+                                        label="Default Value"
+                                        name={`variables.${index}.default_value`}
+                                        value={formik.values.variables[index].default_value}
+                                        onChange={formik.handleChange}
+                                        sx={{ mb: 2 }}
+                                      />
+                                      
+                                      {formik.values.variables[index].type === "select" && (
+                                        <TextField
+                                          fullWidth
+                                          size="small"
+                                          label="Options (comma-separated)"
+                                          name={`variables.${index}.options_string`}
+                                          value={formik.values.variables[index].options.join(", ")}
+                                          onChange={(e) => {
+                                            const optionsArray = e.target.value.split(",").map(opt => opt.trim()).filter(opt => opt);
+                                            formik.setFieldValue(`variables.${index}.options`, optionsArray);
+                                          }}
+                                        />
+                                      )}
+                                    </CardContent>
+                                  </Card>
+                                </Grid>
+                              );
+                            });
+                          })()}
+                        </Grid>
+                        
+                        {/* Custom Variables */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                          <Typography variant="subtitle1" gutterBottom>
+                            Custom Variables
+                          </Typography>
+                          <Button
+                            startIcon={<AddIcon />}
+                            onClick={() => {
+                              push({
+                                name: "",
+                                key: "",
+                                type: "text",
+                                description: "",
+                                default_value: "",
+                                options: []
+                              });
+                            }}
+                          >
+                            Add Variable
+                          </Button>
+                        </Box>
+                        
+                        <Grid container spacing={2}>
+                          {formik.values.variables.length > 0 && formik.values.variables.map((variable, index) => {
+                            // Skip standard variables, which we handle above
+                            if (["topic", "word_count", "cta"].includes(variable.key)) {
+                              return null;
+                            }
+                            
+                            return (
+                              <Grid item xs={12} md={4} key={index}>
+                                <Card variant="outlined">
+                                  <CardContent>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                      <Typography variant="subtitle2">
+                                        Custom Variable {index + 1}
+                                      </Typography>
+                                      <IconButton 
+                                        size="small" 
+                                        color="error"
+                                        onClick={() => remove(index)}
+                                      >
+                                        <DeleteIcon />
+                                      </IconButton>
+                                    </Box>
+                                    
+                                    <TextField
+                                      fullWidth
+                                      size="small"
+                                      label="Display Name"
+                                      name={`variables.${index}.name`}
+                                      value={variable.name}
+                                      onChange={formik.handleChange}
+                                      sx={{ mb: 2 }}
+                                    />
+                                    
+                                    <TextField
+                                      fullWidth
+                                      size="small"
+                                      label="Variable Key"
+                                      name={`variables.${index}.key`}
+                                      value={variable.key}
+                                      onChange={(e) => {
+                                        // Auto-generate key from name if empty
+                                        const newKey = e.target.value || generateVariableKey(variable.name);
+                                        formik.setFieldValue(`variables.${index}.key`, newKey);
+                                      }}
+                                      helperText="Unique identifier used in templates"
+                                      sx={{ mb: 2 }}
+                                    />
+                                    
+                                    <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                                      <InputLabel>Type</InputLabel>
+                                      <Select
+                                        label="Type"
+                                        name={`variables.${index}.type`}
+                                        value={variable.type}
+                                        onChange={formik.handleChange}
+                                      >
+                                        {VARIABLE_TYPES.map((type) => (
+                                          <MenuItem key={type.value} value={type.value}>
+                                            {type.label}
+                                          </MenuItem>
+                                        ))}
+                                      </Select>
+                                    </FormControl>
+                                    
+                                    <TextField
+                                      fullWidth
+                                      size="small"
+                                      label="Description"
+                                      name={`variables.${index}.description`}
+                                      value={variable.description}
+                                      onChange={formik.handleChange}
+                                      sx={{ mb: 2 }}
+                                    />
+                                    
+                                    <TextField
+                                      fullWidth
+                                      size="small"
+                                      label="Default Value"
+                                      name={`variables.${index}.default_value`}
+                                      value={variable.default_value}
+                                      onChange={formik.handleChange}
+                                      sx={{ mb: 2 }}
+                                    />
+                                    
+                                    {variable.type === "select" && (
+                                      <TextField
+                                        fullWidth
+                                        size="small"
+                                        label="Options (comma-separated)"
+                                        name={`variables.${index}.options_string`}
+                                        value={variable.options.join(", ")}
+                                        onChange={(e) => {
+                                          const optionsArray = e.target.value.split(",").map(opt => opt.trim()).filter(opt => opt);
+                                          formik.setFieldValue(`variables.${index}.options`, optionsArray);
+                                        }}
+                                      />
+                                    )}
+                                  </CardContent>
+                                </Card>
+                              </Grid>
+                            );
+                          })}
+                          
+                          {/* Show empty state for custom variables */}
+                          {formik.values.variables.filter(v => !["topic", "word_count", "cta"].includes(v.key)).length === 0 && (
+                            <Grid item xs={12}>
+                              <Paper 
+                                sx={{ 
+                                  p: 3, 
+                                  textAlign: 'center',
+                                  backgroundColor: '#f5f5f5',
+                                  border: '1px dashed #ccc'
+                                }}
+                              >
+                                <Typography variant="body1" color="textSecondary">
+                                  No custom variables yet. Add some to make your template more flexible.
+                                </Typography>
+                                <Button 
+                                  startIcon={<AddIcon />} 
+                                  sx={{ mt: 2 }}
+                                  onClick={() => {
+                                    push({
+                                      name: "",
+                                      key: "",
+                                      type: "text",
+                                      description: "",
+                                      default_value: "",
+                                      options: []
+                                    });
+                                  }}
+                                >
+                                  Add Variable
+                                </Button>
+                              </Paper>
+                            </Grid>
+                          )}
+                        </Grid>
+                      </>
+                    )}
+                  </FieldArray>
+                </CardContent>
+              </Card>
+            </Grid>
+            
+            {/* Submit button for Create Template */}
+            {!isEditMode && (
+              <Grid item xs={12}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'center',
+                  mt: 4,
+                  mb: 6
+                }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<SaveIcon />}
+                    type="submit"
+                    disabled={saving || !formik.isValid}
+                    sx={{ 
+                      minWidth: 250,
+                      fontSize: '1.1rem',
+                      py: 1.5,
+                      px: 4,
+                      fontWeight: 'bold',
+                      backgroundColor: '#4CAF50',
+                    }}
+                  >
+                    {saving ? 'Saving...' : 'CREATE TEMPLATE'}
+                  </Button>
+                </Box>
+              </Grid>
+            )}
+            
+            {/* Help section for beginners */}
+            {!isEditMode && (
+              <Grid item xs={12}>
+                <Card sx={{ 
+                  border: '1px solid rgba(111, 207, 117, 0.3)', 
+                  boxShadow: '0 0 15px rgba(111, 207, 117, 0.2)',
+                  backgroundColor: 'rgba(46, 125, 50, 0.05)'
+                }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom sx={{ color: '#6FCF75' }}>
+                      Tips for Creating Effective Prompt Templates
+                    </Typography>
+                    
+                    <Alert severity="info" sx={{ 
+                      mb: 3, 
+                      backgroundColor: 'rgba(17, 25, 18, 0.6)', 
+                      color: '#EEEEEE',
+                      border: '1px solid rgba(111, 207, 117, 0.2)',
+                      '& .MuiAlert-icon': { color: '#6FCF75' } 
+                    }}>
+                      <strong style={{ color: '#6FCF75' }}>Helpful Resources</strong>
+                      <Typography variant="body2" sx={{ mt: 1, color: '#EEEEEE' }}>
+                        This guide will help you create templates that generate high-quality, consistent content.
+                      </Typography>
+                    </Alert>
+                    
+                    <Typography variant="subtitle1" gutterBottom sx={{ mt: 2, color: '#6FCF75' }}>
+                      Common Variables to Include
+                    </Typography>
+                    
+                    <Grid container spacing={2} sx={{ mb: 3 }}>
+                      <Grid item xs={12} md={4}>
+                        <Paper elevation={1} sx={{ 
+                          p: 2, 
+                          backgroundColor: 'rgba(17, 25, 18, 0.6)',
+                          border: '1px solid rgba(111, 207, 117, 0.15)',
+                          boxShadow: 'inset 0 0 10px rgba(111, 207, 117, 0.1)'
+                        }}>
+                          <Typography variant="subtitle2" gutterBottom sx={{ color: '#6FCF75' }}>
+                            Content Structure
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#EEEEEE' }}>
+                            • <strong style={{ color: '#6FCF75' }}>word_count</strong> - Length of the article<br />
+                            • <strong style={{ color: '#6FCF75' }}>tone</strong> - Writing style (friendly, professional)<br />
+                            • <strong style={{ color: '#6FCF75' }}>format</strong> - Article type (how-to, list, etc.)
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <Paper elevation={1} sx={{ 
+                          p: 2, 
+                          backgroundColor: 'rgba(17, 25, 18, 0.6)',
+                          border: '1px solid rgba(111, 207, 117, 0.15)',
+                          boxShadow: 'inset 0 0 10px rgba(111, 207, 117, 0.1)'
+                        }}>
+                          <Typography variant="subtitle2" gutterBottom sx={{ color: '#6FCF75' }}>
+                            Subject Matter
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#EEEEEE' }}>
+                            • <strong style={{ color: '#6FCF75' }}>topic</strong> - Main subject of the article<br />
+                            • <strong style={{ color: '#6FCF75' }}>audience</strong> - Who the content is for<br />
+                            • <strong style={{ color: '#6FCF75' }}>keywords</strong> - Terms to include for SEO
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <Paper elevation={1} sx={{ 
+                          p: 2, 
+                          backgroundColor: 'rgba(17, 25, 18, 0.6)',
+                          border: '1px solid rgba(111, 207, 117, 0.15)',
+                          boxShadow: 'inset 0 0 10px rgba(111, 207, 117, 0.1)'
+                        }}>
+                          <Typography variant="subtitle2" gutterBottom sx={{ color: '#6FCF75' }}>
+                            Special Elements
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#EEEEEE' }}>
+                            • <strong style={{ color: '#6FCF75' }}>examples</strong> - Number of examples to include<br />
+                            • <strong style={{ color: '#6FCF75' }}>cta</strong> - Call-to-action at the end<br />
+                            • <strong style={{ color: '#6FCF75' }}>sections</strong> - Number of main sections
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                    </Grid>
+                    
+                    {/* Updated with better examples */}
+                    <Typography variant="subtitle1" gutterBottom sx={{ color: '#6FCF75', fontWeight: 'bold' }}>
+                      ✨ Proven Prompt Patterns That Work ✨
+                    </Typography>
+                    
+                    <Paper elevation={2} sx={{ 
+                      p: 3, 
+                      mb: 3, 
+                      backgroundColor: 'rgba(17, 25, 18, 0.6)',
+                      border: '1px solid rgba(111, 207, 117, 0.2)',
+                      boxShadow: 'inset 0 0 10px rgba(111, 207, 117, 0.1)'
+                    }}>
+                      <Typography variant="subtitle2" gutterBottom sx={{ color: '#6FCF75' }}>
+                        🏆 Super-Detailed Blog Post Prompt:
+                      </Typography>
+                      <Typography variant="body2" sx={{ 
+                        fontFamily: 'monospace', 
+                        whiteSpace: 'pre-wrap', 
+                        mb: 2, 
+                        color: '#EEEEEE',
+                        backgroundColor: 'rgba(17, 25, 18, 0.8)',
+                        p: 2,
+                        borderRadius: 1,
+                        border: '1px solid rgba(111, 207, 117, 0.15)',
+                      }}>
+                        {`Write a comprehensive {{word_count}}-word blog post about {{topic}} with a {{tone}} tone.
+
+STRUCTURE:
+1. Start with an attention-grabbing introduction using a surprising statistic, question, or story
+2. Include a brief overview that tells the reader what they'll learn
+3. Create {{sections}} main sections, each with:
+   - A clear H2 heading that includes the section's main point
+   - 2-3 paragraphs of explanation
+   - At least one real-world example or case study
+   - A bulleted list of actionable tips or key takeaways
+4. End with a conclusion that summarizes the main points
+5. Include a {{cta}} as the final sentence
+
+FORMATTING:
+- Use ## for main section headings
+- Use ### for sub-section headings
+- Use **bold** for important terms or concepts
+- Use *italics* for emphasis
+- Use > for quotes or important callouts
+- Use numbered lists for sequential steps
+- Use bullet lists for non-sequential items
+
+WRITING GUIDELINES:
+- Write in an {{tone}} but authoritative voice
+- Avoid jargon unless immediately explained
+- Include statistics with sources when possible
+- Address the reader directly using "you"
+- Keep paragraphs short (3-4 sentences maximum)
+- Vary sentence length for readability
+
+PERSPECTIVE: Write from the perspective of an expert who has {{experience_years}} years of experience in this field but can explain complex concepts simply.`}
+                      </Typography>
+                    
+                      <Typography variant="subtitle2" gutterBottom sx={{ color: '#6FCF75' }}>
+                        🚀 Quick Product Description Prompt:
+                      </Typography>
+                      <Typography variant="body2" sx={{ 
+                        fontFamily: 'monospace', 
+                        whiteSpace: 'pre-wrap',
+                        color: '#EEEEEE',
+                        backgroundColor: 'rgba(17, 25, 18, 0.8)',
+                        p: 2,
+                        borderRadius: 1,
+                        border: '1px solid rgba(111, 207, 117, 0.15)',
+                      }}>
+                        {`Create a compelling {{word_count}}-word product description for {{product_name}}, a {{product_type}} for {{target_audience}}.
+
+The description should:
+- Start with a hook that identifies the problem this product solves
+- Highlight {{features_count}} key features, focusing on benefits rather than specifications
+- Include sensory language that helps the customer imagine using the product
+- Address {{pain_point}} and explain how this product solves it
+- End with a strong {{cta}} that creates urgency
+
+Tone should be {{tone}} and persuasive, without using clichés or hyperbole.
+
+Format with short paragraphs, bullet points for features, and include suggested placement for customer testimonials.`}
+                      </Typography>
+                    </Paper>
+                  </CardContent>
+                </Card>
+              </Grid>
+            )}
+          </Form>
+        )}
+      </Formik>
+    </Box>
+  );
+};
+
+export default PromptForm; 

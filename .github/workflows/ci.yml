@@ -1,0 +1,60 @@
+name: Acta AI CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20  # Increase timeout for the entire job
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+    - name: Deploy to production
+      run: |
+        # Deploy the application to the production server
+        ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          # Create app directory if it doesn't exist
+          mkdir -p ~/acta-ai
+          
+          # Clone or pull the latest code
+          if [ -d ~/acta-ai/.git ]; then
+            cd ~/acta-ai && git pull
+          else
+            git clone https://github.com/megbroc7/acta-ai.git ~/acta-ai
+          fi
+          
+          # Navigate to app directory
+          cd ~/acta-ai
+          
+          # Backup existing .env file if it exists on the server
+          if [ -f backend/.env ]; then
+            cp backend/.env backend/.env.backup
+            echo 'Backed up existing .env file'
+          fi
+          
+          # Copy the committed .env file from the repository
+          # Note: Make sure your .env file in the repository has appropriate values for production
+          # but with sensitive information replaced with GitHub secrets if needed
+          
+          # Stop the current containers
+          docker-compose down
+          
+          # Start the build and deployment in the background with nohup to prevent SSH timeout
+          # Redirect output to deployment.log for debugging
+          nohup bash -c 'docker-compose up -d --build && docker-compose exec -T backend alembic upgrade head && echo \"Deployment completed successfully!\"' > deployment.log 2>&1 &
+          
+          echo 'Deployment process started in the background. Check deployment.log for progress.'
+          echo 'You can monitor the build with: tail -f deployment.log'
+          echo 'Note: This process will continue running after the CI/CD workflow completes.'
+        "

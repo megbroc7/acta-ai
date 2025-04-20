@@ -1,0 +1,1300 @@
+2025-03-13 20:27:22 [ACCESS] GET http://localhost:8000/api/health started
+2025-03-13 20:27:22 [ACCESS] GET http://localhost:8000/api/health completed in 0.0010s with status 200
+2025-03-13 20:27:31 [ACCESS] GET http://localhost:8000/docs started
+2025-03-13 20:27:31 [ACCESS] GET http://localhost:8000/docs completed in 0.0016s with status 200
+2025-03-13 20:29:55 [ACCESS] GET http://127.0.0.1:8000/api/health started
+2025-03-13 20:29:55 [ACCESS] GET http://127.0.0.1:8000/api/health completed in 0.0050s with status 200
+2025-03-13 20:29:55 [ACCESS] GET http://127.0.0.1:8000/api/health started
+2025-03-13 20:29:55 [ACCESS] GET http://127.0.0.1:8000/api/health completed in 0.0026s with status 200
+2025-03-13 20:30:18 [ACCESS] POST http://127.0.0.1:8000/api/auth/token started
+2025-03-13 20:30:18 [ACCESS] POST http://127.0.0.1:8000/api/auth/token completed in 0.2401s with status 401
+2025-03-13 20:30:24 [ACCESS] POST http://127.0.0.1:8000/api/auth/token started
+2025-03-13 20:30:25 [ACCESS] POST http://127.0.0.1:8000/api/auth/token completed in 0.2174s with status 200
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0003s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0036s with status 200
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites completed in 0.0017s with status 200
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites completed in 0.0018s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0050s with status 307
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0100s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0016s with status 307
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ completed in 0.0033s with status 200
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ completed in 0.0013s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0070s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0136s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates completed in 0.0005s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0008s with status 307
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0046s with status 200
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates/ completed in 0.0012s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0011s with status 307
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0098s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules completed in 0.0010s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0007s with status 307
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0061s with status 200
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ completed in 0.0007s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0010s with status 307
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0091s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts completed in 0.0005s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0013s with status 307
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0059s with status 200
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/ completed in 0.0006s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0012s with status 307
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0107s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0003s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0009s with status 307
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:30:25 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0007s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0078s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0006s with status 307
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0063s with status 200
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:30:25 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0048s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0017s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0066s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0126s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0059s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0030s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0013s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0038s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0023s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0044s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0014s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0044s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0011s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0048s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0011s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0065s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0005s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0049s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0012s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0080s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0016s with status 307
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0059s with status 200
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:30:32 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0042s with status 200
+2025-03-13 20:30:33 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:33 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0010s with status 307
+2025-03-13 20:30:33 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:33 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:33 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0011s with status 307
+2025-03-13 20:30:33 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0028s with status 200
+2025-03-13 20:30:33 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:33 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0024s with status 200
+2025-03-13 20:30:34 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/1/test-connection started
+2025-03-13 20:30:34 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/1/test-connection completed in 0.0011s with status 200
+2025-03-13 20:30:34 [ACCESS] POST http://127.0.0.1:8000/api/sites/1/test-connection started
+2025-03-13 20:30:35 [ACCESS] POST http://127.0.0.1:8000/api/sites/1/test-connection completed in 0.7477s with status 200
+2025-03-13 20:30:35 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/1 started
+2025-03-13 20:30:35 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/1 completed in 0.0002s with status 200
+2025-03-13 20:30:35 [ACCESS] PUT http://127.0.0.1:8000/api/sites/1 started
+2025-03-13 20:30:35 [ACCESS] PUT http://127.0.0.1:8000/api/sites/1 completed in 0.3894s with status 200
+2025-03-13 20:30:37 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:37 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0058s with status 200
+2025-03-13 20:30:38 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:38 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0014s with status 307
+2025-03-13 20:30:38 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:38 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:38 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0017s with status 307
+2025-03-13 20:30:38 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0044s with status 200
+2025-03-13 20:30:38 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:38 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0035s with status 200
+2025-03-13 20:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0014s with status 200
+2025-03-13 20:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0014s with status 200
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0014s with status 307
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0013s with status 307
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?page=1&limit=10 started
+2025-03-13 20:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?page=1&limit=10 completed in 0.0011s with status 200
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0018s with status 307
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0019s with status 307
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 started
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0064s with status 200
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 completed in 0.0065s with status 200
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 started
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0059s with status 200
+2025-03-13 20:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 completed in 0.0054s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0027s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0018s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0015s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0048s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0031s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0005s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0024s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0033s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0060s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0006s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0030s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0019s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0065s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0009s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0054s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0006s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0048s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0007s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0065s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0009s with status 307
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0049s with status 200
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:30:42 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0036s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0062s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0020s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0138s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0055s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0043s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0018s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0051s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0011s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0036s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0012s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0042s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0020s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0078s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0007s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0051s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0006s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0066s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0007s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0105s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0030s with status 307
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0074s with status 200
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:30:46 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0037s with status 200
+2025-03-13 20:30:55 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:30:55 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0023s with status 200
+2025-03-13 20:31:02 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:02 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0021s with status 200
+2025-03-13 20:31:12 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:12 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0024s with status 200
+2025-03-13 20:31:16 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:16 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0164s with status 200
+2025-03-13 20:31:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0026s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0022s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0021s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0013s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0007s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0028s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0023s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0024s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0007s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0017s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0033s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0008s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0057s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0013s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0083s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0013s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0062s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0024s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0064s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0012s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0074s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0027s with status 307
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0073s with status 200
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:31:33 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0040s with status 200
+2025-03-13 20:31:42 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:42 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0031s with status 200
+2025-03-13 20:31:46 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:46 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0018s with status 200
+2025-03-13 20:31:55 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:31:55 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0178s with status 200
+2025-03-13 20:32:02 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:02 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0026s with status 200
+2025-03-13 20:32:03 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:03 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 20:32:03 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:03 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0018s with status 200
+2025-03-13 20:32:12 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:12 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0022s with status 200
+2025-03-13 20:32:16 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:16 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0017s with status 200
+2025-03-13 20:32:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:25 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0024s with status 200
+2025-03-13 20:32:29 [ACCESS] GET http://127.0.0.1:8000/api/health started
+2025-03-13 20:32:29 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:29 [ACCESS] GET http://127.0.0.1:8000/api/health completed in 0.0122s with status 200
+2025-03-13 20:32:29 [ACCESS] GET http://127.0.0.1:8000/api/health started
+2025-03-13 20:32:29 [ACCESS] GET http://127.0.0.1:8000/api/health completed in 0.0085s with status 200
+2025-03-13 20:32:29 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0220s with status 200
+2025-03-13 20:32:29 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:29 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0092s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0059s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0043s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0124s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0085s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0040s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0016s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0055s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0013s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0048s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0028s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0159s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0017s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0069s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0017s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0050s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0008s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0150s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0019s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0105s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0088s with status 200
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0007s with status 307
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:32:30 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0057s with status 200
+2025-03-13 20:32:36 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:32:36 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0014s with status 307
+2025-03-13 20:32:36 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:32:36 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:32:36 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0020s with status 307
+2025-03-13 20:32:36 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0042s with status 200
+2025-03-13 20:32:36 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:32:36 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0029s with status 200
+2025-03-13 20:32:37 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:32:37 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0032s with status 200
+2025-03-13 20:32:38 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:32:38 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0051s with status 307
+2025-03-13 20:32:38 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:32:38 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:32:38 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0023s with status 307
+2025-03-13 20:32:38 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0054s with status 200
+2025-03-13 20:32:38 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:32:38 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0036s with status 200
+2025-03-13 20:32:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:32:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0011s with status 307
+2025-03-13 20:32:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:32:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0017s with status 307
+2025-03-13 20:32:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:32:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0059s with status 200
+2025-03-13 20:32:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:32:46 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0041s with status 200
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0017s with status 307
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0009s with status 307
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 started
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0022s with status 307
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0021s with status 307
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0037s with status 200
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 completed in 0.0067s with status 200
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 started
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0025s with status 200
+2025-03-13 20:32:49 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 completed in 0.0038s with status 200
+2025-03-13 20:32:52 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/29 started
+2025-03-13 20:32:52 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/29 started
+2025-03-13 20:32:52 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/29 completed in 0.0017s with status 200
+2025-03-13 20:32:52 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/29 completed in 0.0014s with status 200
+2025-03-13 20:32:52 [ACCESS] GET http://127.0.0.1:8000/api/posts/29 started
+2025-03-13 20:32:52 [ACCESS] GET http://127.0.0.1:8000/api/posts/29 completed in 0.0069s with status 200
+2025-03-13 20:32:52 [ACCESS] GET http://127.0.0.1:8000/api/posts/29 started
+2025-03-13 20:32:52 [ACCESS] GET http://127.0.0.1:8000/api/posts/29 completed in 0.0031s with status 200
+2025-03-13 20:33:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:33:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0144s with status 200
+2025-03-13 20:33:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:33:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0042s with status 200
+2025-03-13 20:33:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:33:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0048s with status 200
+2025-03-13 20:33:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:33:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0041s with status 200
+2025-03-13 20:34:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:34:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0145s with status 200
+2025-03-13 20:34:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:34:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0047s with status 200
+2025-03-13 20:34:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:34:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0063s with status 200
+2025-03-13 20:34:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:34:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0262s with status 200
+2025-03-13 20:35:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:35:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0048s with status 200
+2025-03-13 20:35:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:35:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0040s with status 200
+2025-03-13 20:35:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:35:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0274s with status 200
+2025-03-13 20:35:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:35:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0067s with status 200
+2025-03-13 20:36:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:36:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0075s with status 200
+2025-03-13 20:36:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:36:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0020s with status 200
+2025-03-13 20:36:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:36:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0069s with status 200
+2025-03-13 20:36:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:36:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0058s with status 200
+2025-03-13 20:37:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:37:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0049s with status 200
+2025-03-13 20:37:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:37:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0050s with status 200
+2025-03-13 20:37:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:37:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0117s with status 200
+2025-03-13 20:37:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:37:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0031s with status 200
+2025-03-13 20:38:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:38:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0052s with status 200
+2025-03-13 20:38:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:38:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0058s with status 200
+2025-03-13 20:38:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:38:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0102s with status 200
+2025-03-13 20:38:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:38:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0046s with status 200
+2025-03-13 20:39:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:39:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0051s with status 200
+2025-03-13 20:39:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:39:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0069s with status 200
+2025-03-13 20:39:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:39:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0059s with status 200
+2025-03-13 20:39:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:39:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0221s with status 200
+2025-03-13 20:40:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:40:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0049s with status 200
+2025-03-13 20:40:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:40:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0049s with status 200
+2025-03-13 20:40:30 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:40:30 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0013s with status 200
+2025-03-13 20:40:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:40:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0212s with status 200
+2025-03-13 20:40:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:40:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0063s with status 200
+2025-03-13 20:41:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:41:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0048s with status 200
+2025-03-13 20:41:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:41:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0048s with status 200
+2025-03-13 20:41:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:41:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0065s with status 200
+2025-03-13 20:41:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:41:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0037s with status 200
+2025-03-13 20:42:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:42:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0058s with status 200
+2025-03-13 20:42:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:42:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0047s with status 200
+2025-03-13 20:42:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:42:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0073s with status 200
+2025-03-13 20:42:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:42:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0042s with status 200
+2025-03-13 20:43:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:43:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0058s with status 200
+2025-03-13 20:43:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:43:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0046s with status 200
+2025-03-13 20:43:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:43:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0067s with status 200
+2025-03-13 20:43:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:43:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0043s with status 200
+2025-03-13 20:44:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:44:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0052s with status 200
+2025-03-13 20:44:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:44:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0044s with status 200
+2025-03-13 20:44:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:44:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0155s with status 200
+2025-03-13 20:44:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:44:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0221s with status 200
+2025-03-13 20:45:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:45:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0052s with status 200
+2025-03-13 20:45:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:45:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0042s with status 200
+2025-03-13 20:45:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:45:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0247s with status 200
+2025-03-13 20:45:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:45:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0051s with status 200
+2025-03-13 20:46:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:46:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0064s with status 200
+2025-03-13 20:46:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:46:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0049s with status 200
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites started
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites started
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0013s with status 200
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites completed in 0.0013s with status 200
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0014s with status 200
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites completed in 0.0015s with status 200
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0017s with status 307
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0018s with status 307
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 started
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?page=1&limit=10 started
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ completed in 0.0014s with status 200
+2025-03-13 20:46:14 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?page=1&limit=10 completed in 0.0015s with status 200
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0036s with status 307
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/posts?page=1&limit=10 completed in 0.0037s with status 307
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 started
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0102s with status 200
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 completed in 0.0115s with status 200
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 started
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0055s with status 200
+2025-03-13 20:46:14 [ACCESS] GET http://127.0.0.1:8000/api/posts/?page=1&limit=10 completed in 0.0052s with status 200
+2025-03-13 20:46:15 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:46:15 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:46:15 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules completed in 0.0008s with status 200
+2025-03-13 20:46:15 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules completed in 0.0007s with status 200
+2025-03-13 20:46:15 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:46:15 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0012s with status 307
+2025-03-13 20:46:15 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:46:15 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0006s with status 307
+2025-03-13 20:46:15 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:46:15 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:46:15 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ completed in 0.0006s with status 200
+2025-03-13 20:46:15 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ completed in 0.0008s with status 200
+2025-03-13 20:46:15 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:46:15 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0087s with status 200
+2025-03-13 20:46:15 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:46:15 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0075s with status 200
+2025-03-13 20:46:16 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:46:16 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates/ completed in 0.0010s with status 200
+2025-03-13 20:46:16 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:46:16 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0062s with status 200
+2025-03-13 20:46:17 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:46:17 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0009s with status 307
+2025-03-13 20:46:17 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:46:17 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:46:17 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0021s with status 307
+2025-03-13 20:46:17 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0042s with status 200
+2025-03-13 20:46:17 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:46:17 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0030s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0017s with status 307
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0008s with status 307
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0040s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates started
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates completed in 0.0007s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0016s with status 307
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0053s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0010s with status 307
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0049s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0006s with status 307
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0029s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0014s with status 307
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0043s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts started
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts completed in 0.0015s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0014s with status 307
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0061s with status 200
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/ completed in 0.0002s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0007s with status 307
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0050s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0002s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0004s with status 307
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:46:18 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0006s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0066s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0005s with status 307
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0045s with status 200
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 20:46:18 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0041s with status 200
+2025-03-13 20:46:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:46:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0038s with status 200
+2025-03-13 20:46:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:46:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 20:47:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:47:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0209s with status 200
+2025-03-13 20:47:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:47:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0029s with status 200
+2025-03-13 20:47:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:47:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0279s with status 200
+2025-03-13 20:47:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:47:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0062s with status 200
+2025-03-13 20:48:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:48:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0376s with status 200
+2025-03-13 20:48:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:48:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0036s with status 200
+2025-03-13 20:48:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:48:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0074s with status 200
+2025-03-13 20:48:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:48:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 20:49:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:49:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0212s with status 200
+2025-03-13 20:49:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:49:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0029s with status 200
+2025-03-13 20:49:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:49:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0170s with status 200
+2025-03-13 20:49:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:49:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0020s with status 200
+2025-03-13 20:50:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:50:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0123s with status 200
+2025-03-13 20:50:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:50:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0341s with status 200
+2025-03-13 20:50:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:50:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0061s with status 200
+2025-03-13 20:50:30 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:50:30 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0007s with status 200
+2025-03-13 20:50:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:50:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0050s with status 200
+2025-03-13 20:51:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:51:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0284s with status 200
+2025-03-13 20:51:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:51:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0042s with status 200
+2025-03-13 20:51:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:51:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0028s with status 200
+2025-03-13 20:51:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:51:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0031s with status 200
+2025-03-13 20:52:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:52:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0078s with status 200
+2025-03-13 20:52:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:52:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0051s with status 200
+2025-03-13 20:52:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:52:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0033s with status 200
+2025-03-13 20:52:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:52:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0036s with status 200
+2025-03-13 20:53:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:53:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0068s with status 200
+2025-03-13 20:53:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:53:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0024s with status 200
+2025-03-13 20:53:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:53:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0135s with status 200
+2025-03-13 20:53:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:53:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0061s with status 200
+2025-03-13 20:54:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:54:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0109s with status 200
+2025-03-13 20:54:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:54:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0029s with status 200
+2025-03-13 20:54:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:54:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0133s with status 200
+2025-03-13 20:54:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:54:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0031s with status 200
+2025-03-13 20:55:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:55:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0066s with status 200
+2025-03-13 20:55:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:55:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0020s with status 200
+2025-03-13 20:55:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:55:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0034s with status 200
+2025-03-13 20:55:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:55:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0199s with status 200
+2025-03-13 20:56:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:56:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0061s with status 200
+2025-03-13 20:56:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:56:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0015s with status 200
+2025-03-13 20:56:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:56:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0257s with status 200
+2025-03-13 20:56:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:56:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0050s with status 200
+2025-03-13 20:57:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:57:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0255s with status 200
+2025-03-13 20:57:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:57:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0080s with status 200
+2025-03-13 20:57:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:57:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0177s with status 200
+2025-03-13 20:57:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:57:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0041s with status 200
+2025-03-13 20:58:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:58:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0064s with status 200
+2025-03-13 20:58:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:58:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0084s with status 200
+2025-03-13 20:58:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:58:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0096s with status 200
+2025-03-13 20:58:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:58:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0030s with status 200
+2025-03-13 20:59:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:59:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0132s with status 200
+2025-03-13 20:59:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:59:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0034s with status 200
+2025-03-13 20:59:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:59:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0076s with status 200
+2025-03-13 20:59:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 20:59:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0060s with status 200
+2025-03-13 21:00:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:00:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0147s with status 200
+2025-03-13 21:00:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:00:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0045s with status 200
+2025-03-13 21:00:30 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:00:30 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:00:30 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0027s with status 200
+2025-03-13 21:00:30 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0023s with status 200
+2025-03-13 21:00:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:00:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0165s with status 200
+2025-03-13 21:00:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:00:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0409s with status 200
+2025-03-13 21:01:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:01:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0038s with status 200
+2025-03-13 21:01:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:01:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0056s with status 200
+2025-03-13 21:01:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:01:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0350s with status 200
+2025-03-13 21:01:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:01:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0076s with status 200
+2025-03-13 21:02:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:02:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0054s with status 200
+2025-03-13 21:02:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:02:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0053s with status 200
+2025-03-13 21:02:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:02:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0110s with status 200
+2025-03-13 21:02:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:02:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0029s with status 200
+2025-03-13 21:03:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:03:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0068s with status 200
+2025-03-13 21:03:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:03:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 21:03:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:03:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0327s with status 200
+2025-03-13 21:03:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:03:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0033s with status 200
+2025-03-13 21:04:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:04:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0055s with status 200
+2025-03-13 21:04:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:04:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0072s with status 200
+2025-03-13 21:04:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:04:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0059s with status 200
+2025-03-13 21:04:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:04:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0014s with status 200
+2025-03-13 21:05:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:05:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0080s with status 200
+2025-03-13 21:05:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:05:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0016s with status 200
+2025-03-13 21:05:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:05:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0073s with status 200
+2025-03-13 21:05:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:05:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0015s with status 200
+2025-03-13 21:06:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:06:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0146s with status 200
+2025-03-13 21:06:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:06:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0256s with status 200
+2025-03-13 21:06:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:06:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0137s with status 200
+2025-03-13 21:06:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:06:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0335s with status 200
+2025-03-13 21:07:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:07:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0346s with status 200
+2025-03-13 21:07:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:07:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0022s with status 200
+2025-03-13 21:07:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:07:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0112s with status 200
+2025-03-13 21:07:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:07:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0050s with status 200
+2025-03-13 21:08:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:08:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0073s with status 200
+2025-03-13 21:08:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:08:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 21:08:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:08:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0457s with status 200
+2025-03-13 21:08:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:08:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0031s with status 200
+2025-03-13 21:09:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:09:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0191s with status 200
+2025-03-13 21:09:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:09:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0033s with status 200
+2025-03-13 21:09:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:09:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0118s with status 200
+2025-03-13 21:09:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:09:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0029s with status 200
+2025-03-13 21:10:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:10:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0127s with status 200
+2025-03-13 21:10:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:10:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0034s with status 200
+2025-03-13 21:10:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:10:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0067s with status 200
+2025-03-13 21:10:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:10:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0059s with status 200
+2025-03-13 21:11:00 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:11:00 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:11:00 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 21:11:00 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0047s with status 200
+2025-03-13 21:11:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:11:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0481s with status 200
+2025-03-13 21:11:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:11:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0230s with status 200
+2025-03-13 21:11:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:11:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0065s with status 200
+2025-03-13 21:11:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:11:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0057s with status 200
+2025-03-13 21:12:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:12:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0258s with status 200
+2025-03-13 21:12:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:12:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0054s with status 200
+2025-03-13 21:12:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:12:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0022s with status 200
+2025-03-13 21:12:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:12:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0015s with status 200
+2025-03-13 21:13:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:13:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0109s with status 200
+2025-03-13 21:13:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:13:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0016s with status 200
+2025-03-13 21:13:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:13:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0091s with status 200
+2025-03-13 21:13:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:13:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0021s with status 200
+2025-03-13 21:14:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:14:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0080s with status 200
+2025-03-13 21:14:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:14:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0022s with status 200
+2025-03-13 21:14:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:14:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0159s with status 200
+2025-03-13 21:14:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:14:30 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0053s with status 200
+2025-03-13 21:15:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:15:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0142s with status 200
+2025-03-13 21:15:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:15:00 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0028s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/health started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/health completed in 0.0695s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/health started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/health completed in 0.0038s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0898s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0889s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0053s with status 200
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites completed in 0.0036s with status 200
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites completed in 0.0071s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0025s with status 307
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0011s with status 307
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0170s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ completed in 0.0015s with status 200
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ completed in 0.0014s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0195s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0176s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates completed in 0.0012s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0013s with status 307
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates/ started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates/ completed in 0.0004s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0082s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0025s with status 307
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0100s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules completed in 0.0005s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0018s with status 307
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0055s with status 200
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ completed in 0.0013s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0016s with status 307
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0125s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts completed in 0.0006s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0013s with status 307
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/ started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/ completed in 0.0010s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0081s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0038s with status 307
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0123s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0003s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0027s with status 307
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 21:15:36 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0003s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0084s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0013s with status 307
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0080s with status 200
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 21:15:36 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0067s with status 200
+2025-03-13 21:16:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:16:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0362s with status 200
+2025-03-13 21:16:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:16:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0027s with status 200
+2025-03-13 21:16:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:16:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0169s with status 200
+2025-03-13 21:16:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:16:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0051s with status 200
+2025-03-13 21:17:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:17:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0068s with status 200
+2025-03-13 21:17:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:17:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0055s with status 200
+2025-03-13 21:17:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:17:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0143s with status 200
+2025-03-13 21:17:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:17:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0030s with status 200
+2025-03-13 21:18:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:18:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0050s with status 200
+2025-03-13 21:18:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:18:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0040s with status 200
+2025-03-13 21:18:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:18:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0143s with status 200
+2025-03-13 21:18:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:18:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0041s with status 200
+2025-03-13 21:19:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:19:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0071s with status 200
+2025-03-13 21:19:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:19:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0060s with status 200
+2025-03-13 21:19:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:19:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0148s with status 200
+2025-03-13 21:19:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:19:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0047s with status 200
+2025-03-13 21:20:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:20:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0059s with status 200
+2025-03-13 21:20:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:20:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0046s with status 200
+2025-03-13 21:20:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:20:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0915s with status 200
+2025-03-13 21:20:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:20:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0074s with status 200
+2025-03-13 21:21:06 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:21:06 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0012s with status 200
+2025-03-13 21:21:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:21:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0476s with status 200
+2025-03-13 21:21:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:21:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0064s with status 200
+2025-03-13 21:21:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:21:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0141s with status 200
+2025-03-13 21:21:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:21:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0031s with status 200
+2025-03-13 21:22:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:22:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0065s with status 200
+2025-03-13 21:22:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:22:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0069s with status 200
+2025-03-13 21:22:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:22:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0017s with status 200
+2025-03-13 21:22:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:22:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0014s with status 200
+2025-03-13 21:23:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:23:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0057s with status 200
+2025-03-13 21:23:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:23:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0060s with status 200
+2025-03-13 21:23:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:23:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0138s with status 200
+2025-03-13 21:23:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:23:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0050s with status 200
+2025-03-13 21:24:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:24:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0159s with status 200
+2025-03-13 21:24:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:24:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0033s with status 200
+2025-03-13 21:24:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:24:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0033s with status 200
+2025-03-13 21:24:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:24:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0031s with status 200
+2025-03-13 21:25:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:25:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0090s with status 200
+2025-03-13 21:25:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:25:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 21:25:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:25:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0044s with status 200
+2025-03-13 21:25:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:25:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0030s with status 200
+2025-03-13 21:26:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:26:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0073s with status 200
+2025-03-13 21:26:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:26:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0169s with status 200
+2025-03-13 21:26:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:26:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0062s with status 200
+2025-03-13 21:26:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:26:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0014s with status 200
+2025-03-13 21:27:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:27:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0107s with status 200
+2025-03-13 21:27:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:27:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0024s with status 200
+2025-03-13 21:27:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:27:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0035s with status 200
+2025-03-13 21:27:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:27:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0022s with status 200
+2025-03-13 21:28:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:28:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0044s with status 200
+2025-03-13 21:28:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:28:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 21:28:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:28:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0086s with status 200
+2025-03-13 21:28:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:28:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0017s with status 200
+2025-03-13 21:29:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:29:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0067s with status 200
+2025-03-13 21:29:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:29:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0058s with status 200
+2025-03-13 21:29:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:29:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0138s with status 200
+2025-03-13 21:29:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:29:36 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0044s with status 200
+2025-03-13 21:30:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:30:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0161s with status 200
+2025-03-13 21:30:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:30:06 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0048s with status 200
+2025-03-13 21:30:38 [ACCESS] GET http://127.0.0.1:8000/api/health started
+2025-03-13 21:30:38 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/health completed in 0.0624s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/health started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/health completed in 0.0006s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0789s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0073s with status 200
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites completed in 0.0015s with status 200
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites completed in 0.0019s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0031s with status 307
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0101s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites completed in 0.0044s with status 307
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0044s with status 200
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ completed in 0.0008s with status 200
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/sites/ completed in 0.0008s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0070s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites/ started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates completed in 0.0007s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0007s with status 307
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/sites/ completed in 0.0047s with status 200
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates/ started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/templates started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/templates/ completed in 0.0006s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/templates completed in 0.0010s with status 307
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0048s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/templates/ started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules completed in 0.0006s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0006s with status 307
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/templates/ completed in 0.0032s with status 200
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/schedules/ completed in 0.0010s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/schedules started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/schedules completed in 0.0014s with status 307
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0061s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts completed in 0.0003s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0009s with status 307
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/schedules/ completed in 0.0041s with status 200
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/ started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/ completed in 0.0011s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts completed in 0.0025s with status 307
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0107s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/ started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0004s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0009s with status 307
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 21:30:39 [ACCESS] OPTIONS http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0004s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/ completed in 0.0075s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts?limit=5 completed in 0.0006s with status 307
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0063s with status 200
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 started
+2025-03-13 21:30:39 [ACCESS] GET http://127.0.0.1:8000/api/posts/?limit=5 completed in 0.0042s with status 200
+2025-03-13 21:31:09 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:31:09 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:31:09 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0013s with status 200
+2025-03-13 21:31:09 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0009s with status 200
+2025-03-13 21:31:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:31:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0064s with status 200
+2025-03-13 21:31:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:31:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0025s with status 200
+2025-03-13 21:31:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:31:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0145s with status 200
+2025-03-13 21:31:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:31:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0046s with status 200
+2025-03-13 21:32:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:32:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0145s with status 200
+2025-03-13 21:32:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:32:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0080s with status 200
+2025-03-13 21:32:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:32:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0135s with status 200
+2025-03-13 21:32:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:32:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0031s with status 200
+2025-03-13 21:33:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:33:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0069s with status 200
+2025-03-13 21:33:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:33:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0017s with status 200
+2025-03-13 21:33:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:33:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0061s with status 200
+2025-03-13 21:33:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:33:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0016s with status 200
+2025-03-13 21:34:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:34:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0023s with status 200
+2025-03-13 21:34:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:34:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0015s with status 200
+2025-03-13 21:34:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:34:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0200s with status 200
+2025-03-13 21:34:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:34:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0028s with status 200
+2025-03-13 21:35:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:35:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0049s with status 200
+2025-03-13 21:35:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:35:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0028s with status 200
+2025-03-13 21:35:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:35:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0213s with status 200
+2025-03-13 21:35:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:35:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0093s with status 200
+2025-03-13 21:36:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:36:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0172s with status 200
+2025-03-13 21:36:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:36:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0033s with status 200
+2025-03-13 21:36:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:36:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0071s with status 200
+2025-03-13 21:36:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:36:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 21:37:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:37:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0146s with status 200
+2025-03-13 21:37:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:37:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0062s with status 200
+2025-03-13 21:37:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:37:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0040s with status 200
+2025-03-13 21:37:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:37:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0027s with status 200
+2025-03-13 21:38:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:38:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0065s with status 200
+2025-03-13 21:38:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:38:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0023s with status 200
+2025-03-13 21:38:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:38:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0030s with status 200
+2025-03-13 21:38:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:38:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0014s with status 200
+2025-03-13 21:39:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:39:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0103s with status 200
+2025-03-13 21:39:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:39:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0019s with status 200
+2025-03-13 21:39:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:39:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.1328s with status 200
+2025-03-13 21:39:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:39:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0060s with status 200
+2025-03-13 21:40:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:40:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0197s with status 200
+2025-03-13 21:40:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:40:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0035s with status 200
+2025-03-13 21:40:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:40:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0022s with status 200
+2025-03-13 21:40:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:40:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0014s with status 200
+2025-03-13 21:41:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:41:09 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:41:09 [ACCESS] OPTIONS http://127.0.0.1:8000/api/auth/me completed in 0.0005s with status 200
+2025-03-13 21:41:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0448s with status 200
+2025-03-13 21:41:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:41:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0296s with status 200
+2025-03-13 21:41:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:41:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0064s with status 200
+2025-03-13 21:41:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:41:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0052s with status 200
+2025-03-13 21:42:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:42:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0440s with status 200
+2025-03-13 21:42:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:42:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0057s with status 200
+2025-03-13 21:42:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:42:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0118s with status 200
+2025-03-13 21:42:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:42:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0021s with status 200
+2025-03-13 21:43:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:43:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0061s with status 200
+2025-03-13 21:43:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:43:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0015s with status 200
+2025-03-13 21:43:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:43:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0197s with status 200
+2025-03-13 21:43:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:43:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0038s with status 200
+2025-03-13 21:44:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:44:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0138s with status 200
+2025-03-13 21:44:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:44:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0047s with status 200
+2025-03-13 21:44:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:44:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0054s with status 200
+2025-03-13 21:44:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:44:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0045s with status 200
+2025-03-13 21:45:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:45:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0153s with status 200
+2025-03-13 21:45:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:45:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0014s with status 200
+2025-03-13 21:45:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:45:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0063s with status 200
+2025-03-13 21:45:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:45:39 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0015s with status 200
+2025-03-13 21:46:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:46:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0071s with status 200
+2025-03-13 21:46:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me started
+2025-03-13 21:46:09 [ACCESS] GET http://127.0.0.1:8000/api/auth/me completed in 0.0025s with status 200

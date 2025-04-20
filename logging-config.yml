@@ -1,0 +1,83 @@
+# Acta AI Logging Configuration
+# This file defines the logging strategy for all components
+
+version: 1
+disable_existing_loggers: false
+
+# Define formatters for different logging needs
+formatters:
+  standard:
+    format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  
+  json:
+    format: "%(asctime)s %(levelname)s %(name)s %(message)s"
+    class: pythonjsonlogger.jsonlogger.JsonFormatter
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  
+  access:
+    format: "%(asctime)s [ACCESS] %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+# Define handlers (where logs are sent)
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: standard
+    stream: ext://sys.stdout
+
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: /var/log/acta-ai/app.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 20
+    encoding: utf8
+
+  error_file:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: json
+    filename: /var/log/acta-ai/error.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 20
+    encoding: utf8
+  
+  access_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: access
+    filename: /var/log/acta-ai/access.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 20
+    encoding: utf8
+
+# Define specific loggers
+loggers:
+  app:
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  access:
+    level: INFO
+    handlers: [access_file]
+    propagate: false
+  
+  sqlalchemy:
+    level: WARNING
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  uvicorn:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+
+# Root logger
+root:
+  level: INFO
+  handlers: [console, file, error_file]
+  propagate: false 

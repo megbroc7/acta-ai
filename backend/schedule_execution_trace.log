@@ -1,0 +1,20 @@
+2025-03-10 23:28:49,935 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-03-10 23:28:49,935 - schedule_tracer - INFO - Starting trace of schedule execution for schedule ID 7
+2025-03-10 23:28:49,958 - schedule_tracer - INFO - Step 1: Getting schedule details
+2025-03-10 23:28:49,972 - schedule_tracer - INFO - Found schedule: test schedule 123 (ID: 7)
+2025-03-10 23:28:49,972 - schedule_tracer - INFO -   User ID: 2
+2025-03-10 23:28:49,972 - schedule_tracer - INFO -   Site ID: 1
+2025-03-10 23:28:49,972 - schedule_tracer - INFO -   Prompt Template ID: 15
+2025-03-10 23:28:49,972 - schedule_tracer - INFO -   Is Active: True
+2025-03-10 23:28:49,972 - schedule_tracer - INFO - Step 2: Checking WordPress site
+2025-03-10 23:28:49,972 - schedule_tracer - INFO - Found WordPress site: Hard To (ID: 1)
+2025-03-10 23:28:49,972 - schedule_tracer - INFO -   URL: https://hardtofindwatch.s1-tastewp.com
+2025-03-10 23:28:49,973 - schedule_tracer - INFO -   Is Active: True
+2025-03-10 23:28:49,973 - schedule_tracer - INFO - Step 3: Checking prompt template
+2025-03-10 23:28:49,973 - schedule_tracer - INFO - Found prompt template: test-template 1 (ID: 15)
+2025-03-10 23:28:49,973 - schedule_tracer - INFO -   System Prompt: You are a helpful assistant that generates blog content.
+2025-03-10 23:28:49,973 - schedule_tracer - INFO - Step 4: Checking existing execution history records
+2025-03-10 23:28:49,974 - schedule_tracer - INFO - Found 0 existing execution history records for this schedule
+2025-03-10 23:28:49,974 - schedule_tracer - INFO - Step 5: Attempting to create a test execution history record
+2025-03-10 23:28:49,976 - schedule_tracer - INFO - Successfully created test execution history record with ID 2
+2025-03-10 23:28:49,976 - schedule_tracer - INFO - Schedule execution trace completed

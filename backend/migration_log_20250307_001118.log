@@ -1,0 +1,4 @@
+2025-03-07 00:11:18,929 - migration - INFO - Starting migration from day_of_week to days_of_week
+2025-03-07 00:11:19,451 - migration - ERROR - Failed to create backup: [Errno 2] No such file or directory: './app.db'
+2025-03-07 00:11:19,454 - migration - ERROR - Unexpected error during migration: blog_schedules
+2025-03-07 00:11:19,455 - migration - ERROR - Failed to rollback migration: blog_schedules

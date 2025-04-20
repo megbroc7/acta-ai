@@ -1,0 +1,1148 @@
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:28.942019", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:30.172981", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:31.386865", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:33.057762", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:34.161926", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:38.296907", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:40.129477", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:41.087456", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:41.863635", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:42.964231", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:45.087340", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:46.203741", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:52.352624", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:53.289350", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:54.077856", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:32:57.133696", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:04.481442", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:05.532829", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:08.255014", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:09.207797", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:10.523450", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:13.845699", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:15.236163", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:16.191449", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:18.343458", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:19.234092", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:19.982999", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:22.960966", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:24.229075", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:25.561238", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:26.336356", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:27.097196", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:27.806217", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:30.699125", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:31.614559", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:32.428925", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:33.184224", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:34.383534", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:35.295889", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:36.290027", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:37.037163", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:38.992563", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:39.959064", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:40.967808", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:43.348676", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:44.274276", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:45.217444", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:48.507583", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:49.681260", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:50.651726", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:51.463766", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:52.915126", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:53.883401", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:54.892004", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:33:55.674439", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:03.319441", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:04.339668", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:05.099567", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:08.725662", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:10.353527", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:12.161787", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:13.129818", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:13.909917", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:16.174048", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:16.995215", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:17.794841", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:19.650749", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:21.094572", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:21.907028", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:23.081309", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:24.169562", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:25.019534", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:26.420617", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:27.588003", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:28.938400", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:29.848815", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:33.769685", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:34.728600", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:39.108521", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:39.915704", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:40.872840", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:44.297377", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:45.282896", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:51.985376", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:52.953230", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:53.910739", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:56.976665", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:57.732611", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:34:58.571487", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:35:02.010890", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:35:02.784819", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:35:03.740687", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:35:07.247333", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:35:08.003021", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:35:11.707278", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T18:35:12.596721", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:25:08.184667", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:25:49.991137", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:27:04.878699", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:27:04.882952", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65137]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:27:04.903928", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:27:04.903984", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:27:04.941711", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:27:04.949854", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:27:04.950324", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:27:04.950377", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:27:04.950781", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:27:04.950942", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:27:04.951265", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:27:05.002212", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:27:05.011135", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:27:05.012872", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Shutting down", "timestamp": "2025-03-13T19:27:07.981347", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application shutdown.", "timestamp": "2025-03-13T19:27:08.082582", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application shutdown complete.", "timestamp": "2025-03-13T19:27:08.082946", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Finished server process [65137]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:27:08.082998", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:27:08.722943", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:27:08.726609", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65142]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:27:08.755965", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:27:08.756126", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:27:08.765824", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:27:08.771897", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:27:08.772485", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:27:08.772665", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:27:08.773016", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:27:08.773240", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:27:08.773743", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:27:08.850281", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:27:08.853114", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:27:08.854778", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:27:16.558379", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:27:16.561521", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65201]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:27:16.586202", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:27:16.586299", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:27:16.597723", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:27:16.605208", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:27:16.605638", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:27:16.605698", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:27:16.606067", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:27:16.606244", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:27:16.606623", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:27:16.676561", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:27:16.680254", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:27:16.682034", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60675 - \"GET /api/health HTTP/1.1\" 200", "timestamp": "2025-03-13T19:27:22.751371", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Removed job debug_test_job", "timestamp": "2025-03-13T19:27:26.607664", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Running job \"SchedulerService._debug_test_job (trigger: date[2025-03-13 20:27:26 CET], next run at: 2025-03-13 20:27:26 CET)\" (scheduled at 2025-03-13 20:27:26.606085+01:00)", "timestamp": "2025-03-13T19:27:26.607902", "environment": "development", "app": "acta-ai-backend"}
+{"message": "DEBUG TEST JOB EXECUTED - Scheduler is working!", "timestamp": "2025-03-13T19:27:26.607940", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Job \"SchedulerService._debug_test_job (trigger: date[2025-03-13 20:27:26 CET], next run at: 2025-03-13 20:27:26 CET)\" executed successfully", "timestamp": "2025-03-13T19:27:26.608056", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60678 - \"GET /docs HTTP/1.1\" 200", "timestamp": "2025-03-13T19:27:31.115249", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Shutting down", "timestamp": "2025-03-13T19:28:51.039274", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application shutdown.", "timestamp": "2025-03-13T19:28:51.141452", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application shutdown complete.", "timestamp": "2025-03-13T19:28:51.148456", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Finished server process [65201]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:28:51.149068", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:53.435568", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:53.439961", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65426]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:28:53.469125", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:28:53.469330", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:28:53.497211", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:28:53.511378", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:28:53.512012", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:28:53.512080", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:28:53.513529", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:28:53.514025", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:28:53.514500", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:55.028221", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:55.034771", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65444]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:28:55.062915", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:28:55.062983", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:28:55.070852", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:28:55.074985", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:28:55.075429", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:28:55.075498", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:28:55.075781", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:28:55.075917", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:28:55.076197", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:56.060636", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:56.066415", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65453]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:28:56.098719", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:28:56.098878", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:28:56.108891", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:28:56.114859", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:28:56.115608", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:28:56.115803", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:28:56.116213", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:28:56.116415", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:28:56.116983", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:56.782785", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:56.785791", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65455]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:28:56.805526", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:28:56.805586", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:28:56.815915", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:28:56.821614", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:28:56.822133", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:28:56.822194", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:28:56.822469", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:28:56.822663", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:28:56.822961", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:57.340668", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:57.343399", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65457]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:28:57.361185", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:28:57.361233", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:28:57.372614", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:28:57.380015", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:28:57.380400", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:28:57.380449", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:28:57.380732", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:28:57.380865", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:28:57.381109", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:28:57.422968", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:28:57.427936", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:28:57.429692", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Shutting down", "timestamp": "2025-03-13T19:28:58.291563", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application shutdown.", "timestamp": "2025-03-13T19:28:58.392990", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application shutdown complete.", "timestamp": "2025-03-13T19:28:58.393536", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Finished server process [65457]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:28:58.393657", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:58.989275", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:28:58.992681", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65461]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:28:59.014485", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:28:59.014553", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:28:59.022624", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:28:59.027243", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:28:59.027791", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:28:59.027926", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:28:59.028321", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:28:59.028577", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:28:59.029063", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:28:59.096480", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:28:59.099892", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:28:59.101815", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Shutting down", "timestamp": "2025-03-13T19:29:01.050803", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application shutdown.", "timestamp": "2025-03-13T19:29:01.152440", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application shutdown complete.", "timestamp": "2025-03-13T19:29:01.153187", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Finished server process [65461]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:29:01.153378", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:29:01.740069", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T19:29:01.743508", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [65471]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T19:29:01.766559", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T19:29:01.766700", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T19:29:01.775807", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T19:29:01.781832", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T19:29:01.782338", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T19:29:01.782486", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T19:29:01.782833", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T19:29:01.783009", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T19:29:01.783436", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:29:01.850339", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:29:01.855085", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T19:29:01.856973", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Removed job debug_test_job", "timestamp": "2025-03-13T19:29:11.783398", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Running job \"SchedulerService._debug_test_job (trigger: date[2025-03-13 20:29:11 CET], next run at: 2025-03-13 20:29:11 CET)\" (scheduled at 2025-03-13 20:29:11.782850+01:00)", "timestamp": "2025-03-13T19:29:11.784283", "environment": "development", "app": "acta-ai-backend"}
+{"message": "DEBUG TEST JOB EXECUTED - Scheduler is working!", "timestamp": "2025-03-13T19:29:11.784327", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Job \"SchedulerService._debug_test_job (trigger: date[2025-03-13 20:29:11 CET], next run at: 2025-03-13 20:29:11 CET)\" executed successfully", "timestamp": "2025-03-13T19:29:11.784470", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60807 - \"GET /api/health HTTP/1.1\" 200", "timestamp": "2025-03-13T19:29:55.511435", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60807 - \"GET /api/health HTTP/1.1\" 200", "timestamp": "2025-03-13T19:29:55.518167", "environment": "development", "app": "acta-ai-backend"}
+{"message": "(trapped) error reading bcrypt version", "exc_info": "Traceback (most recent call last):\n  File \"/Users/meganbroccoli/Desktop/Sabina Strategies/Web Services/Acta AI/acta-ai/backend/venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py\", line 620, in _load_backend_mixin\n    version = _bcrypt.__about__.__version__\n              ^^^^^^^^^^^^^^^^^\nAttributeError: module 'bcrypt' has no attribute '__about__'", "timestamp": "2025-03-13T19:30:18.380104", "environment": "development", "app": "acta-ai-backend", "exception": ["Traceback (most recent call last):\n", "  File \"/Users/meganbroccoli/Desktop/Sabina Strategies/Web Services/Acta AI/acta-ai/backend/venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py\", line 620, in _load_backend_mixin\n    version = _bcrypt.__about__.__version__\n              ^^^^^^^^^^^^^^^^^\n", "AttributeError: module 'bcrypt' has no attribute '__about__'\n"]}
+{"message": "Failed login attempt for user: test@example.com", "timestamp": "2025-03-13T19:30:18.605622", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60808 - \"POST /api/auth/token HTTP/1.1\" 401", "timestamp": "2025-03-13T19:30:18.606792", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Successful login for user: test@example.com", "timestamp": "2025-03-13T19:30:25.088329", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60810 - \"POST /api/auth/token HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.089514", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60810 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.099034", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.108999", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"OPTIONS /api/sites HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.150723", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"OPTIONS /api/sites HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.151603", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.157420", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60810 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.159511", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.160253", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60810 - \"OPTIONS /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.165001", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"OPTIONS /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.165906", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.168239", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.179818", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"OPTIONS /api/templates HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.182715", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.184498", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.185282", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"OPTIONS /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.189993", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.190618", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.200975", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"OPTIONS /api/schedules HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.204186", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.206797", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.208314", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"OPTIONS /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.210202", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.210959", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.220021", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"OPTIONS /api/posts HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.222906", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.225292", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.226759", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"OPTIONS /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.228349", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.229318", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.240499", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"OPTIONS /api/posts?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.242533", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.244405", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60812 - \"OPTIONS /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.248416", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.249026", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:25.251155", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60811 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.255668", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60813 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:25.261300", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60816 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.849282", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60816 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.856771", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.859633", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.862406", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60816 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.863387", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.865722", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.866925", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.872647", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.874216", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.877756", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.880537", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.883381", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.887084", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.891172", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.894450", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.896952", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.898850", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.902295", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.908766", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:32.912055", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.913317", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:32.919186", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:33.617080", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:33.618915", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:33.621015", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:33.624508", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"OPTIONS /api/sites/1/test-connection HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:34.757724", "environment": "development", "app": "acta-ai-backend"}
+{"message": "HTTP Request: GET https://hardtofindwatch.s1-tastewp.com/wp-json/wp/v2/users/me \"HTTP/1.1 200 OK\"", "timestamp": "2025-03-13T19:30:35.504896", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"POST /api/sites/1/test-connection HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:35.506380", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"OPTIONS /api/sites/1 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:35.509518", "environment": "development", "app": "acta-ai-backend"}
+{"message": "HTTP Request: GET https://hardtofindwatch.s1-tastewp.com/wp-json/wp/v2/users/me \"HTTP/1.1 200 OK\"", "timestamp": "2025-03-13T19:30:35.895715", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"PUT /api/sites/1 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:35.899701", "environment": "development", "app": "acta-ai-backend"}
+{"message": "HTTP Request: GET https://hardtofindwatch.s1-tastewp.com/wp-json/wp/v2/categories?per_page=100 \"HTTP/1.1 200 OK\"", "timestamp": "2025-03-13T19:30:36.261972", "environment": "development", "app": "acta-ai-backend"}
+{"message": "HTTP Request: GET https://hardtofindwatch.s1-tastewp.com/wp-json/wp/v2/tags?per_page=100 \"HTTP/1.1 200 OK\"", "timestamp": "2025-03-13T19:30:36.631419", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:37.008234", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:38.279390", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:38.281966", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:38.285049", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:38.289151", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"OPTIONS /api/posts?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:39.880682", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"OPTIONS /api/posts?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:39.882853", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60824 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:39.883312", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/posts?page=1&limit=10 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:39.883699", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60817 - \"OPTIONS /api/posts/?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:39.885672", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60824 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:39.885926", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts?page=1&limit=10 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:39.886349", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:39.890773", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60826 - \"GET /api/posts/?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:39.894486", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:39.897677", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/posts/?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:39.901420", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.340476", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.353647", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.356088", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.356634", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.374215", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.376152", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.377244", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.394601", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.397124", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.399330", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.400720", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.405212", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.409608", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.413360", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.415960", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.417782", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.421279", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.425358", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.428986", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:42.431532", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.433847", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:42.438364", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.810151", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.813625", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.815452", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60828 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.818514", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.821287", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60828 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.822128", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.824876", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.828624", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.830807", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.834153", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.835841", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.839418", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.844852", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.847521", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.850873", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.853231", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.857935", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.861386", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.870016", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:30:46.875600", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60825 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.876347", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60815 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:46.880925", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60830 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:30:55.165665", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60831 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:02.864325", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60833 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:12.358168", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60833 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:16.839130", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60841 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:25.167786", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.416393", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.709748", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.764092", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.765407", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60863 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.765736", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60863 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.824487", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.827406", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.835164", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.838210", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.843602", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.848001", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60863 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.850357", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60863 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.854195", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.859572", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.862839", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60863 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.866455", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60863 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.870777", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.872220", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60863 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.875494", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.881287", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:31:33.886029", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60863 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.887464", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60862 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:33.893432", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60868 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:42.358849", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60868 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:46.822535", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60874 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:31:55.182958", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60875 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:02.866035", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60875 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:03.767551", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60875 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:03.825870", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60876 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:12.356513", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60876 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:16.821772", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:25.167865", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/health HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:29.945961", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/health HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:29.956463", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60890 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:29.958451", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:29.968951", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60890 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.035327", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60890 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.040799", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.041251", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.045674", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60890 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.046401", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.049687", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.052919", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.057661", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.059403", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.075155", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.077857", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.082547", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.083130", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.088860", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.091776", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.102968", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.107681", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.115896", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.124253", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60881 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.126854", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:30.127996", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60891 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:30.138040", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60895 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:36.134234", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60895 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:36.136896", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60896 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:36.139693", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60895 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:36.143631", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60895 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:37.780813", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60895 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:38.469103", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60895 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:38.472507", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60896 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:38.476296", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60895 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:38.481020", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60898 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:46.192102", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60898 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:46.199414", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60898 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:46.206980", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60898 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:46.212044", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60898 - \"GET /api/posts?page=1&limit=10 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:49.292833", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60899 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:49.293200", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60898 - \"GET /api/posts?page=1&limit=10 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:49.295908", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60899 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:32:49.296068", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60902 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:49.298222", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60901 - \"GET /api/posts/?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:49.300914", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60899 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:49.302656", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60902 - \"GET /api/posts/?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:49.305281", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60902 - \"OPTIONS /api/posts/29 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:52.046762", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60899 - \"OPTIONS /api/posts/29 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:52.047219", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60901 - \"GET /api/posts/29 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:52.055258", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60899 - \"GET /api/posts/29 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:32:52.059613", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60903 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:33:00.065274", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60903 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:33:00.071623", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60904 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:33:30.052116", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60904 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:33:30.061339", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60921 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:34:00.069540", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60921 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:34:00.076129", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60922 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:34:30.053842", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60922 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:34:30.084504", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60927 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:35:00.052957", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60927 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:35:00.060052", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60930 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:35:30.076190", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60930 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:35:30.085764", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60932 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:36:00.083892", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60932 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:36:00.086847", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60934 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:36:30.079026", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60934 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:36:30.088238", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60936 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:37:00.076581", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60936 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:37:00.085822", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60957 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:37:30.085160", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60957 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:37:30.089703", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60958 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:38:00.077082", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60958 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:38:00.087191", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60961 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:38:30.088215", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60961 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:38:30.095539", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60962 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:39:00.077632", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60962 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:39:00.088197", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60978 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:39:30.080005", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60978 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:39:30.104574", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60979 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:40:00.077798", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60979 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:40:00.086199", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60983 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:40:30.075154", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60983 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:40:30.098366", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60983 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:40:30.106952", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60985 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:41:00.076854", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60985 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:41:00.087623", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60993 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:41:30.085179", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60993 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:41:30.090745", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60994 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:42:00.079475", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60994 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:42:00.088341", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60999 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:42:30.082885", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:60999 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:42:30.088942", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61000 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:43:00.079145", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61000 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:43:00.087191", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61003 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:43:30.081835", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61003 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:43:30.088581", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61004 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:44:00.079122", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61004 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:44:00.087792", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61020 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:44:30.099116", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61020 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:44:30.123729", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61021 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:45:00.079485", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61021 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:45:00.087496", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61027 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:45:30.107749", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61027 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:45:30.115800", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61029 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:00.079390", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61029 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:00.087331", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61040 - \"OPTIONS /api/posts?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.348266", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61041 - \"OPTIONS /api/sites HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.348467", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"OPTIONS /api/posts?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.348827", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61043 - \"OPTIONS /api/sites HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.348975", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61044 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:14.351774", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61041 - \"GET /api/posts?page=1&limit=10 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:14.352103", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"OPTIONS /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.355625", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61043 - \"OPTIONS /api/posts/?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.355817", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61044 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:14.356038", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61041 - \"GET /api/posts?page=1&limit=10 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:14.356431", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.367160", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61040 - \"GET /api/posts/?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.368246", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.373465", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/posts/?page=1&limit=10 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:14.374695", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"OPTIONS /api/schedules HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:15.247327", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"OPTIONS /api/schedules HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:15.247582", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61040 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:15.250044", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61040 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:15.251254", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61040 - \"OPTIONS /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:15.254223", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"OPTIONS /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:15.254690", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:15.263878", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:15.272495", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"OPTIONS /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:16.297416", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:16.305556", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:17.059856", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:17.062577", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:17.065267", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:17.069240", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.179070", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.180486", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.187423", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"OPTIONS /api/templates HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.189908", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.192749", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.193355", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.196121", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.198668", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.201883", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.202658", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.208792", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.211389", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"OPTIONS /api/posts HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.214661", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.217514", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.217952", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"OPTIONS /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.218445", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.219634", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.224024", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"OPTIONS /api/posts?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.225948", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.227112", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"OPTIONS /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.230710", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.231336", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T19:46:18.233547", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61042 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.236756", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61045 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:18.242041", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61051 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:30.078173", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61051 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:46:30.084388", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61064 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:47:00.100874", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61064 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:47:00.105147", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61065 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:47:30.112654", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61065 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:47:30.121634", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61077 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:48:00.127687", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61077 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:48:00.133845", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61087 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:48:30.084420", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61087 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:48:30.087440", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61096 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:49:00.099875", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61096 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:49:00.103997", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61141 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:49:30.100697", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61141 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:49:30.104254", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61170 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:50:00.093101", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61170 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:50:00.129629", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61178 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:50:30.081566", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61178 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:50:30.084764", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61178 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:50:30.091402", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61184 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:51:00.113057", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61184 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:51:00.119365", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61186 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:51:30.078686", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61186 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:51:30.087165", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61192 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:52:00.085018", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61192 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:52:00.092380", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61193 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:52:30.077504", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61193 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:52:30.087449", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61218 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:53:00.087148", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61218 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:53:00.090936", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61219 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:53:30.095972", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61219 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:53:30.104140", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61260 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:54:00.088430", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61260 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:54:00.094538", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61279 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:54:30.103244", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61279 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:54:30.108514", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61282 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:55:00.086936", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61282 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:55:00.090259", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61286 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:55:30.080690", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61286 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:55:30.108233", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61304 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:56:00.086484", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61304 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:56:00.088929", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61305 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:56:30.103741", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61305 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:56:30.110985", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61309 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:57:00.120277", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61309 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:57:00.129532", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61322 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:57:30.107336", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61322 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:57:30.113419", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61327 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:58:00.084355", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61327 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:58:00.096959", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61331 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:58:30.091274", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61334 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:58:30.096277", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61356 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:59:00.116716", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61356 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:59:00.121809", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61358 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:59:30.111689", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61358 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T19:59:30.120427", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61359 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:00:00.125315", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61359 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:00:00.132460", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61363 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:00:30.126042", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61365 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:00:30.126446", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61363 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:00:30.145729", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61365 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:00:30.188148", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61370 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:01:00.106576", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61370 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:01:00.118961", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61375 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:01:30.152624", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61375 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:01:30.163688", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61377 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:02:00.110631", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61380 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:02:00.119438", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61382 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:02:30.123103", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61382 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:02:30.127136", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61383 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:03:00.133483", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61383 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:03:00.136307", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61388 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:03:30.166773", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61392 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:03:30.172333", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61407 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:04:00.110566", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61407 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:04:00.121729", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61410 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:04:30.115789", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61410 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:04:30.118049", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61411 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:05:00.115164", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61411 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:05:00.117745", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61440 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:05:30.117690", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61457 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:05:30.120306", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61464 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:06:00.123587", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61464 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:06:00.150102", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61465 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:06:30.123699", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61465 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:06:30.160512", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61468 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:07:00.144962", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61480 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:07:00.148723", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61482 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:07:30.119332", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61482 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:07:30.125763", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61483 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:08:00.119648", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61483 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:08:00.122599", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61488 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:08:30.167526", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61488 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:08:30.172063", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61500 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:09:00.131842", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61500 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:09:00.136936", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61523 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:09:30.121419", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61523 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:09:30.125494", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61527 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:10:00.133181", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61527 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:10:00.137774", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61538 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:10:30.115441", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61538 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:10:30.124384", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61539 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:11:00.125596", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61544 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:11:00.129284", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61545 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:11:00.180378", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61544 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:11:00.218589", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61547 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:11:30.117144", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61547 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:11:30.125505", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61548 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:12:00.142079", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61548 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:12:00.150070", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61551 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:12:30.111316", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61551 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:12:30.119260", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61568 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:13:00.127016", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61568 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:13:00.129739", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61569 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:13:30.125346", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61569 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:13:30.128815", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61580 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:14:00.125099", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61580 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:14:00.128757", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61604 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:14:30.137734", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61604 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:14:30.145976", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61605 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:00.127494", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61607 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:00.131635", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Shutting down", "timestamp": "2025-03-13T20:15:30.011667", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application shutdown.", "timestamp": "2025-03-13T20:15:30.120842", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application shutdown complete.", "timestamp": "2025-03-13T20:15:30.142832", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Finished server process [65471]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:15:30.146623", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:33.612019", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:33.623209", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68199]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:15:33.673744", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:15:33.673950", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:15:33.785789", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:15:33.809692", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:15:33.810439", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:15:33.810552", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:15:33.811664", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:15:33.812008", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:15:33.812838", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:35.235027", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:35.238733", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68227]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:15:35.270816", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:15:35.271217", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:15:35.289083", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:15:35.316712", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:15:35.318331", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:15:35.318675", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:15:35.319606", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:15:35.320115", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:15:35.321411", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:36.235615", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:36.239293", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68238]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:15:36.271003", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:15:36.271057", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:15:36.280841", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:15:36.286814", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:15:36.287192", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:15:36.287240", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:15:36.287486", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:15:36.287623", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:15:36.287897", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/health HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.361804", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/health HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.367467", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:15:36.377469", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61681 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.381361", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.389834", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:15:36.392549", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:15:36.398074", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"OPTIONS /api/sites HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.428042", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"OPTIONS /api/sites HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.432883", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.437034", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.441060", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61681 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.441586", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61681 - \"OPTIONS /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.447185", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"OPTIONS /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.447462", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.462540", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61686 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.466288", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61686 - \"OPTIONS /api/templates HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.470930", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61686 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.473401", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61686 - \"OPTIONS /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.475117", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.475999", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.480750", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.486245", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"OPTIONS /api/schedules HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.489112", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.491525", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.492439", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"OPTIONS /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.495260", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.495879", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.508752", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"OPTIONS /api/posts HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.511332", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.513873", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"OPTIONS /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.516300", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.517651", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.524439", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.529544", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61680 - \"OPTIONS /api/posts?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.531416", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61686 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.535988", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61686 - \"OPTIONS /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.537943", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.538547", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T20:15:36.541220", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61686 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.546500", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61685 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T20:15:36.553868", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Shutting down", "timestamp": "2025-03-13T20:15:40.433248", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application shutdown.", "timestamp": "2025-03-13T20:15:40.535448", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application shutdown complete.", "timestamp": "2025-03-13T20:15:40.536819", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Finished server process [68238]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:15:40.537076", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:41.092452", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:41.095201", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68258]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:15:41.114720", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:15:41.114774", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:15:41.122988", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:15:41.127201", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:15:41.127521", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:15:41.127568", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:15:41.127812", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:15:41.127946", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:15:41.128283", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:15:41.176441", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:15:41.179353", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:15:41.180673", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Shutting down", "timestamp": "2025-03-13T20:15:42.442014", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application shutdown.", "timestamp": "2025-03-13T20:15:42.544634", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application shutdown complete.", "timestamp": "2025-03-13T20:15:42.546170", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Finished server process [68258]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:15:42.546575", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:43.076445", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:15:43.079538", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68264]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:15:43.097704", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:15:43.097761", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:15:43.109710", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:15:43.117321", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:15:43.117720", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:15:43.117769", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:15:43.117990", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:15:43.118111", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:15:43.118337", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:15:43.158287", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:15:43.162794", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:15:43.164487", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Removed job debug_test_job", "timestamp": "2025-03-13T20:15:53.119479", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Running job \"SchedulerService._debug_test_job (trigger: date[2025-03-13 21:15:53 CET], next run at: 2025-03-13 21:15:53 CET)\" (scheduled at 2025-03-13 21:15:53.118003+01:00)", "timestamp": "2025-03-13T20:15:53.120404", "environment": "development", "app": "acta-ai-backend"}
+{"message": "DEBUG TEST JOB EXECUTED - Scheduler is working!", "timestamp": "2025-03-13T20:15:53.120624", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Job \"SchedulerService._debug_test_job (trigger: date[2025-03-13 21:15:53 CET], next run at: 2025-03-13 21:15:53 CET)\" executed successfully", "timestamp": "2025-03-13T20:15:53.121168", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61696 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:16:06.504073", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61696 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:16:06.509031", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61697 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:16:36.476585", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61697 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:16:36.484494", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61702 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:17:06.443832", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61702 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:17:06.456980", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61709 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:17:36.494454", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61709 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:17:36.498799", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61710 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:18:06.418491", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61710 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:18:06.432654", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61749 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:18:36.442109", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61749 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:18:36.448415", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61750 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:19:06.420730", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61750 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:19:06.435496", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61765 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:19:36.435382", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61765 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:19:36.442868", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61766 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:20:06.418633", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61766 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:20:06.434591", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61773 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:20:36.523345", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61773 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:20:36.534677", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61774 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:21:06.415628", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61774 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:21:06.465466", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61774 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:21:06.474250", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61779 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:21:36.435287", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61779 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:21:36.440355", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61782 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:22:06.419574", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61782 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:22:06.436501", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61784 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:22:36.414206", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61784 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:22:36.430882", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61786 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:23:06.419092", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61786 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:23:06.436697", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61795 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:23:36.433868", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61795 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:23:36.441596", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61796 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:24:06.435874", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61796 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:24:06.440593", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61809 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:24:36.415762", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61809 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:24:36.432795", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61818 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:25:06.423929", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61818 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:25:06.431588", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61839 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:25:36.417574", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61839 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:25:36.433073", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61869 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:26:06.421658", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61869 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:26:06.444698", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61879 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:26:36.423863", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61879 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:26:36.429090", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61890 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:27:06.430236", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61890 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:27:06.434124", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61891 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:27:36.416876", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61891 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:27:36.432483", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61899 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:28:06.417865", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61899 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:28:06.431617", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61910 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:28:36.425794", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61910 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:28:36.431167", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61924 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:29:06.420341", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61924 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:29:06.436012", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61928 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:29:36.436336", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61928 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:29:36.442103", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61929 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:06.439062", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61929 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:06.446768", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Shutting down", "timestamp": "2025-03-13T20:30:28.037781", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application shutdown.", "timestamp": "2025-03-13T20:30:28.142892", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application shutdown complete.", "timestamp": "2025-03-13T20:30:28.165048", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Finished server process [68264]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:28.165491", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:31.603994", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:31.609541", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68892]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:31.654802", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:30:31.654913", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:30:32.046623", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:30:32.087322", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:30:32.091324", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:30:32.091408", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:30:32.091913", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:30:32.092119", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:30:32.092714", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:33.734155", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:33.750954", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68956]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:33.808759", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:30:33.811288", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:30:33.837715", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:30:33.851850", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:30:33.852600", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:30:33.852667", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:30:33.853027", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:30:33.853223", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:30:33.853628", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:34.907030", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:34.910877", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68963]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:34.958953", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:30:34.959021", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:30:34.985198", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:30:35.004433", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:30:35.007304", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:30:35.007400", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:30:35.009614", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:30:35.010011", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:30:35.013689", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:35.652471", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:35.656956", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68972]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:35.682752", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:30:35.682818", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:30:35.691351", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:30:35.697144", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:30:35.697973", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:30:35.698056", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:30:35.698551", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:30:35.698727", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:30:35.699144", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:36.503620", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:36.507351", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68975]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:36.534437", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:30:36.534647", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:30:36.544311", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:30:36.551373", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:30:36.552084", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:30:36.552169", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:30:36.552544", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:30:36.552735", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:30:36.553153", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:37.228135", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:37.231428", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68983]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:37.250552", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:30:37.250609", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:30:37.258393", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:30:37.264129", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:30:37.264604", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:30:37.264659", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:30:37.264965", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:30:37.265117", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:30:37.265404", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:37.770016", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:37.772849", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68987]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:37.790781", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:30:37.790835", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:30:37.800736", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:30:37.805440", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:30:37.805720", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:30:37.805768", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:30:37.805959", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:30:37.806096", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:30:37.806336", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:38.303119", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:38.305979", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68989]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:38.324205", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:30:38.324261", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:30:38.335270", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:30:38.341040", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:30:38.341402", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:30:38.341459", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:30:38.341650", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:30:38.341792", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:30:38.342045", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:38.902939", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:30:38.905954", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [68991]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:30:38.925658", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:30:38.925716", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:30:38.935767", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:30:38.941319", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:30:38.941765", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:30:38.941818", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:30:38.942099", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:30:38.942261", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:30:38.942585", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61992 - \"GET /api/health HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.007837", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61992 - \"GET /api/health HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.010091", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:30:39.018568", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.024677", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:30:39.032424", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61992 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.033298", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._generate_and_post\" to job store \"default\"", "timestamp": "2025-03-13T20:30:39.035181", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61992 - \"OPTIONS /api/sites HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.065184", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"OPTIONS /api/sites HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.065753", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62015 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.071376", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.074117", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62015 - \"GET /api/sites HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.077449", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.079928", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62015 - \"OPTIONS /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.081276", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"OPTIONS /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.081379", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.089150", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"OPTIONS /api/templates HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.092392", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.093903", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62015 - \"GET /api/sites/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.094346", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62015 - \"OPTIONS /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.100474", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/templates HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.101025", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.106049", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"OPTIONS /api/schedules HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.108610", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62015 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.109593", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"GET /api/templates/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.110990", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"OPTIONS /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.114041", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62015 - \"GET /api/schedules HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.115877", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.121126", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"OPTIONS /api/posts HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.123204", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.124750", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62015 - \"GET /api/schedules/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.125932", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62015 - \"OPTIONS /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.129193", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/posts HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.131132", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.141308", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"OPTIONS /api/posts?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.143388", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.146073", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"OPTIONS /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.149151", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/posts/ HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.149605", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/posts?limit=5 HTTP/1.1\" 307", "timestamp": "2025-03-13T20:30:39.151962", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62014 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.156201", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:61993 - \"GET /api/posts/?limit=5 HTTP/1.1\" 200", "timestamp": "2025-03-13T20:30:39.161483", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Removed job debug_test_job", "timestamp": "2025-03-13T20:30:48.944812", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Running job \"SchedulerService._debug_test_job (trigger: date[2025-03-13 21:30:48 CET], next run at: 2025-03-13 21:30:48 CET)\" (scheduled at 2025-03-13 21:30:48.942119+01:00)", "timestamp": "2025-03-13T20:30:48.945661", "environment": "development", "app": "acta-ai-backend"}
+{"message": "DEBUG TEST JOB EXECUTED - Scheduler is working!", "timestamp": "2025-03-13T20:30:48.945994", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Job \"SchedulerService._debug_test_job (trigger: date[2025-03-13 21:30:48 CET], next run at: 2025-03-13 21:30:48 CET)\" executed successfully", "timestamp": "2025-03-13T20:30:48.946594", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62018 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:31:09.088129", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62019 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:31:09.088650", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62018 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:31:09.095756", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62019 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:31:09.098897", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62022 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:31:39.107397", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62023 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:31:39.114975", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62026 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:32:09.107765", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62026 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:32:09.118439", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62027 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:32:39.102813", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62027 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:32:39.107251", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62031 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:33:09.095351", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62031 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:33:09.097922", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62036 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:33:39.093812", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62036 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:33:39.096318", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62052 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:34:09.086455", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62052 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:34:09.089343", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62074 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:34:39.126344", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62074 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:34:39.130456", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62082 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:35:09.090781", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62082 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:35:09.095100", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62097 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:35:39.106424", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62097 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:35:39.116638", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62108 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:36:09.117777", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62108 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:36:09.123062", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62111 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:36:39.097929", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62111 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:36:39.101414", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62115 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:37:09.108116", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62118 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:37:09.117581", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62121 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:37:39.088839", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62121 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:37:39.093574", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62122 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:38:09.094102", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62122 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:38:09.097581", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62127 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:38:39.087692", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62127 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:38:39.090139", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62132 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:39:09.099250", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62160 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:39:09.102952", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62179 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:39:39.222835", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62179 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:39:39.232257", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62183 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:40:09.114089", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62183 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:40:09.119665", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62184 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:40:39.086705", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62184 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:40:39.088884", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62224 - \"OPTIONS /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:41:09.097057", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62194 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:41:09.135396", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62224 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:41:09.165879", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62231 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:41:39.092181", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62231 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:41:39.099790", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62232 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:42:09.139543", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62233 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:42:09.146838", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62238 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:42:39.098630", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62238 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:42:39.102058", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62239 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:43:09.093711", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62239 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:43:09.096106", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62245 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:43:39.111405", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62266 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:43:39.117266", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62283 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:44:09.106915", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62283 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:44:09.114019", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62284 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:44:39.090473", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62284 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:44:39.097159", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62286 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:45:09.155817", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62286 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:45:09.158347", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62287 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:45:39.093616", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62287 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:45:39.096046", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62294 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:46:09.093755", "environment": "development", "app": "acta-ai-backend"}
+{"message": "127.0.0.1:62297 - \"GET /api/auth/me HTTP/1.1\" 200", "timestamp": "2025-03-13T20:46:09.097608", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Shutting down", "timestamp": "2025-03-13T20:46:18.466423", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application shutdown.", "timestamp": "2025-03-13T20:46:18.570940", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application shutdown complete.", "timestamp": "2025-03-13T20:46:18.610322", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Finished server process [68991]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:46:18.616461", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:22.188572", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:22.194307", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [69779]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:46:22.261479", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:46:22.261632", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:46:22.459587", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:46:22.487416", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:46:22.488501", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:46:22.488713", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:46:22.489482", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:46:22.489723", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:46:22.490218", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:24.148930", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:24.156954", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [69836]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:46:24.192687", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:46:24.192817", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:46:24.220731", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:46:24.228840", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:46:24.229822", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:46:24.229903", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:46:24.230300", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:46:24.230672", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:46:24.231173", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:25.370815", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:25.374294", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [69840]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:46:25.399932", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:46:25.400004", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:46:25.412558", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:46:25.418730", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:46:25.419353", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:46:25.419506", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:46:25.419819", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:46:25.419983", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:46:25.420346", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:26.147408", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:26.151249", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [69845]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:46:26.176225", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:46:26.176306", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Creating database tables if they don't exist", "timestamp": "2025-03-13T20:46:26.189790", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Database initialized successfully", "timestamp": "2025-03-13T20:46:26.197386", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Initializing scheduler service", "timestamp": "2025-03-13T20:46:26.198996", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Starting scheduler", "timestamp": "2025-03-13T20:46:26.199986", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Scheduler started", "timestamp": "2025-03-13T20:46:26.200403", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Added job \"SchedulerService._debug_test_job\" to job store \"default\"", "timestamp": "2025-03-13T20:46:26.200570", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Application startup complete.", "timestamp": "2025-03-13T20:46:26.200924", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:27.130234", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Logging configured successfully", "event_type": "system_startup", "timestamp": "2025-03-13T20:46:27.133255", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Started server process [69850]", "color_message": "Started server process [\u001b[36m%d\u001b[0m]", "timestamp": "2025-03-13T20:46:27.155009", "environment": "development", "app": "acta-ai-backend"}
+{"message": "Waiting for application startup.", "timestamp": "2025-03-13T20:46:27.155064", "environment": "development", "app": "acta-ai-backend"}

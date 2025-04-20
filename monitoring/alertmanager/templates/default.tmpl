@@ -1,0 +1,119 @@
+{{ define "slack.default.title" -}}
+[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+{{- end }}
+
+{{ define "slack.default.text" -}}
+{{ range .Alerts -}}
+*Alert:* {{ .Annotations.summary }}
+*Description:* {{ .Annotations.description }}
+*Severity:* {{ .Labels.severity }}
+*Started:* {{ .StartsAt | since }}
+{{ if ne .Labels.instance "" -}}
+*Instance:* {{ .Labels.instance }}
+{{ end -}}
+{{ end }}
+{{- end }}
+
+{{ define "slack.default.titlelink" -}}
+{{ .ExternalURL }}
+{{- end }}
+
+{{ define "email.default.subject" -}}
+[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+{{- end }}
+
+{{ define "email.default.html" -}}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ template "email.default.subject" . }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1, h2, h3 {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .alert {
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 4px;
+    }
+    .firing {
+      background-color: #ffeeee;
+      border: 1px solid #ffcccc;
+    }
+    .resolved {
+      background-color: #eeffee;
+      border: 1px solid #ccffcc;
+    }
+    .critical {
+      border-left: 5px solid #cc0000;
+    }
+    .warning {
+      border-left: 5px solid #ff9900;
+    }
+    .info {
+      border-left: 5px solid #0099cc;
+    }
+    .label {
+      display: inline-block;
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .value {
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>{{ template "email.default.subject" . }}</h1>
+  <div>
+    {{- if eq .Status "firing" }}
+    <p>There are {{ .Alerts.Firing | len }} firing alerts.</p>
+    {{- end }}
+    {{- if eq .Status "resolved" }}
+    <p>These alerts have been resolved.</p>
+    {{- end }}
+  </div>
+  
+  <div>
+    {{ range .Alerts }}
+    <div class="alert {{ .Status }}{{ if .Labels.severity }} {{ .Labels.severity }}{{ end }}">
+      <h3>{{ .Annotations.summary }}</h3>
+      <p>{{ .Annotations.description }}</p>
+      <p>
+        <span class="label">Status:</span>
+        <span class="value">{{ .Status | toUpper }}</span>
+      </p>
+      <p>
+        <span class="label">Severity:</span>
+        <span class="value">{{ .Labels.severity }}</span>
+      </p>
+      {{ if ne .Labels.instance "" }}
+      <p>
+        <span class="label">Instance:</span>
+        <span class="value">{{ .Labels.instance }}</span>
+      </p>
+      {{ end }}
+      <p>
+        <span class="label">Started:</span>
+        <span class="value">{{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}</span>
+      </p>
+      {{ if eq .Status "resolved" }}
+      <p>
+        <span class="label">Resolved:</span>
+        <span class="value">{{ .EndsAt.Format "2006-01-02 15:04:05 MST" }}</span>
+      </p>
+      {{ end }}
+    </div>
+    {{ end }}
+  </div>
+</body>
+</html>
+{{- end }} 

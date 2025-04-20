@@ -1,0 +1,5 @@
+2025-03-10 23:01:56,988 - app.core.database - INFO - Using database connection URL: postgresql+asyncpg://postgres:password@localhost:5432/actaai
+2025-03-10 23:01:57,034 - root - INFO - Successfully patched the scheduler service with debug logging
+
+--- New execution check ---
+No execution history records found.
