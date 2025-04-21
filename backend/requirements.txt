@@ -17,6 +17,7 @@ python-dotenv>=1.0.0
 asyncio>=3.4.3
 passlib>=1.7.4
 bcrypt>=4.0.1
+markdown>=3.5.1
 
 # Date/Time handling
 pytz>=2023.3
