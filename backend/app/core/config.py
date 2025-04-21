@@ -1,6 +1,6 @@
 import os
 from pydantic_settings import BaseSettings
-from typing import Optional
+from typing import Optional, List, Union
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Acta AI"
@@ -17,8 +17,14 @@ class Settings(BaseSettings):
     # OpenAI
     OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
     
+    # Environment settings causing validation errors
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+    DEBUG: bool = os.getenv("DEBUG", "False").lower() in ("true", "1", "t")
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra fields not defined in the model
 
 settings = Settings() 

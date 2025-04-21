@@ -1,44 +1,46 @@
 #!/bin/bash
 
-# Acta AI Production Deployment Script
-# This script automates the deployment process for the Acta AI application
-
+# Exit on error
 set -e
 
-# Colors for output
+# Define colors for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-# Function to print colorful messages
-print_message() {
-  echo -e "${GREEN}[Acta AI Deploy]${NC} $1"
-}
+echo -e "${GREEN}Deploying Acta AI to production...${NC}"
 
-print_warning() {
-  echo -e "${YELLOW}[Warning]${NC} $1"
-}
+# Add all changes to git
+git add .
+git commit -m "Fix nginx configuration and backend settings validation errors"
 
-print_error() {
-  echo -e "${RED}[Error]${NC} $1"
-}
+# Push to the main branch
+git push origin main
+
+# SSH into the server and pull the latest changes
+echo -e "${YELLOW}Connecting to the server and deploying...${NC}"
+ssh -i ~/.ssh/id_ed25519 root@24.144.116.59 "cd /root/acta-ai && git pull && docker-compose down && docker-compose up -d --build"
+
+echo -e "${GREEN}Deployment complete!${NC}"
+echo -e "${YELLOW}Please check the status of the containers with:${NC}"
+echo -e "ssh root@24.144.116.59 'docker ps'"
 
 # Check if Docker is installed
 if ! command -v docker &> /dev/null; then
-  print_error "Docker is not installed. Please install Docker before continuing."
+  echo -e "${RED}Docker is not installed. Please install Docker before continuing.${NC}"
   exit 1
 fi
 
 # Check if Docker Compose is installed
 if ! command -v docker-compose &> /dev/null; then
-  print_error "Docker Compose is not installed. Please install Docker Compose before continuing."
+  echo -e "${RED}Docker Compose is not installed. Please install Docker Compose before continuing.${NC}"
   exit 1
 fi
 
 # Check for .env file
 if [ ! -f .env ]; then
-  print_warning "No .env file found. Creating a template .env file."
+  echo -e "${YELLOW}No .env file found. Creating a template .env file.${NC}"
   cat > .env << EOF
 # Security
 SECRET_KEY=change_this_to_a_random_string
@@ -51,38 +53,22 @@ OPENAI_API_KEY=your-openai-api-key
 # Domain configuration
 DOMAIN_NAME=acta-ai.yourdomain.com
 EOF
-  print_message ".env file created. Please update it with your actual values before continuing."
+  echo -e "${GREEN}.env file created. Please update it with your actual values before continuing.${NC}"
   exit 1
 fi
 
 # Check for SSL certificates
 if [ ! -d "nginx/ssl" ]; then
-  print_message "Creating directory for SSL certificates"
+  echo -e "${GREEN}Creating directory for SSL certificates${NC}"
   mkdir -p nginx/ssl
-  print_warning "SSL certificates not found. Please place your SSL certificates in the nginx/ssl directory:"
-  print_warning "  - nginx/ssl/acta-ai.crt"
-  print_warning "  - nginx/ssl/acta-ai.key"
+  echo -e "${YELLOW}SSL certificates not found. Please place your SSL certificates in the nginx/ssl directory:${NC}"
+  echo -e "  - nginx/ssl/acta-ai.crt"
+  echo -e "  - nginx/ssl/acta-ai.key${NC}"
   exit 1
 fi
 
-# Stop any running containers
-print_message "Stopping any running containers..."
-docker-compose down
-
-# Pull latest code from repository
-print_message "Pulling latest code from repository..."
-git pull
-
-# Build the containers
-print_message "Building Docker containers..."
-docker-compose build
-
-# Start the services
-print_message "Starting services..."
-docker-compose up -d
-
 # Wait for the backend to be ready
-print_message "Waiting for backend to be ready..."
+echo -e "${GREEN}Waiting for backend to be ready...${NC}"
 for i in {1..30}; do
   if curl -s http://localhost:8000/api/health > /dev/null; then
     break
@@ -94,47 +80,47 @@ echo ""
 
 # Check if backend is responding
 if curl -s http://localhost:8000/api/health > /dev/null; then
-  print_message "Backend is up and running!"
+  echo -e "${GREEN}Backend is up and running!${NC}"
 else
-  print_error "Backend didn't come up within the expected time."
-  print_error "Check the logs with: docker-compose logs backend"
+  echo -e "${RED}Backend didn't come up within the expected time.${NC}"
+  echo -e "${RED}Check the logs with: docker-compose logs backend${NC}"
   exit 1
 fi
 
 # Check for database initialization flag
 if [ ! -f ".db_initialized" ]; then
-  print_message "First-time setup detected. Initializing database..."
+  echo -e "${GREEN}First-time setup detected. Initializing database...${NC}"
   docker-compose exec -T backend python -m app.initialize_db
   touch .db_initialized
 else
-  print_message "Database already initialized. Skipping initialization."
+  echo -e "${GREEN}Database already initialized. Skipping initialization.${NC}"
 fi
 
 # Run database migrations
-print_message "Running database migrations..."
+echo -e "${GREEN}Running database migrations...${NC}"
 docker-compose exec -T backend alembic upgrade head
 
-print_message "Acta AI has been successfully deployed!"
-print_message "Frontend: https://$DOMAIN_NAME"
-print_message "Backend API: https://$DOMAIN_NAME/api"
+echo -e "${GREEN}Acta AI has been successfully deployed!${NC}"
+echo -e "${GREEN}Frontend: https://$DOMAIN_NAME${NC}"
+echo -e "${GREEN}Backend API: https://$DOMAIN_NAME/api${NC}"
 
-print_message "To view logs:"
-print_message "  docker-compose logs -f"
-print_message "To restart services:"
-print_message "  docker-compose restart"
-print_message "To stop services:"
-print_message "  docker-compose down"
+echo -e "${GREEN}To view logs:${NC}"
+echo -e "docker-compose logs -f${NC}"
+echo -e "To restart services:${NC}"
+echo -e "docker-compose restart${NC}"
+echo -e "To stop services:${NC}"
+echo -e "docker-compose down${NC}"
 
 # Display any potential warnings or notes
 source .env
 if [ "$OPENAI_API_KEY" = "your-openai-api-key" ]; then
-  print_warning "The OpenAI API key has not been set. Update it in the .env file."
+  echo -e "${YELLOW}The OpenAI API key has not been set. Update it in the .env file.${NC}"
 fi
 
 if [ "$SECRET_KEY" = "change_this_to_a_random_string" ]; then
-  print_warning "The SECRET_KEY has not been changed from the default value. Update it in the .env file."
+  echo -e "${YELLOW}The SECRET_KEY has not been changed from the default value. Update it in the .env file.${NC}"
 fi
 
 if [ "$DOMAIN_NAME" = "acta-ai.yourdomain.com" ]; then
-  print_warning "The DOMAIN_NAME is still set to the default. Update it in the .env file to match your actual domain."
+  echo -e "${YELLOW}The DOMAIN_NAME is still set to the default. Update it in the .env file to match your actual domain.${NC}"
 fi 
