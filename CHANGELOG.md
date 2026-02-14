@@ -10,11 +10,149 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Next up
 - Shopify/Wix publishing (currently "Coming Soon")
-- Content pipeline improvements (priorities 5-6 from Session 7 research)
+- Content pipeline P1-P6 all complete
 
 ---
 
 ## Session Log
+
+### 2026-02-14 (Session 18) — Featured Image Generation (DALL-E 3 + Unsplash)
+
+**What we did:**
+Added automatic featured image generation to the content pipeline. Every blog post can now get a hero image — either AI-generated via DALL-E 3 or sourced from Unsplash stock photos — configured per template and fully integrated into the test panel, scheduler, and WordPress publishing.
+
+**1. New service: `backend/app/services/images.py`**
+- `generate_featured_image(source, title, industry, style_guidance)` — dispatcher
+- `_generate_dalle_image()` — DALL-E 3, 1792x1024 landscape, standard quality ($0.04/image), "no text overlay" instruction, 60s timeout
+- `_search_unsplash_image()` — title-first search with industry fallback, landscape orientation, download tracking per API guidelines, 15s timeout
+- All errors logged and return `None` — article pipeline continues without image
+
+**2. Database: migration `f5a6b7c8d9e0`**
+- Added `image_source` (String(20), nullable) and `image_style_guidance` (Text, nullable) to `prompt_templates`
+- `BlogPost.featured_image_url` column already existed — no migration needed on post side
+
+**3. Content pipeline wiring** (`services/content.py`)
+- `ContentResult` and `GenerationResult` dataclasses now include `featured_image_url`
+- `generate_content()` gains `image_source`, `image_style_guidance`, `industry` params
+- Dynamic `total_steps` (3 or 4) — progress callbacks report correct total
+- Image generation runs as step 4 after review, only when image source is set
+- `generate_post()` passes template image settings through to `generate_content()`
+
+**4. WordPress image upload** (`services/publishing.py`)
+- New `_wp_upload_featured_image(image_url, site, title)` — downloads image to memory, uploads via `POST /wp/v2/media`, returns media ID
+- `publish_to_wordpress()` — if `post.featured_image_url` is set, uploads image first and includes `featured_media` in post payload
+- Non-fatal: image upload failure doesn't block post publishing
+
+**5. Template API** (`api/templates.py`)
+- `duplicate_template()` copies `image_source` and `image_style_guidance`
+- `test_content` and `test_content_stream` endpoints pass image params to pipeline
+- SSE `complete` event now includes `featured_image_url`
+
+**6. Scheduler** (`services/scheduler.py`)
+- BlogPost creation includes `featured_image_url=gen.featured_image_url`
+
+**7. Frontend — Template form** (`PromptForm.jsx`)
+- Defaults tab: "Featured Image" section with Image Source dropdown (None / DALL-E 3 / Unsplash)
+- DALL-E option shows optional "Image Style Guidance" textarea
+- Adaptive `ContentProgressBar` — dynamically shows 3 or 4 stages based on `progress.total`
+- Test panel captures `featured_image_url` from SSE complete event
+- Article preview shows featured image above content with source label overlay
+
+**8. Frontend — Post detail** (`PostDetail.jsx`)
+- Shows featured image above content card if `post.featured_image_url` exists
+
+**Config:**
+- Added `UNSPLASH_ACCESS_KEY` to `Settings` class (`core/config.py`)
+
+**What does NOT change:**
+- `BlogPost` model — `featured_image_url` already existed
+- Post schemas — already had `featured_image_url`
+- Title generation, interview, outline, draft, review steps — unchanged
+- Shopify/Wix publishing — still "Coming Soon"
+
+---
+
+### 2026-02-14 (Session 17) — Review Step Improvements (P6): Outline + Rubric + Voice Preservation
+
+**What we did:**
+Rewrote the review/polish step of the AI content pipeline to fix three gaps identified in Session 7 research: the reviewer now sees the original outline for structural compliance checking, uses a prioritized rubric instead of a flat checklist, and preserves (or removes) voice/personality based on the template's personality level.
+
+**1. New helper: `_build_voice_preservation()`** (`services/content.py`)
+- Generates voice-specific rubric items for Priority 3 of the review prompt
+- Three tiers based on `personality_level`:
+  - **Levels 1-3 (neutral):** Instructs reviewer to *remove* opinionated language; only checks contractions flag
+  - **Levels 4-6 (clear position):** Protects clear positions from hedging; checks all voice flags (humor, anecdotes, rhetorical questions, contractions, brand voice)
+  - **Levels 7-10 (opinionated):** Aggressive preservation with concrete before/after example of what NOT to weaken; protects confrontational phrasing, sarcasm, bold claims
+- Returns `- [ ]` rubric items injected into the review prompt
+
+**2. Rewritten `_generate_review()`** (`services/content.py`)
+- New signature adds 7 parameters: `outline`, `personality_level`, `use_humor`, `use_anecdotes`, `use_rhetorical_questions`, `use_contractions`, `brand_voice_description`
+- Review prompt now structured as a three-priority rubric:
+  - **Priority 1 — Structural Compliance:** section order matches outline, answer-first H2 openings, word budgets within ~15%, data markers present, conclusion = actionable next step
+  - **Priority 2 — Anti-Robot Quality:** zero banned phrases, no repeated paragraph openings, varied sentence length, active voice, conversational transitions
+  - **Priority 3 — Polish & Voice:** specific intro hook, short paragraphs, GEO knowledge blocks, plus voice preservation items from `_build_voice_preservation()`
+- Original outline included in `<outline>` XML block for structural reference
+- Temperature, max tokens, and timeout unchanged (0.2, 4500, 120s)
+
+**3. Updated call site in `generate_content()`** (`services/content.py`)
+- Now passes `outline`, all voice fields from the template, and `personality_level` to `_generate_review()`
+- `use_contractions` uses ternary (not `or`) because `False` is a valid meaningful value
+
+**What does NOT change:**
+- No schema, migration, or frontend changes
+- `generate_post()`, SSE streaming, scheduler path — all unchanged
+- `_call_openai()`, temperature schedule, `build_content_system_prompt()` — unchanged
+- Title generation, interview system, outline step — unchanged
+
+**Files changed:**
+- `backend/app/services/content.py` — new `_build_voice_preservation()` helper, rewritten `_generate_review()`, updated call site in `generate_content()`
+
+---
+
+### 2026-02-14 (Session 16) — Feedback Page + Full Git Catch-Up
+
+**What we did:**
+Added a full-stack Feedback page allowing users to submit bug reports, feature requests, and general feedback from within the app. Also committed all accumulated work from Sessions 1-15 to git (was previously uncommitted) and cleaned up tracked secrets.
+
+**1. Feedback — Backend**
+- New `Feedback` model (`backend/app/models/feedback.py`) — UUID PK, user FK (CASCADE), category (bug/feature/general), message (Text), created_at
+- New Pydantic schemas (`backend/app/schemas/feedback.py`) — `FeedbackCreate` (category default "general", message min_length=1) + `FeedbackResponse`
+- New router (`backend/app/api/feedback.py`) — `POST /feedback/` (create, sets user_id from JWT) + `GET /feedback/` (list own, newest first)
+- Registered model in `models/__init__.py` and `migrations/env.py`
+- Registered router in `main.py`
+- Alembic migration `5345737bf6d2` — creates `feedback` table
+
+**2. Feedback — Frontend**
+- New page `frontend/src/pages/feedback/Feedback.jsx`:
+  - Standard page title with green underline bar
+  - Form: category dropdown (Bug Report / Feature Request / General Feedback), message textarea, submit button with loading state
+  - Submission list below with category-colored left borders, chips, and timestamps
+  - Roman-themed empty state: "Your voice shapes the forum"
+  - React Query mutation for submit + query for list, success snackbar on submit
+- Added `RateReview` icon + "Feedback" nav item in sidebar after "About Acta AI"
+- Added `/feedback` route in `App.jsx`
+
+**3. Git housekeeping**
+- Committed all accumulated work from Sessions 1-15 (152 files, was all uncommitted)
+- Removed `backend/.env` from git tracking (contained secrets — was tracked since initial commit)
+- Removed all `__pycache__/` files from git tracking
+- `.gitignore` already had rules for both — they were just tracked before the gitignore existed
+
+**Files created:**
+- `backend/app/models/feedback.py`
+- `backend/app/schemas/feedback.py`
+- `backend/app/api/feedback.py`
+- `backend/migrations/versions/5345737bf6d2_add_feedback_table.py`
+- `frontend/src/pages/feedback/Feedback.jsx`
+
+**Files edited:**
+- `backend/app/models/__init__.py` — added Feedback import
+- `backend/app/main.py` — registered feedback_router
+- `backend/migrations/env.py` — added Feedback to model imports
+- `frontend/src/components/layouts/MainLayout.jsx` — added RateReview icon + Feedback nav item
+- `frontend/src/App.jsx` — added Feedback import + /feedback route
+
+---
 
 ### 2026-02-14 (Session 15) — Contrastive Examples (P3), Article Preview Fix, Schedules Page Fix
 

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -9,7 +9,15 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.blog_post import BlogPost
 from app.models.user import User
-from app.schemas.posts import PostCreate, PostResponse, PostUpdate, RejectRequest
+from app.schemas.posts import (
+    BulkActionRequest,
+    BulkRejectRequest,
+    PostCountsResponse,
+    PostCreate,
+    PostResponse,
+    PostUpdate,
+    RejectRequest,
+)
 from app.services.publishing import PublishError, publish_post as publish_to_platform
 
 router = APIRouter(prefix="/posts", tags=["posts"])
@@ -59,6 +67,95 @@ async def list_posts(
     return result.scalars().all()
 
 
+@router.get("/stats/counts", response_model=PostCountsResponse)
+async def get_post_counts(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(BlogPost.status, func.count())
+        .where(BlogPost.user_id == current_user.id)
+        .group_by(BlogPost.status)
+    )
+    counts = {row[0]: row[1] for row in result.all()}
+    return PostCountsResponse(
+        pending_review=counts.get("pending_review", 0),
+        draft=counts.get("draft", 0),
+        published=counts.get("published", 0),
+        rejected=counts.get("rejected", 0),
+    )
+
+
+@router.post("/bulk/publish", response_model=list[PostResponse])
+async def bulk_publish(
+    data: BulkActionRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    results = []
+    for post_id in data.post_ids:
+        result = await db.execute(
+            select(BlogPost).where(
+                BlogPost.id == post_id, BlogPost.user_id == current_user.id
+            )
+        )
+        post = result.scalar_one_or_none()
+        if not post or post.status == "published":
+            continue
+
+        # Eager-load site for publishing
+        result = await db.execute(
+            select(BlogPost)
+            .where(BlogPost.id == post_id)
+            .options(selectinload(BlogPost.site))
+        )
+        post = result.scalar_one()
+
+        try:
+            pub_result = await publish_to_platform(post, post.site)
+            post.platform_post_id = pub_result.platform_post_id
+            post.published_url = pub_result.published_url
+            post.status = "published"
+            post.published_at = datetime.now(timezone.utc)
+            await db.commit()
+            await db.refresh(post)
+            results.append(post)
+        except PublishError:
+            continue
+
+    return results
+
+
+@router.post("/bulk/reject", response_model=list[PostResponse])
+async def bulk_reject(
+    data: BulkRejectRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    results = []
+    for post_id in data.post_ids:
+        result = await db.execute(
+            select(BlogPost).where(
+                BlogPost.id == post_id, BlogPost.user_id == current_user.id
+            )
+        )
+        post = result.scalar_one_or_none()
+        if not post:
+            continue
+        post.status = "rejected"
+        post.review_notes = data.review_notes
+        await db.commit()
+
+        result = await db.execute(
+            select(BlogPost)
+            .where(BlogPost.id == post_id)
+            .options(selectinload(BlogPost.site))
+        )
+        results.append(result.scalar_one())
+
+    return results
+
+
 @router.get("/{post_id}", response_model=PostResponse)
 async def get_post(
     post_id: str,
@@ -95,6 +192,7 @@ async def update_post(
     update_data = data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(post, key, value)
+    post.updated_at = datetime.now(timezone.utc)
 
     await db.commit()
 

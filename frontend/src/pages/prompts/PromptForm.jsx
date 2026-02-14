@@ -10,7 +10,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
   Save, ArrowBack, AutoAwesome, HelpOutline, ExpandMore, TuneOutlined,
   PlayArrow, RestartAlt, Visibility, VisibilityOff, Article, RecordVoiceOver,
-  SkipNext, ContentCopy, QuestionAnswer,
+  SkipNext, ContentCopy, QuestionAnswer, Image as ImageIcon,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
@@ -45,6 +45,12 @@ const META_DESC_STYLES = [
   { value: 'statistic', label: 'Statistic' },
 ];
 
+const IMAGE_SOURCES = [
+  { value: 'none', label: 'None', description: 'No featured image' },
+  { value: 'dalle', label: 'DALL-E 3', description: 'AI-generated image (~$0.04/image)' },
+  { value: 'unsplash', label: 'Unsplash', description: 'Free stock photo search' },
+];
+
 const PERSONALITY_MARKS = [
   { value: 1, label: 'Factual' },
   { value: 5, label: 'Balanced' },
@@ -55,18 +61,22 @@ function TabPanel({ children, value, index }) {
   return value === index ? <Box sx={{ pt: 3 }}>{children}</Box> : null;
 }
 
-const PIPELINE_STAGES = [
+const BASE_PIPELINE_STAGES = [
   { key: 'outline', label: 'Outline' },
   { key: 'draft', label: 'Draft' },
   { key: 'review', label: 'Review' },
 ];
+const IMAGE_STAGE = { key: 'image', label: 'Image' };
 
 function ContentProgressBar({ progress }) {
   if (!progress) return null;
+  const stages = progress.total > 3
+    ? [...BASE_PIPELINE_STAGES, IMAGE_STAGE]
+    : BASE_PIPELINE_STAGES;
   return (
     <Box sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider', backgroundColor: 'background.default' }}>
       <Stack direction="row" spacing={3} sx={{ mb: 1.5 }}>
-        {PIPELINE_STAGES.map(({ key, label }, idx) => {
+        {stages.map(({ key, label }, idx) => {
           const stepNum = idx + 1;
           const isDone = progress.step > stepNum;
           const isActive = progress.stage === key;
@@ -200,6 +210,9 @@ export default function PromptForm() {
     call_to_action: '',
     experience_notes: '',
     experience_qa: null,
+    // Featured Image
+    image_source: 'none',
+    image_style_guidance: '',
     // Voice & Humanization
     perspective: '',
     brand_voice_description: '',
@@ -233,6 +246,7 @@ export default function PromptForm() {
   const [testingTitle, setTestingTitle] = useState(false);
   const [testingContent, setTestingContent] = useState(false);
   const [contentProgress, setContentProgress] = useState(null); // { stage, step, total, message }
+  const [featuredImageUrl, setFeaturedImageUrl] = useState(null);
   const [showPrompts, setShowPrompts] = useState(false);
 
   // Interview state
@@ -269,6 +283,8 @@ export default function PromptForm() {
         audience_level: template.audience_level || '',
         target_reader: template.target_reader || '',
         call_to_action: template.call_to_action || '',
+        image_source: template.image_source || 'none',
+        image_style_guidance: template.image_style_guidance || '',
         experience_notes: template.experience_notes || '',
         experience_qa: template.experience_qa || null,
         // Voice & Humanization
@@ -318,7 +334,10 @@ export default function PromptForm() {
       'brand_voice_description', 'seo_focus_keyword', 'seo_keyword_density',
       'seo_meta_description_style', 'seo_internal_linking_instructions',
       'experience_notes', 'target_reader', 'call_to_action',
+      'image_style_guidance',
     ];
+    // Convert "none" to null for image_source
+    if (data.image_source === 'none') data.image_source = null;
     nullableStrings.forEach(f => { if (!data[f]) data[f] = null; });
     // Convert empty arrays to null
     const nullableArrays = [
@@ -406,6 +425,7 @@ export default function PromptForm() {
     setSelectedTitleIdx(null);
     setTestTitle('');
     setTestContent(null);
+    setFeaturedImageUrl(null);
     setTestPrompts(null);
     setInterviewQuestions([]);
     setInterviewAnswers([]);
@@ -471,6 +491,7 @@ export default function PromptForm() {
               content_markdown: parsed.content_markdown,
               excerpt: parsed.excerpt,
             });
+            setFeaturedImageUrl(parsed.featured_image_url || null);
             setTestPrompts(prev => ({
               ...prev,
               system_prompt_used: parsed.system_prompt_used,
@@ -496,6 +517,7 @@ export default function PromptForm() {
     setSelectedTitleIdx(null);
     setTestTitle('');
     setTestContent(null);
+    setFeaturedImageUrl(null);
     setTestPrompts(null);
     setShowPrompts(false);
     setInterviewQuestions([]);
@@ -942,6 +964,46 @@ export default function PromptForm() {
                   InputLabelProps={{ shrink: true }}
                 />
 
+                <Divider />
+
+                <Box>
+                  <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, mb: 1.5 }}>
+                    Featured Image
+                  </Typography>
+                  <Stack spacing={2}>
+                    <TextField
+                      select
+                      label={<FieldLabel label="Image Source" tooltip="Automatically generate or find a featured image for each blog post. DALL-E creates unique AI images (~$0.04 each). Unsplash finds free stock photos." />}
+                      value={form.image_source}
+                      onChange={update('image_source')}
+                      sx={{ width: 300 }}
+                      InputLabelProps={{ shrink: true }}
+                      slotProps={{ select: { renderValue: (val) => IMAGE_SOURCES.find(s => s.value === val)?.label || val } }}
+                    >
+                      {IMAGE_SOURCES.map(s => (
+                        <MenuItem key={s.value} value={s.value}>
+                          <Box>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>{s.label}</Typography>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: -0.25 }}>{s.description}</Typography>
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                    {form.image_source === 'dalle' && (
+                      <TextField
+                        label={<FieldLabel label="Image Style Guidance" tooltip="Optional — describe the visual style you want. Examples: 'Minimalist flat illustration', 'Photorealistic corporate', 'Watercolor editorial'. If blank, DALL-E picks a style based on the article title." />}
+                        fullWidth multiline rows={2}
+                        value={form.image_style_guidance}
+                        onChange={update('image_style_guidance')}
+                        placeholder='e.g. "Minimalist flat illustration with muted earth tones"'
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    )}
+                  </Stack>
+                </Box>
+
+                <Divider />
+
                 <ChipInput
                   label="Default Categories"
                   value={form.default_categories}
@@ -1228,6 +1290,37 @@ export default function PromptForm() {
                             </IconButton>
                           </Tooltip>
                         </Box>
+                        {featuredImageUrl && (
+                          <Box sx={{ mb: 2, border: '1px solid', borderColor: 'divider', position: 'relative' }}>
+                            <Box
+                              component="img"
+                              src={featuredImageUrl}
+                              alt="Featured image"
+                              sx={{
+                                width: '100%',
+                                maxHeight: 400,
+                                objectFit: 'cover',
+                                display: 'block',
+                              }}
+                            />
+                            <Box sx={{
+                              position: 'absolute',
+                              bottom: 0,
+                              right: 0,
+                              px: 1.5,
+                              py: 0.5,
+                              backgroundColor: 'rgba(0,0,0,0.6)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 0.5,
+                            }}>
+                              <ImageIcon sx={{ fontSize: 14, color: '#fff' }} />
+                              <Typography variant="caption" sx={{ color: '#fff', fontSize: '0.65rem', letterSpacing: '0.03em' }}>
+                                {form.image_source === 'dalle' ? 'Generated by DALL-E 3' : 'Unsplash'}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        )}
                         <Box sx={{
                           p: 3,
                           border: '1px solid',

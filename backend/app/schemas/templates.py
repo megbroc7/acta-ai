@@ -29,6 +29,8 @@ class TemplateCreate(BaseModel):
     target_reader: str | None = None
     call_to_action: str | None = None
     preferred_terms: list[str] | None = None
+    image_source: str | None = None
+    image_style_guidance: str | None = None
     experience_notes: str | None = None
     experience_qa: list[ExperienceQAItem] | None = None
     placeholders: dict = {}
@@ -70,6 +72,8 @@ class TemplateUpdate(BaseModel):
     target_reader: str | None = None
     call_to_action: str | None = None
     preferred_terms: list[str] | None = None
+    image_source: str | None = None
+    image_style_guidance: str | None = None
     experience_notes: str | None = None
     experience_qa: list[ExperienceQAItem] | None = None
     placeholders: dict | None = None
@@ -111,6 +115,8 @@ class TemplateResponse(BaseModel):
     target_reader: str | None
     call_to_action: str | None
     preferred_terms: list[str] | None
+    image_source: str | None
+    image_style_guidance: str | None
     experience_notes: str | None
     experience_qa: list[ExperienceQAItem] | None
     placeholders: dict
@@ -185,6 +191,7 @@ class TestContentResponse(BaseModel):
     content_markdown: str
     content_html: str
     excerpt: str
+    featured_image_url: str | None = None
     system_prompt_used: str
     content_prompt_used: str
     outline_used: str

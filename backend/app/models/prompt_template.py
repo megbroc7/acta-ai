@@ -39,6 +39,10 @@ class PromptTemplate(Base):
     call_to_action: Mapped[str | None] = mapped_column(Text, nullable=True)
     preferred_terms: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
+    # Featured Image
+    image_source: Mapped[str | None] = mapped_column(String(20), nullable=True)  # "none", "dalle", "unsplash"
+    image_style_guidance: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     # Experience (Reverse Interview)
     experience_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     experience_qa: Mapped[list | None] = mapped_column(JSON, nullable=True)

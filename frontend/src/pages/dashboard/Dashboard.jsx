@@ -363,6 +363,9 @@ export default function Dashboard() {
         <StatNumber value={templates.length} label="Templates" delay={0.2} onClick={() => navigate('/prompts')} />
         <StatNumber value={activeSchedules.length} label="Active Schedules" delay={0.3} onClick={() => navigate('/schedules')} />
         <StatNumber value={posts.length} label="Blog Posts" delay={0.4} onClick={() => navigate('/posts')} />
+        {pendingReview.length > 0 && (
+          <StatNumber value={pendingReview.length} label="Pending Review" delay={0.5} onClick={() => navigate('/review')} />
+        )}
       </Box>
 
       {/* ----------------------------------------------------------------- */}
@@ -509,11 +512,39 @@ export default function Dashboard() {
                   >
                     {pendingReview.length}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                     {pendingReview.length === 1 ? 'post needs' : 'posts need'} your review
                   </Typography>
-                  <Button variant="outlined" size="small" onClick={() => navigate('/posts')}>
-                    Review Posts
+                  <Stack spacing={0.5} sx={{ mb: 1.5 }}>
+                    {pendingReview.slice(0, 3).map(p => (
+                      <Typography
+                        key={p.id}
+                        variant="body2"
+                        sx={{
+                          cursor: 'pointer',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          '&:hover': { color: 'primary.main' },
+                        }}
+                        onClick={() => navigate(`/posts/${p.id}`, { state: { from: 'review' } })}
+                      >
+                        {p.title}
+                      </Typography>
+                    ))}
+                    {pendingReview.length > 3 && (
+                      <Typography variant="caption" color="text.secondary">
+                        +{pendingReview.length - 3} more
+                      </Typography>
+                    )}
+                  </Stack>
+                  {pendingReview.length > 0 && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                      Oldest: {formatRelativeTime(pendingReview[pendingReview.length - 1]?.created_at)}
+                    </Typography>
+                  )}
+                  <Button variant="outlined" size="small" onClick={() => navigate('/review')}>
+                    Review Queue
                   </Button>
                 </CardContent>
               </Card>

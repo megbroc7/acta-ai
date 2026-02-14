@@ -173,6 +173,7 @@ class ContentResult:
     system_prompt_used: str
     content_prompt_used: str
     outline_used: str
+    featured_image_url: str | None = None
 
 
 @dataclass
@@ -186,6 +187,7 @@ class GenerationResult:
     topic_prompt_used: str
     content_prompt_used: str
     outline_used: str
+    featured_image_url: str | None = None
 
 
 # --- Helper: strip HTML tags ---
@@ -791,19 +793,151 @@ async def _generate_outline(
     )
 
 
+def _build_voice_preservation(
+    personality_level: int,
+    use_humor: bool,
+    use_anecdotes: bool,
+    use_rhetorical_questions: bool,
+    use_contractions: bool,
+    brand_voice_description: str | None,
+) -> str:
+    """Build voice preservation rubric items for the review step.
+
+    Three tiers based on personality level:
+    - 1-3 (neutral): remove stray opinions, only check contractions
+    - 4-6 (clear position): protect positions from hedging, check all voice flags
+    - 7-10 (opinionated): aggressive preservation of bold/confrontational language
+    """
+    items: list[str] = []
+
+    if personality_level <= 3:
+        # Neutral tier — reviewer should sand DOWN any stray opinions
+        items.append(
+            "- [ ] Remove any opinionated language, strong claims, or first-person "
+            "stances that crept into the draft — keep the tone neutral and objective"
+        )
+        if not use_contractions:
+            items.append(
+                "- [ ] Expand all contractions (\"don't\" → \"do not\", "
+                "\"can't\" → \"cannot\", etc.)"
+            )
+    elif personality_level <= 6:
+        # Clear position tier — protect positions from being hedged
+        items.append(
+            "- [ ] Preserve clear positions and direct claims — do NOT weaken them "
+            "with hedging phrases like \"it could be argued\" or \"some might say\""
+        )
+        if use_humor:
+            items.append(
+                "- [ ] Keep humor intact — do not remove jokes, wit, or playful "
+                "asides unless they undermine credibility"
+            )
+        if use_anecdotes:
+            items.append(
+                "- [ ] Keep personal anecdotes and stories — do not flatten them "
+                "into generic third-person examples"
+            )
+        if use_rhetorical_questions:
+            items.append(
+                "- [ ] Keep rhetorical questions — they are intentional engagement "
+                "devices, not errors"
+            )
+        if not use_contractions:
+            items.append(
+                "- [ ] Expand all contractions (\"don't\" → \"do not\", "
+                "\"can't\" → \"cannot\", etc.)"
+            )
+        if brand_voice_description:
+            items.append(
+                f"- [ ] Maintain brand voice throughout: {brand_voice_description}"
+            )
+    else:
+        # Opinionated tier (7-10) — aggressive preservation
+        items.append(
+            "- [ ] PRESERVE all opinionated language, bold claims, and decisive "
+            "statements — the author's strong voice is intentional, not an error"
+        )
+        items.append(
+            "- [ ] Do NOT soften confrontational or provocative phrasing. "
+            "Example of what NOT to do:\n"
+            "    DRAFT: \"Most agencies are lying to your face about ROI.\"\n"
+            "    BAD REVIEW: \"Some agencies may not fully disclose ROI metrics.\"\n"
+            "    GOOD REVIEW: Keep the original — the directness is the point."
+        )
+        if use_humor:
+            items.append(
+                "- [ ] Keep all humor, sarcasm, and irreverent asides — they are "
+                "core to the voice, not optional decoration"
+            )
+        if use_anecdotes:
+            items.append(
+                "- [ ] Keep personal anecdotes in first person — do not rewrite "
+                "them as detached third-person observations"
+            )
+        if use_rhetorical_questions:
+            items.append(
+                "- [ ] Keep rhetorical questions — they drive the argumentative rhythm"
+            )
+        if not use_contractions:
+            items.append(
+                "- [ ] Expand all contractions (\"don't\" → \"do not\", "
+                "\"can't\" → \"cannot\", etc.)"
+            )
+        if brand_voice_description:
+            items.append(
+                f"- [ ] Maintain brand voice throughout: {brand_voice_description}"
+            )
+
+    return "\n".join(items)
+
+
 async def _generate_review(
     system_prompt: str,
     draft: str,
+    outline: str,
+    personality_level: int = 5,
+    use_humor: bool = False,
+    use_anecdotes: bool = False,
+    use_rhetorical_questions: bool = False,
+    use_contractions: bool = True,
+    brand_voice_description: str | None = None,
 ) -> str:
-    """Step 3 of article chain: review and polish the draft."""
+    """Step 3 of article chain: review and polish the draft using rubric."""
+    voice_instructions = _build_voice_preservation(
+        personality_level=personality_level,
+        use_humor=use_humor,
+        use_anecdotes=use_anecdotes,
+        use_rhetorical_questions=use_rhetorical_questions,
+        use_contractions=use_contractions,
+        brand_voice_description=brand_voice_description,
+    )
+
     user_prompt = (
-        "Review and polish the following article. Ensure: "
-        "(1) no banned phrases remain, "
-        "(2) answer-first format after every H2, "
-        "(3) varied sentence rhythm, "
-        "(4) active voice throughout, "
-        "(5) conclusion suggests a specific next step rather than summarizing. "
-        "Return the complete revised article in markdown, nothing else.\n\n"
+        "Review and revise the article below using the rubric. "
+        "Output ONLY the revised article in markdown — no commentary, no rubric scores.\n\n"
+        "## Original Outline (for structural compliance)\n"
+        "<outline>\n"
+        f"{outline}\n"
+        "</outline>\n\n"
+        "## Review Rubric\n\n"
+        "### Priority 1 — Structural Compliance (fix first)\n"
+        "- [ ] Section order matches outline\n"
+        "- [ ] Each H2 opens with a 40-60 word answer statement (inverted pyramid)\n"
+        "- [ ] Per-section word budgets met (within ~15%)\n"
+        "- [ ] Data markers present per outline\n"
+        "- [ ] Conclusion = one specific actionable next step, not a summary\n\n"
+        "### Priority 2 — Anti-Robot Quality (fix second)\n"
+        "- [ ] Zero banned phrases remain\n"
+        "- [ ] No two consecutive paragraphs start the same way\n"
+        "- [ ] Sentence length varies (mix short <8 words with long 20+ words)\n"
+        "- [ ] Active voice throughout\n"
+        "- [ ] Conversational transition hooks between sections\n\n"
+        "### Priority 3 — Polish & Voice (fix last)\n"
+        "- [ ] Intro hooks with a specific claim or number in the first two sentences\n"
+        "- [ ] Paragraphs 2-4 sentences max\n"
+        "- [ ] Self-contained knowledge blocks (GEO)\n"
+        f"{voice_instructions}\n\n"
+        "## Article Draft\n"
         f"{draft}"
     )
     return await _call_openai(
@@ -823,17 +957,26 @@ async def generate_content(
     replacements: dict[str, str] | None = None,
     experience_context: str | None = None,
     progress_callback=None,
+    image_source: str | None = None,
+    image_style_guidance: str | None = None,
+    industry: str | None = None,
 ) -> ContentResult:
-    """3-step article chain: Outline → Draft → Review/Polish.
+    """3-step article chain: Outline → Draft → Review/Polish, plus optional image.
 
     Args:
         progress_callback: Optional async callable(stage, step, total, message).
             Called before each pipeline stage to report progress.
+        image_source: "dalle", "unsplash", or None/"none" to skip.
+        image_style_guidance: Optional style hint for DALL-E (ignored for Unsplash).
+        industry: Template industry, used for image prompt context.
     """
     system_prompt = build_content_system_prompt(template, experience_context)
 
     effective_word_count = word_count or template.default_word_count
     effective_tone = tone or template.default_tone
+
+    has_image = image_source and image_source != "none"
+    total_steps = 4 if has_image else 3
 
     # Build the content prompt from structured fields
     content_prompt = (
@@ -843,12 +986,12 @@ async def generate_content(
 
     # Step 1: Outline
     if progress_callback:
-        await progress_callback("outline", 1, 3, "Building article outline...")
+        await progress_callback("outline", 1, total_steps, "Building article outline...")
     outline = await _generate_outline(system_prompt, title, effective_word_count)
 
     # Step 2: Draft (content prompt + outline with word budgets)
     if progress_callback:
-        await progress_callback("draft", 2, 3, "Writing first draft...")
+        await progress_callback("draft", 2, total_steps, "Writing first draft...")
     draft_prompt = (
         f"{content_prompt}\n\n"
         "Follow this outline strictly, including the word budget for EACH section. "
@@ -865,12 +1008,35 @@ async def generate_content(
 
     # Step 3: Review/Polish
     if progress_callback:
-        await progress_callback("review", 3, 3, "Reviewing and polishing...")
-    polished = await _generate_review(system_prompt, draft)
+        await progress_callback("review", 3, total_steps, "Reviewing and polishing...")
+    polished = await _generate_review(
+        system_prompt=system_prompt,
+        draft=draft,
+        outline=outline,
+        personality_level=template.personality_level or 5,
+        use_humor=template.use_humor or False,
+        use_anecdotes=template.use_anecdotes or False,
+        use_rhetorical_questions=template.use_rhetorical_questions or False,
+        use_contractions=template.use_contractions if template.use_contractions is not None else True,
+        brand_voice_description=template.brand_voice_description,
+    )
     polished = _strip_code_fences(polished)
 
     html = markdown_to_html(polished)
     excerpt = extract_excerpt(html)
+
+    # Step 4: Featured image (optional)
+    featured_image_url = None
+    if has_image:
+        if progress_callback:
+            await progress_callback("image", 4, total_steps, "Generating featured image...")
+        from app.services.images import generate_featured_image
+        featured_image_url = await generate_featured_image(
+            source=image_source,
+            title=title,
+            industry=industry,
+            style_guidance=image_style_guidance,
+        )
 
     return ContentResult(
         content_markdown=polished,
@@ -879,6 +1045,7 @@ async def generate_content(
         system_prompt_used=system_prompt,
         content_prompt_used=content_prompt,
         outline_used=outline,
+        featured_image_url=featured_image_url,
     )
 
 
@@ -913,6 +1080,9 @@ async def generate_post(
     content_result = await generate_content(
         template, selected_title, word_count, tone, replacements,
         experience_context=effective_experience,
+        image_source=template.image_source,
+        image_style_guidance=template.image_style_guidance,
+        industry=template.industry,
     )
 
     return GenerationResult(
@@ -925,4 +1095,5 @@ async def generate_post(
         topic_prompt_used=title_result.topic_prompt_used,
         content_prompt_used=content_result.content_prompt_used,
         outline_used=content_result.outline_used,
+        featured_image_url=content_result.featured_image_url,
     )

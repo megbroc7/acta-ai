@@ -219,6 +219,7 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
             title=gen.title,
             content=gen.content_html,
             excerpt=gen.excerpt,
+            featured_image_url=gen.featured_image_url,
             categories=schedule.category_ids or [],
             tags=schedule.tag_ids or [],
             system_prompt_used=gen.system_prompt_used,

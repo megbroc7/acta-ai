@@ -28,6 +28,58 @@ def _wp_auth_headers(site: Site) -> dict:
     return {"Authorization": f"Basic {credentials}"}
 
 
+async def _wp_upload_featured_image(
+    image_url: str, site: Site, title: str,
+) -> int | None:
+    """Download an image and upload it to WordPress as a media attachment.
+
+    Returns the WordPress media ID, or None on failure (non-fatal).
+    """
+    headers = _wp_auth_headers(site)
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            # Download image to memory
+            img_resp = await client.get(image_url)
+            img_resp.raise_for_status()
+
+            content_type = img_resp.headers.get("content-type", "image/jpeg")
+            # Determine extension from content type
+            ext_map = {
+                "image/png": "png",
+                "image/webp": "webp",
+                "image/gif": "gif",
+            }
+            ext = ext_map.get(content_type, "jpg")
+            # Sanitize title for filename
+            safe_title = "".join(c if c.isalnum() or c in " -_" else "" for c in title)[:60].strip()
+            filename = f"{safe_title or 'featured'}.{ext}"
+
+            # Upload to WordPress media library
+            upload_headers = {
+                **headers,
+                "Content-Type": content_type,
+                "Content-Disposition": f'attachment; filename="{filename}"',
+            }
+            upload_resp = await client.post(
+                f"{site.api_url}/wp/v2/media",
+                headers=upload_headers,
+                content=img_resp.content,
+            )
+            if upload_resp.status_code < 200 or upload_resp.status_code >= 300:
+                logger.error(
+                    "WordPress media upload failed: HTTP %s — %s",
+                    upload_resp.status_code, upload_resp.text[:300],
+                )
+                return None
+
+            media_id = upload_resp.json().get("id")
+            logger.info("Uploaded featured image to WordPress: media_id=%s", media_id)
+            return media_id
+    except Exception as e:
+        logger.error("Featured image upload failed: %s", e)
+        return None
+
+
 async def publish_to_wordpress(post: BlogPost, site: Site) -> PublishResult:
     """Publish a blog post to WordPress via REST API."""
     headers = _wp_auth_headers(site)
@@ -42,6 +94,14 @@ async def publish_to_wordpress(post: BlogPost, site: Site) -> PublishResult:
         payload["categories"] = [int(c) for c in post.categories]
     if post.tags:
         payload["tags"] = [int(t) for t in post.tags]
+
+    # Upload featured image if available
+    if post.featured_image_url:
+        media_id = await _wp_upload_featured_image(
+            post.featured_image_url, site, post.title,
+        )
+        if media_id:
+            payload["featured_media"] = media_id
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:

@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box, Typography, Card, CardContent, Button, Stack, Chip, Divider,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
 } from '@mui/material';
 import {
-  ArrowBack, Edit, Publish, ThumbDown, OpenInNew,
+  ArrowBack, Edit, Publish, ThumbDown, OpenInNew, Gavel,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api from '../../services/api';
@@ -21,10 +21,13 @@ const STATUS_LABELS = {
 export default function PostDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectNotes, setRejectNotes] = useState('');
+
+  const fromReview = location.state?.from === 'review';
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['post', id],
@@ -36,7 +39,11 @@ export default function PostDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['post', id] });
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['postCounts'] });
       enqueueSnackbar('Post published', { variant: 'success' });
+      if (fromReview) {
+        setTimeout(() => navigate('/review'), 600);
+      }
     },
     onError: (err) => enqueueSnackbar(err.response?.data?.detail || 'Publish failed', { variant: 'error' }),
   });
@@ -46,8 +53,12 @@ export default function PostDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['post', id] });
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['postCounts'] });
       enqueueSnackbar('Post rejected', { variant: 'info' });
       setRejectOpen(false);
+      if (fromReview) {
+        setTimeout(() => navigate('/review'), 600);
+      }
     },
   });
 
@@ -56,8 +67,12 @@ export default function PostDetail() {
 
   return (
     <Box>
-      <Button startIcon={<ArrowBack />} onClick={() => navigate('/posts')} sx={{ mb: 2 }}>
-        Back to Posts
+      <Button
+        startIcon={<ArrowBack />}
+        onClick={() => navigate(fromReview ? '/review' : '/posts')}
+        sx={{ mb: 2 }}
+      >
+        {fromReview ? 'Back to Review Queue' : 'Back to Posts'}
       </Button>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
@@ -82,12 +97,27 @@ export default function PostDetail() {
           >
             {post.title}
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center', flexWrap: 'wrap' }}>
             <Chip
               label={STATUS_LABELS[post.status] || post.status}
               color={STATUS_COLORS[post.status] || 'default'}
               size="small"
             />
+            {post.updated_at && (
+              <Chip
+                label="EDITED"
+                size="small"
+                icon={<Edit sx={{ fontSize: '14px !important' }} />}
+                sx={{
+                  height: 22,
+                  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  bgcolor: 'rgba(176, 141, 87, 0.12)',
+                  color: '#B08D57',
+                  '& .MuiChip-icon': { color: '#B08D57' },
+                }}
+              />
+            )}
             {post.site && <Chip label={post.site.name} size="small" variant="outlined" />}
             <Typography variant="caption" color="text.secondary">
               Created {new Date(post.created_at).toLocaleDateString()}
@@ -110,7 +140,7 @@ export default function PostDetail() {
           )}
           <Button
             variant="outlined" size="small" startIcon={<Edit />}
-            onClick={() => navigate(`/posts/${id}/edit`)}
+            onClick={() => navigate(`/posts/${id}/edit`, { state: { from: fromReview ? 'review' : undefined } })}
           >
             Edit
           </Button>
@@ -134,7 +164,84 @@ export default function PostDetail() {
         </Stack>
       </Box>
 
+      {/* Review Decision Bar */}
+      {post.status === 'pending_review' && (
+        <Card
+          sx={{
+            mb: 3,
+            border: '2px solid #B08D57',
+            bgcolor: 'rgba(176, 141, 87, 0.04)',
+          }}
+        >
+          <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Gavel sx={{ color: '#B08D57', fontSize: 28 }} />
+                <Box>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      color: '#B08D57',
+                    }}
+                  >
+                    Awaiting Your Decision
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Review the content below, then approve or reject this post.
+                  </Typography>
+                </Box>
+              </Box>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  variant="outlined"
+                  startIcon={<Edit />}
+                  onClick={() => navigate(`/posts/${id}/edit`, { state: { from: fromReview ? 'review' : undefined } })}
+                >
+                  Edit First
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<ThumbDown />}
+                  onClick={() => setRejectOpen(true)}
+                >
+                  Reject
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<Publish />}
+                  onClick={() => publishMutation.mutate()}
+                  disabled={publishMutation.isPending}
+                  sx={{ bgcolor: '#4A7C6F', '&:hover': { bgcolor: '#2D5E4A' } }}
+                >
+                  Approve & Publish
+                </Button>
+              </Stack>
+            </Box>
+          </CardContent>
+        </Card>
+      )}
+
       <Stack spacing={3}>
+        {post.featured_image_url && (
+          <Card>
+            <Box
+              component="img"
+              src={post.featured_image_url}
+              alt={`Featured image for ${post.title}`}
+              sx={{
+                width: '100%',
+                maxHeight: 400,
+                objectFit: 'cover',
+                display: 'block',
+              }}
+            />
+          </Card>
+        )}
+
         {post.excerpt && (
           <Card>
             <CardContent>

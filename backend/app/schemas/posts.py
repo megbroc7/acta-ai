@@ -53,9 +53,26 @@ class PostResponse(BaseModel):
     content_prompt_used: str | None
     created_at: datetime
     published_at: datetime | None
+    updated_at: datetime | None = None
     site: PostSiteInfo | None = None
     model_config = {"from_attributes": True}
 
 
 class RejectRequest(BaseModel):
     review_notes: str = Field(min_length=1)
+
+
+class BulkActionRequest(BaseModel):
+    post_ids: list[uuid.UUID] = Field(min_length=1)
+
+
+class BulkRejectRequest(BaseModel):
+    post_ids: list[uuid.UUID] = Field(min_length=1)
+    review_notes: str = Field(min_length=1)
+
+
+class PostCountsResponse(BaseModel):
+    pending_review: int = 0
+    draft: int = 0
+    published: int = 0
+    rejected: int = 0

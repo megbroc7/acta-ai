@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   Box,
   Drawer,
@@ -17,6 +18,7 @@ import {
   Menu,
   MenuItem,
   Tooltip,
+  Badge,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -31,8 +33,10 @@ import {
   MenuBook as GuideIcon,
   Info as AboutIcon,
   RateReview as FeedbackIcon,
+  AssignmentTurnedIn as ReviewIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import api from '../../services/api';
 
 const DRAWER_WIDTH = 260;
 const DRAWER_WIDTH_COLLAPSED = 72;
@@ -43,6 +47,7 @@ const NAV_ITEMS = [
   { label: 'Prompt Templates', icon: <TemplatesIcon />, path: '/prompts' },
   { label: 'Schedules', icon: <SchedulesIcon />, path: '/schedules' },
   { label: 'Blog Posts', icon: <PostsIcon />, path: '/posts' },
+  { label: 'Review Queue', icon: <ReviewIcon />, path: '/review', badge: true },
   { divider: true },
   { label: 'User Guide', icon: <GuideIcon />, path: '/guide' },
   { label: 'About Acta AI', icon: <AboutIcon />, path: '/about' },
@@ -57,10 +62,41 @@ export default function MainLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const { data: postCounts } = useQuery({
+    queryKey: ['postCounts'],
+    queryFn: () => api.get('/posts/stats/counts').then(r => r.data),
+    refetchInterval: 60000,
+  });
+  const pendingCount = postCounts?.pending_review || 0;
+
   const drawerWidth = collapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH;
 
   const isActive = (path) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+
+  const renderNavIcon = (item) => {
+    const icon = item.icon;
+    if (item.badge && pendingCount > 0) {
+      return (
+        <Badge
+          badgeContent={pendingCount}
+          sx={{
+            '& .MuiBadge-badge': {
+              bgcolor: '#B08D57',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: '0.65rem',
+              minWidth: 18,
+              height: 18,
+            },
+          }}
+        >
+          {icon}
+        </Badge>
+      );
+    }
+    return icon;
+  };
 
   const mobileDrawer = (
     <Box>
@@ -111,7 +147,7 @@ export default function MainLayout() {
                     minWidth: 40,
                   }}
                 >
-                  {item.icon}
+                  {renderNavIcon(item)}
                 </ListItemIcon>
                 <ListItemText
                   primary={item.label}
@@ -230,7 +266,7 @@ export default function MainLayout() {
                       justifyContent: 'center',
                     }}
                   >
-                    {item.icon}
+                    {renderNavIcon(item)}
                   </ListItemIcon>
                   {!collapsed && (
                     <ListItemText

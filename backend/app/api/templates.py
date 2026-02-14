@@ -232,6 +232,8 @@ async def duplicate_template(
         target_reader=template.target_reader,
         call_to_action=template.call_to_action,
         preferred_terms=template.preferred_terms,
+        image_source=template.image_source,
+        image_style_guidance=template.image_style_guidance,
         experience_notes=template.experience_notes,
         experience_qa=template.experience_qa,
         placeholders=template.placeholders,
@@ -417,11 +419,15 @@ async def test_content(
         content_result = await generate_content(
             template, data.title, data.word_count, data.tone,
             data.replacements or None, experience_context=experience_context,
+            image_source=template.image_source,
+            image_style_guidance=template.image_style_guidance,
+            industry=template.industry,
         )
         return TestContentResponse(
             content_markdown=content_result.content_markdown,
             content_html=content_result.content_html,
             excerpt=content_result.excerpt,
+            featured_image_url=content_result.featured_image_url,
             system_prompt_used=content_result.system_prompt_used,
             content_prompt_used=content_result.content_prompt_used,
             outline_used=content_result.outline_used,
@@ -482,6 +488,9 @@ async def test_content_stream(
                 template, data.title, data.word_count, data.tone,
                 data.replacements or None, experience_context=experience_context,
                 progress_callback=progress_callback,
+                image_source=template.image_source,
+                image_style_guidance=template.image_style_guidance,
+                industry=template.industry,
             )
             await queue.put({
                 "event": "complete",
@@ -489,6 +498,7 @@ async def test_content_stream(
                     "content_markdown": content_result.content_markdown,
                     "content_html": content_result.content_html,
                     "excerpt": content_result.excerpt,
+                    "featured_image_url": content_result.featured_image_url,
                     "system_prompt_used": content_result.system_prompt_used,
                     "content_prompt_used": content_result.content_prompt_used,
                     "outline_used": content_result.outline_used,

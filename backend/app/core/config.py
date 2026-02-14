@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     # OpenAI
     OPENAI_API_KEY: str = ""
 
+    # Unsplash (for stock photo featured images)
+    UNSPLASH_ACCESS_KEY: str = ""
+
     # Encryption (for WordPress credentials)
     ENCRYPTION_KEY: str = ""
 

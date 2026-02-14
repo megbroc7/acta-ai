@@ -32,6 +32,7 @@ import ScheduleForm from './pages/schedules/ScheduleForm';
 import PostsList from './pages/posts/PostsList';
 import PostDetail from './pages/posts/PostDetail';
 import PostEdit from './pages/posts/PostEdit';
+import ReviewQueue from './pages/posts/ReviewQueue';
 import UserGuide from './pages/guide/UserGuide';
 import AboutActaAI from './pages/guide/AboutActaAI';
 import Feedback from './pages/feedback/Feedback';
@@ -119,6 +120,7 @@ export default function App() {
                   <Route path="/posts" element={<PostsList />} />
                   <Route path="/posts/:id" element={<PostDetail />} />
                   <Route path="/posts/:id/edit" element={<PostEdit />} />
+                  <Route path="/review" element={<ReviewQueue />} />
 
                   <Route path="/guide" element={<UserGuide />} />
                   <Route path="/about" element={<AboutActaAI />} />
