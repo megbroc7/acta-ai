@@ -1,341 +1,320 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, HttpUrl, Field
+from sqlalchemy.orm import selectinload
 
-from ..core.database import get_db
-from ..models.site import WordPressSite, Category, Tag
-from ..models.user import User
-from ..services.wordpress import WordPressService
-from .auth import get_current_user
+from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.models.site import Category, Tag, Site
+from app.models.user import User
+from app.schemas.sites import (
+    BlogOption,
+    CategoryResponse,
+    ConnectionTestRequest,
+    ConnectionTestResponse,
+    Platform,
+    SiteCreate,
+    SiteDetail,
+    SiteResponse,
+    SiteUpdate,
+    TagResponse,
+)
 
-router = APIRouter()
+router = APIRouter(prefix="/sites", tags=["sites"])
 
-# Pydantic models
-class CategoryResponse(BaseModel):
-    id: int
-    wp_id: int
-    name: str
 
-class TagResponse(BaseModel):
-    id: int
-    wp_id: int
-    name: str
+async def _test_wp_connection(api_url: str, username: str, app_password: str) -> dict:
+    import base64
 
-class WordPressSiteCreate(BaseModel):
-    name: str
-    url: HttpUrl
-    api_url: HttpUrl
-    username: str
-    app_password: str
+    credentials = base64.b64encode(f"{username}:{app_password}".encode()).decode()
+    headers = {"Authorization": f"Basic {credentials}"}
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(f"{api_url}/wp/v2/users/me", headers=headers)
+        if resp.status_code == 200:
+            return {"success": True, "data": resp.json()}
+        return {"success": False, "error": f"HTTP {resp.status_code}: {resp.text[:200]}"}
 
-class WordPressSiteResponse(BaseModel):
-    id: int
-    name: str
-    url: str
-    api_url: str
-    username: str
-    created_at: str
-    
-class WordPressSiteDetail(WordPressSiteResponse):
-    categories: List[CategoryResponse]
-    tags: List[TagResponse]
 
-class ConnectionTestRequest(BaseModel):
-    api_url: HttpUrl
-    username: str
-    app_password: str
+async def _fetch_categories(api_url: str, username: str, app_password: str) -> list[dict]:
+    import base64
 
-class ConnectionTestResponse(BaseModel):
-    success: bool
-    message: str
-    user_info: Optional[Dict[str, Any]] = None
+    credentials = base64.b64encode(f"{username}:{app_password}".encode()).decode()
+    headers = {"Authorization": f"Basic {credentials}"}
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(f"{api_url}/wp/v2/categories?per_page=100", headers=headers)
+        return resp.json() if resp.status_code == 200 else []
 
-# Helper functions
-async def fetch_and_save_taxonomies(
-    db: AsyncSession, site_id: int, wp_service: WordPressService
-):
-    """Fetch categories and tags from WordPress and save to database."""
-    # Clear existing categories and tags for this site
-    stmt = select(Category).where(Category.site_id == site_id)
-    result = await db.execute(stmt)
-    for category in result.scalars().all():
-        await db.delete(category)
-        
-    stmt = select(Tag).where(Tag.site_id == site_id)
-    result = await db.execute(stmt)
-    for tag in result.scalars().all():
-        await db.delete(tag)
-    
-    # Fetch categories
-    categories = await wp_service.get_categories()
-    for category in categories:
-        db_category = Category(
-            site_id=site_id,
-            wp_id=category["id"],
-            name=category["name"]
-        )
-        db.add(db_category)
-    
-    # Fetch tags
-    tags = await wp_service.get_tags()
-    for tag in tags:
-        db_tag = Tag(
-            site_id=site_id,
-            wp_id=tag["id"],
-            name=tag["name"]
-        )
-        db.add(db_tag)
-    
-    await db.commit()
+
+async def _fetch_tags(api_url: str, username: str, app_password: str) -> list[dict]:
+    import base64
+
+    credentials = base64.b64encode(f"{username}:{app_password}".encode()).decode()
+    headers = {"Authorization": f"Basic {credentials}"}
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(f"{api_url}/wp/v2/tags?per_page=100", headers=headers)
+        return resp.json() if resp.status_code == 200 else []
+
+
+async def _test_shopify_connection(api_url: str, api_key: str) -> dict:
+    headers = {"X-Shopify-Access-Token": api_key}
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(f"{api_url}/shop.json", headers=headers)
+        if resp.status_code == 200:
+            return {"success": True, "data": resp.json()}
+        return {"success": False, "error": f"HTTP {resp.status_code}: {resp.text[:200]}"}
+
+
+async def _fetch_shopify_blogs(api_url: str, api_key: str) -> list[dict]:
+    headers = {"X-Shopify-Access-Token": api_key}
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(f"{api_url}/blogs.json", headers=headers)
+        if resp.status_code == 200:
+            return [
+                {"id": str(b["id"]), "title": b["title"]}
+                for b in resp.json().get("blogs", [])
+            ]
+        return []
+
 
 @router.post("/test-connection", response_model=ConnectionTestResponse)
 async def test_connection(
-    connection_data: ConnectionTestRequest
+    data: ConnectionTestRequest,
+    current_user: User = Depends(get_current_user),
 ):
-    """Test connection to a WordPress site without saving."""
-    wp_service = WordPressService(
-        api_url=str(connection_data.api_url),
-        username=connection_data.username,
-        app_password=connection_data.app_password
-    )
-    
-    result = await wp_service.verify_connection()
-    
-    if result["success"]:
-        return {
-            "success": True,
-            "message": "Successfully connected to WordPress site",
-            "user_info": result["data"]
-        }
-    else:
-        return {
-            "success": False,
-            "message": f"Failed to connect: {result.get('error', 'Unknown error')}",
-            "user_info": None
-        }
+    if data.platform == Platform.wordpress:
+        try:
+            result = await _test_wp_connection(data.api_url, data.username, data.app_password)
+            if result["success"]:
+                return ConnectionTestResponse(success=True, message="Connection successful")
+            return ConnectionTestResponse(success=False, message=result["error"])
+        except httpx.ConnectError:
+            return ConnectionTestResponse(success=False, message="Could not connect to the site")
+        except httpx.TimeoutException:
+            return ConnectionTestResponse(success=False, message="Connection timed out")
+        except Exception as e:
+            return ConnectionTestResponse(success=False, message=str(e))
+    elif data.platform == Platform.shopify:
+        try:
+            result = await _test_shopify_connection(data.api_url, data.api_key)
+            if result["success"]:
+                shop_name = result["data"].get("shop", {}).get("name", "Shopify store")
+                blogs = await _fetch_shopify_blogs(data.api_url, data.api_key)
+                blog_options = [BlogOption(id=b["id"], title=b["title"]) for b in blogs]
+                return ConnectionTestResponse(
+                    success=True,
+                    message=f"Connected to {shop_name}",
+                    blogs=blog_options,
+                )
+            return ConnectionTestResponse(success=False, message=result["error"])
+        except httpx.ConnectError:
+            return ConnectionTestResponse(success=False, message="Could not connect to the store")
+        except httpx.TimeoutException:
+            return ConnectionTestResponse(success=False, message="Connection timed out")
+        except Exception as e:
+            return ConnectionTestResponse(success=False, message=str(e))
+    elif data.platform == Platform.wix:
+        return ConnectionTestResponse(success=False, message="Wix connection testing coming soon")
 
-@router.post("/", response_model=WordPressSiteResponse)
-async def create_wordpress_site(
-    site_data: WordPressSiteCreate,
-    background_tasks: BackgroundTasks,
+
+@router.post("/", response_model=SiteResponse, status_code=status.HTTP_201_CREATED)
+async def create_site(
+    data: SiteCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    """Create a new WordPress site connection."""
-    # Test the connection first
-    wp_service = WordPressService(
-        api_url=str(site_data.api_url),
-        username=site_data.username,
-        app_password=site_data.app_password
-    )
-    
-    connection_test = await wp_service.verify_connection()
-    if not connection_test["success"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to connect to WordPress site: {connection_test.get('error', 'Unknown error')}"
-        )
-    
-    # Create site in database
-    new_site = WordPressSite(
+    site = Site(
         user_id=current_user.id,
-        name=site_data.name,
-        url=str(site_data.url),
-        api_url=str(site_data.api_url),
-        username=site_data.username,
-        app_password=site_data.app_password
+        name=data.name,
+        url=data.url,
+        api_url=data.api_url,
+        platform=data.platform,
+        username=data.username,
+        app_password=data.app_password,
+        api_key=data.api_key,
+        default_blog_id=data.default_blog_id,
     )
-    
-    db.add(new_site)
+    db.add(site)
     await db.commit()
-    await db.refresh(new_site)
-    
-    # Fetch categories and tags in the background
-    background_tasks.add_task(
-        fetch_and_save_taxonomies, db, new_site.id, wp_service
-    )
-    
-    return new_site
+    await db.refresh(site)
 
-@router.get("/", response_model=List[WordPressSiteResponse])
-async def get_wordpress_sites(
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get all WordPress sites for the current user."""
-    stmt = select(WordPressSite).where(WordPressSite.user_id == current_user.id)
-    result = await db.execute(stmt)
-    sites = result.scalars().all()
-    return sites
+    # Fetch categories and tags for WordPress sites
+    if data.platform == Platform.wordpress:
+        try:
+            cats = await _fetch_categories(data.api_url, data.username, data.app_password)
+            for c in cats:
+                db.add(Category(site_id=site.id, platform_id=str(c["id"]), name=c["name"]))
 
-@router.get("/{site_id}", response_model=WordPressSiteDetail)
-async def get_wordpress_site(
-    site_id: int,
+            tags = await _fetch_tags(data.api_url, data.username, data.app_password)
+            for t in tags:
+                db.add(Tag(site_id=site.id, platform_id=str(t["id"]), name=t["name"]))
+
+            await db.commit()
+        except Exception:
+            pass  # Non-critical — categories/tags can be fetched later
+
+    return site
+
+
+@router.get("/", response_model=list[SiteResponse])
+async def list_sites(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    """Get a specific WordPress site with categories and tags."""
-    stmt = select(WordPressSite).where(
-        (WordPressSite.id == site_id) &
-        (WordPressSite.user_id == current_user.id)
+    result = await db.execute(
+        select(Site).where(Site.user_id == current_user.id)
     )
-    result = await db.execute(stmt)
-    site = result.scalars().first()
-    
+    return result.scalars().all()
+
+
+@router.get("/{site_id}", response_model=SiteDetail)
+async def get_site(
+    site_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Site)
+        .where(Site.id == site_id, Site.user_id == current_user.id)
+        .options(selectinload(Site.categories), selectinload(Site.tags))
+    )
+    site = result.scalar_one_or_none()
     if not site:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WordPress site not found"
-        )
-    
-    # Get categories
-    stmt = select(Category).where(Category.site_id == site_id)
-    result = await db.execute(stmt)
-    categories = result.scalars().all()
-    
-    # Get tags
-    stmt = select(Tag).where(Tag.site_id == site_id)
-    result = await db.execute(stmt)
-    tags = result.scalars().all()
-    
-    return {
-        **site.__dict__,
-        "categories": categories,
-        "tags": tags
-    }
+        raise HTTPException(status_code=404, detail="Site not found")
+    return site
 
-@router.get("/{site_id}/categories", response_model=List[CategoryResponse])
-async def get_categories(
-    site_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get all categories for a WordPress site."""
-    # Check site exists and belongs to user
-    stmt = select(WordPressSite).where(
-        (WordPressSite.id == site_id) &
-        (WordPressSite.user_id == current_user.id)
-    )
-    result = await db.execute(stmt)
-    site = result.scalars().first()
-    
-    if not site:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WordPress site not found"
-        )
-    
-    # Get categories
-    stmt = select(Category).where(Category.site_id == site_id)
-    result = await db.execute(stmt)
-    categories = result.scalars().all()
-    
-    return categories
 
-@router.get("/{site_id}/tags", response_model=List[TagResponse])
-async def get_tags(
-    site_id: int,
+@router.put("/{site_id}", response_model=SiteResponse)
+async def update_site(
+    site_id: str,
+    data: SiteUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    """Get all tags for a WordPress site."""
-    # Check site exists and belongs to user
-    stmt = select(WordPressSite).where(
-        (WordPressSite.id == site_id) &
-        (WordPressSite.user_id == current_user.id)
-    )
-    result = await db.execute(stmt)
-    site = result.scalars().first()
-    
-    if not site:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WordPress site not found"
+    result = await db.execute(
+        select(Site).where(
+            Site.id == site_id, Site.user_id == current_user.id
         )
-    
-    # Get tags
-    stmt = select(Tag).where(Tag.site_id == site_id)
-    result = await db.execute(stmt)
-    tags = result.scalars().all()
-    
-    return tags
+    )
+    site = result.scalar_one_or_none()
+    if not site:
+        raise HTTPException(status_code=404, detail="Site not found")
 
-@router.post("/{site_id}/refresh", response_model=WordPressSiteDetail)
-async def refresh_taxonomies(
-    site_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Refresh categories and tags for a WordPress site."""
-    # Check site exists and belongs to user
-    stmt = select(WordPressSite).where(
-        (WordPressSite.id == site_id) &
-        (WordPressSite.user_id == current_user.id)
-    )
-    result = await db.execute(stmt)
-    site = result.scalars().first()
-    
-    if not site:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WordPress site not found"
-        )
-    
-    # Initialize WordPress service
-    wp_service = WordPressService(
-        api_url=site.api_url,
-        username=site.username,
-        app_password=site.app_password
-    )
-    
-    # Test connection
-    connection_test = await wp_service.verify_connection()
-    if not connection_test["success"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to connect to WordPress site: {connection_test.get('error', 'Unknown error')}"
-        )
-    
-    # Fetch and save taxonomies
-    await fetch_and_save_taxonomies(db, site_id, wp_service)
-    
-    # Get updated categories
-    stmt = select(Category).where(Category.site_id == site_id)
-    result = await db.execute(stmt)
-    categories = result.scalars().all()
-    
-    # Get updated tags
-    stmt = select(Tag).where(Tag.site_id == site_id)
-    result = await db.execute(stmt)
-    tags = result.scalars().all()
-    
-    return {
-        **site.__dict__,
-        "categories": categories,
-        "tags": tags
-    }
+    update_data = data.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(site, key, value)
+
+    await db.commit()
+    await db.refresh(site)
+    return site
+
 
 @router.delete("/{site_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_wordpress_site(
-    site_id: int,
+async def delete_site(
+    site_id: str,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    """Delete a WordPress site."""
-    stmt = select(WordPressSite).where(
-        (WordPressSite.id == site_id) &
-        (WordPressSite.user_id == current_user.id)
-    )
-    result = await db.execute(stmt)
-    site = result.scalars().first()
-    
-    if not site:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WordPress site not found"
+    result = await db.execute(
+        select(Site).where(
+            Site.id == site_id, Site.user_id == current_user.id
         )
-    
+    )
+    site = result.scalar_one_or_none()
+    if not site:
+        raise HTTPException(status_code=404, detail="Site not found")
+
     await db.delete(site)
-    await db.commit() 
+    await db.commit()
+
+
+@router.get("/{site_id}/categories", response_model=list[CategoryResponse])
+async def get_categories(
+    site_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Verify site ownership
+    result = await db.execute(
+        select(Site).where(
+            Site.id == site_id, Site.user_id == current_user.id
+        )
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Site not found")
+
+    result = await db.execute(select(Category).where(Category.site_id == site_id))
+    return result.scalars().all()
+
+
+@router.get("/{site_id}/tags", response_model=list[TagResponse])
+async def get_tags(
+    site_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Site).where(
+            Site.id == site_id, Site.user_id == current_user.id
+        )
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Site not found")
+
+    result = await db.execute(select(Tag).where(Tag.site_id == site_id))
+    return result.scalars().all()
+
+
+@router.post("/{site_id}/refresh", response_model=SiteDetail)
+async def refresh_site(
+    site_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Site)
+        .where(Site.id == site_id, Site.user_id == current_user.id)
+        .options(selectinload(Site.categories), selectinload(Site.tags))
+    )
+    site = result.scalar_one_or_none()
+    if not site:
+        raise HTTPException(status_code=404, detail="Site not found")
+
+    from datetime import datetime, timezone as tz
+
+    if site.platform == "wordpress":
+        # Clear existing
+        for cat in site.categories:
+            await db.delete(cat)
+        for tag in site.tags:
+            await db.delete(tag)
+
+        # Re-fetch
+        cats = await _fetch_categories(site.api_url, site.username, site.app_password)
+        for c in cats:
+            db.add(Category(site_id=site.id, platform_id=str(c["id"]), name=c["name"]))
+
+        tags = await _fetch_tags(site.api_url, site.username, site.app_password)
+        for t in tags:
+            db.add(Tag(site_id=site.id, platform_id=str(t["id"]), name=t["name"]))
+    elif site.platform == "shopify":
+        # Shopify has no categories/tags to sync — just verify connection
+        result = await _test_shopify_connection(site.api_url, site.api_key)
+        if not result["success"]:
+            raise HTTPException(status_code=400, detail=f"Shopify connection failed: {result['error']}")
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Refresh is not yet supported for {site.platform.title()} sites",
+        )
+
+    site.last_health_check = datetime.now(tz.utc)
+    await db.commit()
+
+    # Re-query with relationships
+    result = await db.execute(
+        select(Site)
+        .where(Site.id == site_id)
+        .options(selectinload(Site.categories), selectinload(Site.tags))
+    )
+    return result.scalar_one()

@@ -1,81 +1,63 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-from .api import auth, sites, schedules, posts, prompts
-from .core.database import init_db
-from .core.config import settings
-from .services.scheduler import SchedulerService
-import asyncio
-from prometheus_fastapi_instrumentator import Instrumentator
+from sqlalchemy import text
 
-# Initialize scheduler service
-scheduler_service = SchedulerService()
+from app.core.config import settings
+from app.core.database import engine
+from app.api.auth import router as auth_router
+from app.api.sites import router as sites_router
+from app.api.templates import router as templates_router
+from app.api.schedules import router as schedules_router
+from app.api.posts import router as posts_router
+from app.api.feedback import router as feedback_router
+from app.services.scheduler import get_scheduler_status, start_scheduler, stop_scheduler
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Initialize database and scheduler
-    await init_db()
-    scheduler_task = asyncio.create_task(initialize_scheduler())
-    
-    # Setup metrics
-    Instrumentator().instrument(app).expose(app)
-    
-    yield  # Application runs here
-    
-    # Shutdown: Cancel any running tasks
-    scheduler_task.cancel()
-    try:
-        await scheduler_task
-    except asyncio.CancelledError:
-        pass
+    # Startup: verify database connection
+    async with engine.begin() as conn:
+        await conn.execute(text("SELECT 1"))
+    # Start the scheduling engine
+    await start_scheduler()
+    print(f"✓ {settings.PROJECT_NAME} backend started")
+    yield
+    # Shutdown
+    await stop_scheduler()
+    await engine.dispose()
+    print(f"✗ {settings.PROJECT_NAME} backend stopped")
 
-app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
-# CORS configuration
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    docs_url=f"{settings.API_V1_STR}/docs",
+    lifespan=lifespan,
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS.split(",") if isinstance(settings.CORS_ORIGINS, str) else settings.CORS_ORIGINS,
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-async def initialize_scheduler():
-    """Initialize scheduler with existing schedules from database."""
-    from sqlalchemy.ext.asyncio import AsyncSession
-    from sqlalchemy.future import select
-    from .core.database import get_session
-    from .models.blog_schedule import BlogSchedule
-    
-    try:
-        async with get_session() as db:
-            # Get all active schedules
-            result = await db.execute(
-                select(BlogSchedule).where(BlogSchedule.is_active == True)
-            )
-            schedules = result.scalars().all()
-            
-            # Schedule each active schedule
-            for schedule in schedules:
-                await scheduler_service.schedule_post(db, schedule.id)
-    except Exception as e:
-        print(f"Error initializing scheduler: {str(e)}")
 
-# Include routers
-app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Authentication"])
-app.include_router(sites.router, prefix=f"{settings.API_V1_STR}/sites", tags=["WordPress Sites"])
-app.include_router(schedules.router, prefix=f"{settings.API_V1_STR}/schedules", tags=["Schedules"])
-app.include_router(posts.router, prefix=f"{settings.API_V1_STR}/posts", tags=["Blog Posts"])
-app.include_router(prompts.router, prefix=f"{settings.API_V1_STR}/prompts", tags=["Prompt Templates"])
+app.include_router(auth_router, prefix=settings.API_V1_STR)
+app.include_router(sites_router, prefix=settings.API_V1_STR)
+app.include_router(templates_router, prefix=settings.API_V1_STR)
+app.include_router(schedules_router, prefix=settings.API_V1_STR)
+app.include_router(posts_router, prefix=settings.API_V1_STR)
+app.include_router(feedback_router, prefix=settings.API_V1_STR)
 
-@app.get("/")
-async def root():
-    return {
-        "app": settings.PROJECT_NAME,
-        "version": "1.0.0",
-        "docs": "/docs"
-    }
 
-@app.get(f"{settings.API_V1_STR}/health")
+@app.get("/api/health")
 async def health_check():
-    return {"status": "healthy"} 
+    return {
+        "status": "healthy",
+        "service": settings.PROJECT_NAME,
+        "scheduler": get_scheduler_status(),
+    }

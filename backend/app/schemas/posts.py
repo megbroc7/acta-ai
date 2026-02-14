@@ -1,0 +1,61 @@
+import uuid
+from datetime import datetime
+
+from pydantic import BaseModel, Field
+
+
+class PostCreate(BaseModel):
+    site_id: uuid.UUID
+    title: str = Field(min_length=1)
+    content: str = Field(min_length=1)
+    excerpt: str | None = None
+    featured_image_url: str | None = None
+    categories: list[int] = []
+    tags: list[int] = []
+    status: str = "draft"
+
+
+class PostUpdate(BaseModel):
+    title: str | None = None
+    content: str | None = None
+    excerpt: str | None = None
+    featured_image_url: str | None = None
+    categories: list[int] | None = None
+    tags: list[int] | None = None
+    status: str | None = None
+
+
+class PostSiteInfo(BaseModel):
+    id: uuid.UUID
+    name: str
+    url: str
+    platform: str
+    model_config = {"from_attributes": True}
+
+
+class PostResponse(BaseModel):
+    id: uuid.UUID
+    site_id: uuid.UUID
+    schedule_id: uuid.UUID | None
+    prompt_template_id: uuid.UUID | None
+    title: str
+    content: str
+    excerpt: str | None
+    featured_image_url: str | None
+    categories: list
+    tags: list
+    status: str
+    review_notes: str | None
+    platform_post_id: str | None
+    published_url: str | None
+    system_prompt_used: str | None
+    topic_prompt_used: str | None
+    content_prompt_used: str | None
+    created_at: datetime
+    published_at: datetime | None
+    site: PostSiteInfo | None = None
+    model_config = {"from_attributes": True}
+
+
+class RejectRequest(BaseModel):
+    review_notes: str = Field(min_length=1)

@@ -15,7 +15,12 @@ import {
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
 import { HEADLINE_STYLES, resolveHeadlineStyle } from '../../constants/headlineStyles';
-const AUDIENCE_LEVELS = ['beginner', 'intermediate', 'advanced', 'general'];
+const AUDIENCE_LEVELS = [
+  { value: 'beginner', label: 'Beginner', description: 'Simple language, plenty of context and definitions' },
+  { value: 'intermediate', label: 'Intermediate', description: 'Some assumed knowledge, moderate technical depth' },
+  { value: 'advanced', label: 'Advanced', description: 'Expert-level jargon, minimal hand-holding' },
+  { value: 'general', label: 'General', description: 'Accessible to everyone, no assumed expertise' },
+];
 const TONES = [
   'informative', 'conversational', 'professional', 'friendly',
   'authoritative', 'witty', 'empathetic', 'inspirational', 'casual', 'formal',
@@ -567,6 +572,7 @@ export default function PromptForm() {
                     onChange={update('content_type')}
                     sx={{ width: 300 }}
                     InputLabelProps={{ shrink: true }}
+                    slotProps={{ select: { renderValue: (val) => HEADLINE_STYLES.find(s => s.value === val)?.label || val } }}
                   >
                     {HEADLINE_STYLES.map(s => (
                       <MenuItem key={s.value} value={s.value}>
@@ -577,9 +583,23 @@ export default function PromptForm() {
                       </MenuItem>
                     ))}
                   </TextField>
-                  <TextField select label="Audience Level" value={form.audience_level} onChange={update('audience_level')} sx={{ width: 220 }}>
+                  <TextField
+                    select
+                    label="Audience Level"
+                    value={form.audience_level}
+                    onChange={update('audience_level')}
+                    sx={{ width: 300 }}
+                    slotProps={{ select: { renderValue: (val) => AUDIENCE_LEVELS.find(a => a.value === val)?.label || val || 'None' } }}
+                  >
                     <MenuItem value="">None</MenuItem>
-                    {AUDIENCE_LEVELS.map(a => <MenuItem key={a} value={a}>{a}</MenuItem>)}
+                    {AUDIENCE_LEVELS.map(a => (
+                      <MenuItem key={a.value} value={a.value}>
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>{a.label}</Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: -0.25 }}>{a.description}</Typography>
+                        </Box>
+                      </MenuItem>
+                    ))}
                   </TextField>
                 </Box>
                 <TextField

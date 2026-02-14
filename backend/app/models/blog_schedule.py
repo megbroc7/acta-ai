@@ -1,85 +1,85 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, JSON, Text
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
-from ..core.database import Base
+import uuid
+from datetime import datetime, timezone
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import JSON, UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.core.database import Base
+
 
 class BlogSchedule(Base):
     __tablename__ = "blog_schedules"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    site_id = Column(Integer, ForeignKey("wordpress_sites.id"), nullable=False)
-    prompt_template_id = Column(Integer, ForeignKey("prompt_templates.id"), nullable=False)
-    name = Column(String, nullable=False)
-    
-    # Scheduling settings
-    frequency = Column(String, nullable=False)  # daily, weekly, monthly, custom
-    custom_cron = Column(String)
-    day_of_week = Column(Integer)  # 0-6 (Monday to Sunday)
-    day_of_month = Column(Integer)  # 1-31
-    time_of_day = Column(String)  # HH:MM format
-    
-    # Content settings
-    topics = Column(JSON)  # Array of topic strings or ideas to generate from
-    word_count = Column(Integer)
-    include_images = Column(Boolean, default=False)
-    tone = Column(String)
-    category_ids = Column(JSON)  # Array of category IDs
-    tag_ids = Column(JSON)  # Array of tag IDs
-    
-    # Custom prompt replacements (override template defaults)
-    prompt_replacements = Column(JSON)  # {"placeholder_name": "custom_value"}
-    
-    # Post settings
-    post_status = Column(String, default="draft")  # draft, publish
-    enable_review = Column(Boolean, default=True)  # Require manual approval before publishing
-    
-    # Status
-    is_active = Column(Boolean, default=True)
-    last_run = Column(DateTime(timezone=True))
-    next_run = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
-    user = relationship("User", backref="schedules")
-    site = relationship("WordPressSite", backref="schedules")
-    prompt_template = relationship("PromptTemplate", backref="schedules")
 
-class BlogPost(Base):
-    __tablename__ = "blog_posts"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    schedule_id = Column(Integer, ForeignKey("blog_schedules.id"))
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    site_id = Column(Integer, ForeignKey("wordpress_sites.id"), nullable=False)
-    prompt_template_id = Column(Integer, ForeignKey("prompt_templates.id"), nullable=False)
-    
-    # WordPress info
-    wordpress_id = Column(Integer)
-    wordpress_url = Column(String)
-    
-    # Content
-    title = Column(String, nullable=False)
-    content = Column(Text, nullable=False)
-    excerpt = Column(Text)
-    categories = Column(JSON)  # Array of category IDs
-    tags = Column(JSON)  # Array of tag IDs
-    featured_image_url = Column(String)
-    
-    # Prompt used
-    system_prompt_used = Column(Text)
-    topic_prompt_used = Column(Text)
-    content_prompt_used = Column(Text)
-    
-    # Status info
-    status = Column(String, default="draft")  # draft, pending_review, published, rejected
-    review_notes = Column(Text)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    published_at = Column(DateTime(timezone=True))
-    
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    site_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("sites.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    prompt_template_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("prompt_templates.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    # Scheduling
+    frequency: Mapped[str] = mapped_column(String(20), nullable=False)  # daily, weekly, monthly, custom
+    custom_cron: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    day_of_week: Mapped[int | None] = mapped_column(Integer, nullable=True)  # 0-6
+    day_of_month: Mapped[int | None] = mapped_column(Integer, nullable=True)  # 1-31
+    time_of_day: Mapped[str] = mapped_column(String(5), nullable=False)  # HH:MM
+    timezone: Mapped[str] = mapped_column(String(50), default="UTC")
+
+    # Content settings
+    topics: Mapped[list] = mapped_column(JSON, nullable=False)
+    word_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    tone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    include_images: Mapped[bool] = mapped_column(Boolean, default=False)
+    category_ids: Mapped[list] = mapped_column(JSON, default=list)
+    tag_ids: Mapped[list] = mapped_column(JSON, default=list)
+    prompt_replacements: Mapped[dict] = mapped_column(JSON, default=dict)
+
+    # Post settings
+    post_status: Mapped[str] = mapped_column(String(20), default="draft")
+    enable_review: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    # State
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    last_run: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    next_run: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    retry_count: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
     # Relationships
-    user = relationship("User", backref="posts")
-    site = relationship("WordPressSite", backref="posts")
-    schedule = relationship("BlogSchedule", backref="posts")
-    prompt_template = relationship("PromptTemplate", backref="posts") 
+    site: Mapped["Site"] = relationship(lazy="selectin")
+    prompt_template: Mapped["PromptTemplate"] = relationship(lazy="selectin")
+    posts: Mapped[list["BlogPost"]] = relationship(
+        back_populates="schedule", cascade="all, delete-orphan"
+    )
+    executions: Mapped[list["ExecutionHistory"]] = relationship(
+        back_populates="schedule", cascade="all, delete-orphan"
+    )
+
+
+# Avoid circular import — these are resolved by SQLAlchemy at runtime
+from app.models.site import Site  # noqa: E402, F401
+from app.models.prompt_template import PromptTemplate  # noqa: E402, F401
+from app.models.blog_post import BlogPost, ExecutionHistory  # noqa: E402, F401

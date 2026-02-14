@@ -1,45 +1,80 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
-from ..core.database import Base
+import uuid
+from datetime import datetime, timezone
 
-class WordPressSite(Base):
-    __tablename__ = "wordpress_sites"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    name = Column(String, nullable=False)
-    url = Column(String, nullable=False)
-    api_url = Column(String, nullable=False)
-    username = Column(String, nullable=False)
-    app_password = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
-    user = relationship("User", backref="sites")
-    categories = relationship("Category", back_populates="site", cascade="all, delete-orphan")
-    tags = relationship("Tag", back_populates="site", cascade="all, delete-orphan")
+from sqlalchemy import Boolean, DateTime, ForeignKey, String
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.core.database import Base
+
+
+class Site(Base):
+    __tablename__ = "sites"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    url: Mapped[str] = mapped_column(String(500), nullable=False)
+    api_url: Mapped[str] = mapped_column(String(500), nullable=False)
+    platform: Mapped[str] = mapped_column(String(20), nullable=False, default="wordpress")
+    username: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    app_password: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    api_key: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    default_blog_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    last_health_check: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+    categories: Mapped[list["Category"]] = relationship(
+        back_populates="site", cascade="all, delete-orphan"
+    )
+    tags: Mapped[list["Tag"]] = relationship(
+        back_populates="site", cascade="all, delete-orphan"
+    )
+
 
 class Category(Base):
     __tablename__ = "categories"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    site_id = Column(Integer, ForeignKey("wordpress_sites.id"), nullable=False)
-    wp_id = Column(Integer, nullable=False)
-    name = Column(String, nullable=False)
-    
-    # Relationships
-    site = relationship("WordPressSite", back_populates="categories")
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    site_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("sites.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    platform_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    site: Mapped["Site"] = relationship(back_populates="categories")
+
 
 class Tag(Base):
     __tablename__ = "tags"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    site_id = Column(Integer, ForeignKey("wordpress_sites.id"), nullable=False)
-    wp_id = Column(Integer, nullable=False)
-    name = Column(String, nullable=False)
-    
-    # Relationships
-    site = relationship("WordPressSite", back_populates="tags") 
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    site_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("sites.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    platform_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    site: Mapped["Site"] = relationship(back_populates="tags")

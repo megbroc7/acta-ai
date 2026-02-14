@@ -1,62 +1,92 @@
 import { createTheme } from '@mui/material/styles';
 
-const plantGreen = {
-  light: '#4CAF50',
-  main: '#2E7D32',
-  dark: '#1B5E20',
+// Patina — the blue-green oxidation on ancient bronze
+const patina = {
+  light: '#6B9E8A',
+  main: '#4A7C6F',
+  dark: '#2D5E4A',
+  contrastText: '#FFFFFF',
+};
+
+// Bronze — the warm metal underneath
+const bronze = {
+  light: '#D4A574',
+  main: '#B08D57',
+  dark: '#8B6914',
   contrastText: '#FFFFFF',
 };
 
 const theme = createTheme({
   palette: {
-    primary: plantGreen,
+    primary: patina,
     secondary: {
-      main: '#000000',
+      main: '#2A2A2A',
       contrastText: '#FFFFFF',
     },
     background: {
-      default: '#FFFFFF',
-      paper: '#F5F5F5',
+      default: '#F0EFEC',  // forum stone — cool travertine
+      paper: '#FFFFFF',
     },
     text: {
-      primary: '#000000',
-      secondary: '#424242',
+      primary: '#2A2A2A',
+      secondary: '#5C5C5C',
     },
+    bronze: bronze,
+    success: {
+      main: '#4A7C6F',
+      light: '#6B9E8A',
+      dark: '#2D5E4A',
+    },
+    warning: {
+      main: '#B08D57',
+      light: '#D4A574',
+      dark: '#8B6914',
+    },
+    error: {
+      main: '#A0522D',  // sienna — earthy red, not neon
+      light: '#CD853F',
+      dark: '#6B3410',
+    },
+    divider: '#E0DCD5',
   },
   typography: {
-    fontFamily: '"Montserrat", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
+      fontFamily: '"Roboto Condensed", "Roboto", sans-serif',
       fontWeight: 900,
       fontSize: '4rem',
-      letterSpacing: '-0.01562em',
+      letterSpacing: '-0.01em',
       textTransform: 'uppercase',
     },
     h2: {
+      fontFamily: '"Roboto Condensed", "Roboto", sans-serif',
       fontWeight: 800,
       fontSize: '3rem',
-      letterSpacing: '-0.00833em',
+      letterSpacing: '-0.005em',
       textTransform: 'uppercase',
     },
     h3: {
+      fontFamily: '"Roboto Condensed", "Roboto", sans-serif',
       fontWeight: 700,
       fontSize: '2.5rem',
-      letterSpacing: '0em',
       textTransform: 'uppercase',
     },
     h4: {
+      fontFamily: '"Roboto Condensed", "Roboto", sans-serif',
       fontWeight: 700,
       fontSize: '2rem',
-      letterSpacing: '0.00735em',
+      letterSpacing: '0.007em',
     },
     h5: {
+      fontFamily: '"Roboto Condensed", "Roboto", sans-serif',
       fontWeight: 700,
       fontSize: '1.5rem',
-      letterSpacing: '0em',
     },
     h6: {
+      fontFamily: '"Roboto Condensed", "Roboto", sans-serif',
       fontWeight: 700,
       fontSize: '1.25rem',
-      letterSpacing: '0.0075em',
+      letterSpacing: '0.007em',
     },
     subtitle1: {
       fontWeight: 600,
@@ -76,7 +106,15 @@ const theme = createTheme({
       fontWeight: 600,
       fontSize: '0.875rem',
       textTransform: 'uppercase',
+      letterSpacing: '0.04em',
     },
+    caption: {
+      fontWeight: 500,
+      fontSize: '0.75rem',
+    },
+  },
+  shape: {
+    borderRadius: 0,  // sharp corners — stone and bronze
   },
   components: {
     MuiButton: {
@@ -85,15 +123,25 @@ const theme = createTheme({
           borderRadius: 0,
           padding: '10px 24px',
           fontWeight: 600,
+          position: 'relative',
+          overflow: 'hidden',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: '-100%',
+            width: '100%',
+            height: '100%',
+            background: `linear-gradient(90deg, transparent, rgba(176, 141, 87, 0.15), transparent)`,
+            transition: 'left 0.4s ease',
+          },
+          '&:hover::after': {
+            left: '100%',
+          },
         },
         containedPrimary: {
           '&:hover': {
-            backgroundColor: plantGreen.dark,
-          },
-        },
-        containedSecondary: {
-          '&:hover': {
-            backgroundColor: '#333333',
+            backgroundColor: patina.dark,
           },
         },
         outlined: {
@@ -108,14 +156,16 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 0,
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          boxShadow: 'none',
+          border: '1px solid #E0DCD5',
+          borderTop: `3px solid ${bronze.main}`,
         },
       },
     },
-    MuiCardHeader: {
+    MuiPaper: {
       styleOverrides: {
-        title: {
-          fontWeight: 700,
+        root: {
+          borderRadius: 0,
         },
       },
     },
@@ -123,6 +173,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 4,
+          fontWeight: 600,
         },
       },
     },
@@ -130,7 +181,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: 'none',
-          borderBottom: '1px solid #E0E0E0',
+          borderBottom: '1px solid #E0DCD5',
         },
       },
     },
@@ -143,22 +194,65 @@ const theme = createTheme({
         },
       },
     },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
+        },
+      },
+    },
     MuiTableCell: {
       styleOverrides: {
         head: {
           fontWeight: 700,
-          backgroundColor: '#F5F5F5',
+          backgroundColor: '#E9E8E5',
+          textTransform: 'uppercase',
+          fontSize: '0.75rem',
+          letterSpacing: '0.05em',
         },
       },
     },
     MuiDivider: {
       styleOverrides: {
         root: {
-          borderColor: '#E0E0E0',
+          border: 'none',
+          height: 1,
+          background: `linear-gradient(90deg, ${patina.dark}, ${patina.light}, transparent)`,
+          opacity: 0.3,
+        },
+      },
+    },
+    MuiCardHeader: {
+      styleOverrides: {
+        title: {
+          fontWeight: 700,
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 0,
+        },
+      },
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 0,
+          border: '1px solid #E0DCD5',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
         },
       },
     },
   },
 });
 
-export default theme; 
+export default theme;

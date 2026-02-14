@@ -1,24 +1,33 @@
-import os
 from pydantic_settings import BaseSettings
-from typing import Optional
+
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Acta AI"
-    API_V1_STR: str = "/api"
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 1 week
-    
-    # CORS
-    CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "*")
-    
-    # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:password@db:5432/actaai")
-    
-    # OpenAI
-    OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    API_V1_STR: str = "/api/v1"
 
-settings = Settings() 
+    # Database
+    DATABASE_URL: str = "postgresql+asyncpg://postgres@localhost:5432/acta_ai"
+
+    # Auth
+    SECRET_KEY: str = "change-me-in-production"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # OpenAI
+    OPENAI_API_KEY: str = ""
+
+    # Encryption (for WordPress credentials)
+    ENCRYPTION_KEY: str = ""
+
+    # CORS
+    CORS_ORIGINS: list[str] = ["http://localhost:5173"]
+
+    # Environment
+    ENVIRONMENT: str = "development"
+    LOG_LEVEL: str = "INFO"
+    DEBUG: bool = True
+
+    model_config = {"env_file": ".env", "extra": "ignore"}
+
+
+settings = Settings()
