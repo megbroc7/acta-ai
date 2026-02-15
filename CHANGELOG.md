@@ -16,6 +16,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-14 (Session 20) — Content Calendar
+
+**What we did:**
+Added a new `/calendar` page showing a monthly grid with both future scheduled runs (predicted from cron triggers) and past posts — giving a full content timeline at a glance. No database migration needed.
+
+**1. Backend schemas** (`schemas/schedules.py`)
+- `CalendarEvent` — unified event model with `event_type` ("scheduled"/"post"), schedule/site/template info, plus conditional fields (post: `post_id`, `title`, `status`; scheduled: `predicted_topic`)
+- `CalendarResponse` — `events` list + `start`/`end` dates
+
+**2. Backend endpoint** (`api/schedules.py`)
+- `GET /schedules/calendar?start=YYYY-MM-DD&end=YYYY-MM-DD` — placed BEFORE `/{schedule_id}` routes
+- Validates range (max 62 days), queries posts + active schedules
+- Walks `build_trigger().get_next_fire_time()` to predict future runs (cap: 100 per schedule)
+- Topic prediction via round-robin: `(success_count + future_offset) % len(topics)`
+- Returns sorted unified event list
+
+**3. Frontend page** (`pages/calendar/ContentCalendar.jsx`)
+- Custom 6x7 CSS Grid calendar — no external library
+- Patina green gradient month nav bar with mini stats (upcoming/posts count)
+- Day cells with color-coded event chips: green=scheduled, bronze=published, bronze outline=pending review, gray=draft, sienna outline=rejected
+- Up to 3 chips per cell with "+N more" overflow; indicator dots top-right
+- Today: green circle on day number + green left accent bar
+- Weekend subtle shading, outside-month dimming
+- Click day → Popover with full event details (schedule name, site chip, time, topic/title, "View Post" link)
+- Click post chip → navigates to `/posts/{id}`
+- `countUp` entrance animation (staggered by row+col), `ELASTIC` hover, `float` on empty state
+- Legend bar, laurel divider on empty state
+- All elements contained in single bordered container matching nav bar width
+- `minmax(0, 1fr)` grid columns for equal-width days
+
+**4. Route + nav** (`App.jsx`, `MainLayout.jsx`)
+- `/calendar` route between schedules and posts
+- "Content Calendar" nav item with `CalendarMonth` icon between Schedules and Blog Posts
+
+**Design notes:**
+- User preferred normal English month names (not Latin)
+- CSS Grid alignment fix: header + day cells in single grid container, `minmax(0, 1fr)` prevents content from pushing columns wider
+
+---
+
 ### 2026-02-14 (Session 18) — Featured Image Generation (DALL-E 3 + Unsplash)
 
 **What we did:**

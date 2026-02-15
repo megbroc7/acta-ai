@@ -36,6 +36,7 @@ import ReviewQueue from './pages/posts/ReviewQueue';
 import UserGuide from './pages/guide/UserGuide';
 import AboutActaAI from './pages/guide/AboutActaAI';
 import Feedback from './pages/feedback/Feedback';
+import ContentCalendar from './pages/calendar/ContentCalendar';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,6 +117,8 @@ export default function App() {
                   <Route path="/schedules" element={<SchedulesList />} />
                   <Route path="/schedules/new" element={<ScheduleForm />} />
                   <Route path="/schedules/:id/edit" element={<ScheduleForm />} />
+
+                  <Route path="/calendar" element={<ContentCalendar />} />
 
                   <Route path="/posts" element={<PostsList />} />
                   <Route path="/posts/:id" element={<PostDetail />} />

@@ -34,6 +34,7 @@ import {
   Info as AboutIcon,
   RateReview as FeedbackIcon,
   AssignmentTurnedIn as ReviewIcon,
+  CalendarMonth as CalendarIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
@@ -46,6 +47,7 @@ const NAV_ITEMS = [
   { label: 'Sites', icon: <SitesIcon />, path: '/sites' },
   { label: 'Prompt Templates', icon: <TemplatesIcon />, path: '/prompts' },
   { label: 'Schedules', icon: <SchedulesIcon />, path: '/schedules' },
+  { label: 'Content Calendar', icon: <CalendarIcon />, path: '/calendar' },
   { label: 'Blog Posts', icon: <PostsIcon />, path: '/posts' },
   { label: 'Review Queue', icon: <ReviewIcon />, path: '/review', badge: true },
   { divider: true },

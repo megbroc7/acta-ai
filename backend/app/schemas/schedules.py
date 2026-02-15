@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, Field
@@ -113,3 +113,26 @@ class ExecutionHistoryResponse(BaseModel):
     success: bool
     error_message: str | None
     model_config = {"from_attributes": True}
+
+
+class CalendarEvent(BaseModel):
+    date: datetime
+    event_type: str  # "scheduled" or "post"
+    schedule_id: uuid.UUID | None = None
+    schedule_name: str | None = None
+    frequency: str | None = None
+    site_name: str | None = None
+    site_platform: str | None = None
+    template_name: str | None = None
+    # Post-specific
+    post_id: uuid.UUID | None = None
+    title: str | None = None
+    status: str | None = None
+    # Scheduled-specific
+    predicted_topic: str | None = None
+
+
+class CalendarResponse(BaseModel):
+    events: list[CalendarEvent]
+    start: date
+    end: date

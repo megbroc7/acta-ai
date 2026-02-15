@@ -1,15 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from datetime import date, datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
-from app.models.blog_post import ExecutionHistory
+from app.models.blog_post import BlogPost, ExecutionHistory
 from app.models.blog_schedule import BlogSchedule
 from app.models.prompt_template import PromptTemplate
 from app.models.user import User
 from app.schemas.schedules import (
+    CalendarEvent,
+    CalendarResponse,
     ExecutionHistoryResponse,
     ScheduleCreate,
     ScheduleResponse,
@@ -18,6 +22,7 @@ from app.schemas.schedules import (
 from app.services.scheduler import (
     _compute_next_run,
     add_schedule_job,
+    build_trigger,
     remove_schedule_job,
     trigger_schedule_now,
 )
@@ -90,6 +95,122 @@ async def list_schedules(
         )
     )
     return result.scalars().all()
+
+
+@router.get("/calendar", response_model=CalendarResponse)
+async def get_calendar(
+    start: date = Query(..., description="Start date (YYYY-MM-DD)"),
+    end: date = Query(..., description="End date (YYYY-MM-DD)"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Return calendar events (posts + predicted schedule runs) for a date range."""
+    # Validate range — max 62 days
+    delta = (end - start).days
+    if delta < 0:
+        raise HTTPException(status_code=400, detail="end must be after start")
+    if delta > 62:
+        raise HTTPException(status_code=400, detail="Date range must not exceed 62 days")
+
+    start_dt = datetime(start.year, start.month, start.day, tzinfo=timezone.utc)
+    end_dt = datetime(end.year, end.month, end.day, 23, 59, 59, tzinfo=timezone.utc)
+    events: list[CalendarEvent] = []
+
+    # 1. Query posts within range
+    post_result = await db.execute(
+        select(BlogPost)
+        .where(
+            BlogPost.user_id == current_user.id,
+            BlogPost.created_at >= start_dt,
+            BlogPost.created_at <= end_dt,
+        )
+        .options(selectinload(BlogPost.site))
+    )
+    posts = post_result.scalars().all()
+
+    for post in posts:
+        events.append(CalendarEvent(
+            date=post.created_at,
+            event_type="post",
+            schedule_id=post.schedule_id,
+            site_name=post.site.name if post.site else None,
+            site_platform=post.site.platform if post.site else None,
+            post_id=post.id,
+            title=post.title,
+            status=post.status,
+        ))
+
+    # 2. Query active schedules with relationships
+    sched_result = await db.execute(
+        select(BlogSchedule)
+        .where(
+            BlogSchedule.user_id == current_user.id,
+            BlogSchedule.is_active.is_(True),
+        )
+        .options(
+            selectinload(BlogSchedule.site),
+            selectinload(BlogSchedule.prompt_template),
+        )
+    )
+    schedules = sched_result.scalars().all()
+
+    for schedule in schedules:
+        # Get success count for topic round-robin prediction
+        success_count_result = await db.execute(
+            select(func.count())
+            .select_from(ExecutionHistory)
+            .where(
+                ExecutionHistory.schedule_id == schedule.id,
+                ExecutionHistory.success.is_(True),
+            )
+        )
+        success_count = success_count_result.scalar() or 0
+
+        topics = schedule.topics or []
+        if not topics:
+            continue
+
+        # Walk fire times within range
+        try:
+            trigger = build_trigger(schedule)
+        except Exception:
+            continue
+
+        now = datetime.now(timezone.utc)
+        current_fire = trigger.get_next_fire_time(None, start_dt)
+        safety_count = 0  # total iterations (past + future) — for loop safety
+        future_offset = 0  # only counts future events — for topic prediction
+        while current_fire and current_fire <= end_dt and safety_count < 100:
+            # Only include future predicted runs (past are covered by posts)
+            if current_fire > now:
+                # Predict topic via round-robin
+                topic_idx = (success_count + future_offset) % len(topics)
+                topic_item = topics[topic_idx]
+                if isinstance(topic_item, dict):
+                    predicted_topic = topic_item.get("topic", "")
+                else:
+                    predicted_topic = str(topic_item)
+
+                events.append(CalendarEvent(
+                    date=current_fire,
+                    event_type="scheduled",
+                    schedule_id=schedule.id,
+                    schedule_name=schedule.name,
+                    frequency=schedule.frequency,
+                    site_name=schedule.site.name if schedule.site else None,
+                    site_platform=schedule.site.platform if schedule.site else None,
+                    template_name=schedule.prompt_template.name if schedule.prompt_template else None,
+                    predicted_topic=predicted_topic,
+                ))
+                future_offset += 1
+
+            safety_count += 1
+            current_fire = trigger.get_next_fire_time(current_fire, current_fire)
+
+    # Sort by date
+    events.sort(key=lambda e: e.date)
+
+    return CalendarResponse(events=events, start=start, end=end)
 
 
 @router.get("/{schedule_id}", response_model=ScheduleResponse)
