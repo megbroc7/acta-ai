@@ -18,6 +18,8 @@ from app.schemas.schedules import (
     ScheduleCreate,
     ScheduleResponse,
     ScheduleUpdate,
+    SkipDateRequest,
+    SkipDateResponse,
 )
 from app.services.scheduler import (
     _compute_next_run,
@@ -170,6 +172,9 @@ async def get_calendar(
         if not topics:
             continue
 
+        # Build set of skipped dates for fast lookup
+        skipped_set = set(schedule.skipped_dates or [])
+
         # Walk fire times within range
         try:
             trigger = build_trigger(schedule)
@@ -183,6 +188,9 @@ async def get_calendar(
         while current_fire and current_fire <= end_dt and safety_count < 100:
             # Only include future predicted runs (past are covered by posts)
             if current_fire > now:
+                fire_date_str = current_fire.strftime("%Y-%m-%d")
+                is_skipped = fire_date_str in skipped_set
+
                 # Predict topic via round-robin
                 topic_idx = (success_count + future_offset) % len(topics)
                 topic_item = topics[topic_idx]
@@ -201,8 +209,11 @@ async def get_calendar(
                     site_platform=schedule.site.platform if schedule.site else None,
                     template_name=schedule.prompt_template.name if schedule.prompt_template else None,
                     predicted_topic=predicted_topic,
+                    is_skipped=is_skipped,
                 ))
-                future_offset += 1
+                # Only advance topic offset for non-skipped events
+                if not is_skipped:
+                    future_offset += 1
 
             safety_count += 1
             current_fire = trigger.get_next_fire_time(current_fire, current_fire)
@@ -211,6 +222,81 @@ async def get_calendar(
     events.sort(key=lambda e: e.date)
 
     return CalendarResponse(events=events, start=start, end=end)
+
+
+@router.post("/{schedule_id}/skip", response_model=SkipDateResponse)
+async def skip_date(
+    schedule_id: str,
+    data: SkipDateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Add a date to the schedule's skipped_dates list."""
+    result = await db.execute(
+        select(BlogSchedule).where(
+            BlogSchedule.id == schedule_id,
+            BlogSchedule.user_id == current_user.id,
+        )
+    )
+    schedule = result.scalar_one_or_none()
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+
+    # Validate date is in the future
+    skip_date_obj = datetime.strptime(data.date, "%Y-%m-%d").date()
+    if skip_date_obj <= date.today():
+        raise HTTPException(status_code=400, detail="Can only skip future dates")
+
+    # Check not already skipped
+    current_skipped = list(schedule.skipped_dates or [])
+    if data.date in current_skipped:
+        raise HTTPException(status_code=400, detail="Date is already skipped")
+
+    # Reassign list (new object) to trigger SQLAlchemy dirty detection
+    current_skipped.append(data.date)
+    schedule.skipped_dates = current_skipped
+
+    await db.commit()
+
+    return SkipDateResponse(
+        schedule_id=schedule.id,
+        skipped_dates=schedule.skipped_dates,
+        message=f"Skipped run on {data.date}",
+    )
+
+
+@router.delete("/{schedule_id}/skip", response_model=SkipDateResponse)
+async def unskip_date(
+    schedule_id: str,
+    data: SkipDateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Remove a date from the schedule's skipped_dates list (restore)."""
+    result = await db.execute(
+        select(BlogSchedule).where(
+            BlogSchedule.id == schedule_id,
+            BlogSchedule.user_id == current_user.id,
+        )
+    )
+    schedule = result.scalar_one_or_none()
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+
+    current_skipped = list(schedule.skipped_dates or [])
+    if data.date not in current_skipped:
+        raise HTTPException(status_code=400, detail="Date is not in skipped list")
+
+    current_skipped.remove(data.date)
+    schedule.skipped_dates = current_skipped
+
+    await db.commit()
+
+    return SkipDateResponse(
+        schedule_id=schedule.id,
+        skipped_dates=schedule.skipped_dates,
+        message=f"Restored run on {data.date}",
+    )
 
 
 @router.get("/{schedule_id}", response_model=ScheduleResponse)

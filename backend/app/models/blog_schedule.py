@@ -44,6 +44,7 @@ class BlogSchedule(Base):
     include_images: Mapped[bool] = mapped_column(Boolean, default=False)
     category_ids: Mapped[list] = mapped_column(JSON, default=list)
     tag_ids: Mapped[list] = mapped_column(JSON, default=list)
+    skipped_dates: Mapped[list] = mapped_column(JSON, default=list)
     prompt_replacements: Mapped[dict] = mapped_column(JSON, default=dict)
 
     # Post settings

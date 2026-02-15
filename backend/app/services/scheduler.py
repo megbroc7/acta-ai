@@ -7,7 +7,8 @@ Uses AsyncIOScheduler with in-memory job store, rebuilt from DB on startup.
 import logging
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
+from zoneinfo import ZoneInfo
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -122,6 +123,32 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
             result["error_message"] = "Schedule is not active"
             logger.warning("execute_schedule: schedule %s is not active", schedule_id)
             return result
+
+        # 2.5 Skip guard — check if today is in skipped_dates
+        tz = ZoneInfo(schedule.timezone or "UTC")
+        today_str = datetime.now(tz).strftime("%Y-%m-%d")
+        skipped = list(schedule.skipped_dates or [])
+        if today_str in skipped:
+            logger.info(
+                "Schedule '%s' (id=%s) skipped for %s",
+                schedule.name, schedule.id, today_str,
+            )
+            # Prune past dates from skipped_dates
+            today_date = date.today()
+            pruned = [d for d in skipped if d >= today_str]
+            if len(pruned) != len(skipped):
+                schedule.skipped_dates = pruned
+            # Update next_run and return — no execution, no history
+            schedule.next_run = _compute_next_run(schedule)
+            await db.commit()
+            result["error_message"] = f"Skipped for {today_str}"
+            return result
+
+        # Prune any past dates from skipped_dates on every execution
+        if skipped:
+            pruned = [d for d in skipped if d >= today_str]
+            if len(pruned) != len(skipped):
+                schedule.skipped_dates = pruned
 
         if not schedule.site or not schedule.site.is_active:
             result["error_message"] = "Site is not active or missing"

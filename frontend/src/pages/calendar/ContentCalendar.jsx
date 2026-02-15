@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box, Typography, IconButton, Chip, Popover, Stack, Button, CircularProgress,
 } from '@mui/material';
+import { BlockOutlined, Restore as RestoreIcon } from '@mui/icons-material';
 import { keyframes } from '@mui/system';
 import {
   ChevronLeft, ChevronRight, CalendarMonth, Today as TodayIcon,
@@ -85,6 +86,16 @@ const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // --- Event chip styling ---
 function getChipStyle(event) {
+  if (event.event_type === 'scheduled' && event.is_skipped) {
+    return {
+      bgcolor: 'transparent',
+      color: '#A0A0A0',
+      border: '1.5px dashed #C0C0C0',
+      borderLeft: '2px dashed #C0C0C0',
+      opacity: 0.55,
+      textDecoration: 'line-through',
+    };
+  }
   if (event.event_type === 'scheduled') {
     return {
       bgcolor: '#4A7C6F',
@@ -150,6 +161,7 @@ function LaurelDivider() {
 
 export default function ContentCalendar() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [anchorEl, setAnchorEl] = useState(null);
@@ -164,6 +176,18 @@ export default function ContentCalendar() {
       api.get('/schedules/calendar', {
         params: { start: formatDate(gridStart), end: formatDate(gridEnd) },
       }).then(r => r.data),
+  });
+
+  const skipMutation = useMutation({
+    mutationFn: ({ scheduleId, date }) =>
+      api.post(`/schedules/${scheduleId}/skip`, { date }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar'] }),
+  });
+
+  const unskipMutation = useMutation({
+    mutationFn: ({ scheduleId, date }) =>
+      api.delete(`/schedules/${scheduleId}/skip`, { data: { date } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar'] }),
   });
 
   const eventsByDay = useMemo(() => {
@@ -479,8 +503,11 @@ export default function ContentCalendar() {
                     </Typography>
                     {hasEvents && (
                       <Box sx={{ display: 'flex', gap: 0.3 }}>
-                        {dayEvents.some(e => e.event_type === 'scheduled') && (
+                        {dayEvents.some(e => e.event_type === 'scheduled' && !e.is_skipped) && (
                           <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: '#4A7C6F' }} />
+                        )}
+                        {dayEvents.some(e => e.event_type === 'scheduled' && e.is_skipped) && (
+                          <Box sx={{ width: 5, height: 5, borderRadius: '50%', border: '1px dashed #C0C0C0' }} />
                         )}
                         {dayEvents.some(e => e.event_type === 'post') && (
                           <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: '#B08D57' }} />
@@ -559,6 +586,7 @@ export default function ContentCalendar() {
           >
             {[
               { label: 'Scheduled', color: '#4A7C6F', filled: true },
+              { label: 'Skipped', color: '#C0C0C0', filled: false, dashed: true },
               { label: 'Published', color: '#B08D57', filled: true },
               { label: 'Pending Review', color: '#B08D57', filled: false },
               { label: 'Draft', color: '#D0CCC5', filled: true },
@@ -571,7 +599,7 @@ export default function ContentCalendar() {
                     height: 10,
                     borderRadius: '2px',
                     bgcolor: item.filled ? item.color : 'transparent',
-                    border: !item.filled ? `1.5px solid ${item.color}` : 'none',
+                    border: !item.filled ? `1.5px ${item.dashed ? 'dashed' : 'solid'} ${item.color}` : 'none',
                     flexShrink: 0,
                   }}
                 />
@@ -696,7 +724,13 @@ export default function ContentCalendar() {
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                       <Chip
-                        label={event.event_type === 'scheduled' ? 'SCHEDULED' : (event.status || 'draft').toUpperCase().replace('_', ' ')}
+                        label={
+                          event.event_type === 'scheduled' && event.is_skipped
+                            ? 'SKIPPED'
+                            : event.event_type === 'scheduled'
+                              ? 'SCHEDULED'
+                              : (event.status || 'draft').toUpperCase().replace('_', ' ')
+                        }
                         size="small"
                         sx={{
                           height: 20,
@@ -704,14 +738,25 @@ export default function ContentCalendar() {
                           fontWeight: 700,
                           borderRadius: 0,
                           letterSpacing: '0.03em',
-                          ...style,
+                          ...(event.is_skipped
+                            ? { bgcolor: 'rgba(160, 160, 160, 0.1)', color: '#A0A0A0', border: '1px dashed #C0C0C0' }
+                            : style),
                         }}
                       />
                       <Typography variant="caption" sx={{ color: '#8A857E', fontWeight: 500 }}>
                         {formatTime(event.date)}
                       </Typography>
                     </Box>
-                    <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5, color: '#2A2A2A', lineHeight: 1.4 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 0.5,
+                        color: event.is_skipped ? '#A0A0A0' : '#2A2A2A',
+                        lineHeight: 1.4,
+                        textDecoration: event.is_skipped ? 'line-through' : 'none',
+                      }}
+                    >
                       {event.event_type === 'scheduled' ? event.predicted_topic : event.title}
                     </Typography>
                     {event.schedule_name && (
@@ -761,6 +806,55 @@ export default function ContentCalendar() {
                         }}
                       >
                         View Post
+                      </Button>
+                    )}
+                    {/* Skip / Restore button for scheduled events */}
+                    {event.event_type === 'scheduled' && !event.is_skipped && (
+                      <Button
+                        size="small"
+                        startIcon={<BlockOutlined sx={{ fontSize: 14 }} />}
+                        disabled={skipMutation.isPending || unskipMutation.isPending}
+                        onClick={() => {
+                          const dateStr = event.date.substring(0, 10);
+                          skipMutation.mutate({ scheduleId: event.schedule_id, date: dateStr });
+                        }}
+                        sx={{
+                          mt: 1,
+                          textTransform: 'uppercase',
+                          fontWeight: 700,
+                          fontSize: '0.65rem',
+                          letterSpacing: '0.04em',
+                          p: 0,
+                          minWidth: 0,
+                          color: '#A0522D',
+                          '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
+                        }}
+                      >
+                        Skip This Run
+                      </Button>
+                    )}
+                    {event.event_type === 'scheduled' && event.is_skipped && (
+                      <Button
+                        size="small"
+                        startIcon={<RestoreIcon sx={{ fontSize: 14 }} />}
+                        disabled={skipMutation.isPending || unskipMutation.isPending}
+                        onClick={() => {
+                          const dateStr = event.date.substring(0, 10);
+                          unskipMutation.mutate({ scheduleId: event.schedule_id, date: dateStr });
+                        }}
+                        sx={{
+                          mt: 1,
+                          textTransform: 'uppercase',
+                          fontWeight: 700,
+                          fontSize: '0.65rem',
+                          letterSpacing: '0.04em',
+                          p: 0,
+                          minWidth: 0,
+                          color: '#4A7C6F',
+                          '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
+                        }}
+                      >
+                        Restore
                       </Button>
                     )}
                   </Box>

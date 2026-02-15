@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -6,7 +6,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
 } from '@mui/material';
 import {
-  ArrowBack, Edit, Publish, ThumbDown, OpenInNew, Gavel,
+  ArrowBack, Edit, Publish, ThumbDown, OpenInNew, Gavel, ImageOutlined,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api from '../../services/api';
@@ -17,6 +17,57 @@ const STATUS_COLORS = {
 const STATUS_LABELS = {
   draft: 'Draft', pending_review: 'Pending Review', published: 'Published', rejected: 'Rejected',
 };
+
+function FeaturedImageCard({ url, title, published }) {
+  const [imgFailed, setImgFailed] = useState(false);
+
+  if (imgFailed) {
+    return (
+      <Card>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            px: 2.5,
+            py: 2,
+            bgcolor: 'rgba(176, 141, 87, 0.06)',
+            borderLeft: '3px solid #B08D57',
+          }}
+        >
+          <ImageOutlined sx={{ color: '#B08D57', fontSize: 28 }} />
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#5A554E' }}>
+              Featured image was generated
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#8A857E' }}>
+              {published
+                ? 'The image is live on your published site. The preview link has expired here.'
+                : 'The temporary preview link has expired. Generate a new post to get a fresh image.'}
+            </Typography>
+          </Box>
+        </Box>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <Box
+        component="img"
+        src={url}
+        alt={`Featured image for ${title}`}
+        onError={() => setImgFailed(true)}
+        sx={{
+          width: '100%',
+          maxHeight: 400,
+          objectFit: 'cover',
+          display: 'block',
+        }}
+      />
+    </Card>
+  );
+}
 
 export default function PostDetail() {
   const { id } = useParams();
@@ -227,19 +278,7 @@ export default function PostDetail() {
 
       <Stack spacing={3}>
         {post.featured_image_url && (
-          <Card>
-            <Box
-              component="img"
-              src={post.featured_image_url}
-              alt={`Featured image for ${post.title}`}
-              sx={{
-                width: '100%',
-                maxHeight: 400,
-                objectFit: 'cover',
-                display: 'block',
-              }}
-            />
-          </Card>
+          <FeaturedImageCard url={post.featured_image_url} title={post.title} published={post.status === 'published'} />
         )}
 
         {post.excerpt && (

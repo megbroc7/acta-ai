@@ -16,6 +16,72 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-15 (Session 21) — Skip/Cancel Individual Scheduled Runs from Calendar
+
+**What we did:**
+Added the ability to skip (and restore) individual scheduled runs directly from the Content Calendar. Users can now cancel a specific future run without deactivating the entire schedule. Skipped events remain visible on the calendar with a dimmed, strikethrough appearance so users can see what they cancelled and undo it.
+
+**1. Database: migration `h7i8j9k0l1m2`**
+- Added `skipped_dates` (JSON, nullable, default `[]`) to `blog_schedules`
+- Stores a list of `"YYYY-MM-DD"` strings — date-level granularity is sufficient since schedules fire at most once per day
+
+**2. Model** (`models/blog_schedule.py`)
+- Added `skipped_dates: Mapped[list] = mapped_column(JSON, default=list)` after `tag_ids`
+
+**3. Schemas** (`schemas/schedules.py`)
+- New `SkipDateRequest` — `date: str` with `YYYY-MM-DD` pattern validation via `@field_validator`
+- New `SkipDateResponse` — `schedule_id`, `skipped_dates`, `message`
+- Added `is_skipped: bool = False` to `CalendarEvent`
+- Added `skipped_dates: list[str] = []` to `ScheduleResponse`
+
+**4. API endpoints** (`api/schedules.py`)
+- `POST /{schedule_id}/skip` — validates date is in the future and not already skipped, appends to `skipped_dates` list. Reassigns list (new object) to trigger SQLAlchemy dirty detection.
+- `DELETE /{schedule_id}/skip` — removes date from list (unskip/restore). Takes `SkipDateRequest` body.
+- Both placed before `/{schedule_id}` routes to avoid FastAPI path conflicts.
+
+**5. Calendar endpoint update** (`api/schedules.py` — `get_calendar()`)
+- Loads `skipped_dates` set per schedule for fast lookup
+- Sets `is_skipped=True` on matching `CalendarEvent`s
+- Skipped events do NOT advance `future_offset` — keeps topic prediction correct (skipped topic becomes the next run's topic)
+
+**6. Scheduler guard** (`services/scheduler.py` — `execute_schedule()`)
+- After `is_active` check, gets today's date in the schedule's timezone (`ZoneInfo(schedule.timezone)`)
+- If today is in `skipped_dates`: logs, updates `next_run`, returns early
+- Does NOT record `ExecutionHistory` (so `success_count` / topic round-robin stays intact)
+- Does NOT increment `retry_count`
+- Prunes past dates from `skipped_dates` on every execution (cleanup)
+
+**7. Calendar frontend** (`pages/calendar/ContentCalendar.jsx`)
+- Skip/unskip mutations via `useMutation` + `useQueryClient` to invalidate calendar query
+- **Popover**: sienna "Skip This Run" button (with `BlockOutlined` icon) on scheduled events; dashed "SKIPPED" chip + green "Restore" button (with `RestoreIcon`) on skipped events
+- **Grid chips**: skipped events get dashed border, strikethrough text, reduced opacity (0.55)
+- **Indicator dots**: separate dashed-border dot for skipped events vs solid green for active scheduled
+- **Legend**: "Skipped" entry with dashed outline swatch, placed after "Scheduled"
+- Date extraction: `event.date.substring(0, 10)` to avoid timezone shift issues
+
+**8. Expired image graceful fallback** (`pages/posts/PostDetail.jsx`)
+- DALL-E image URLs expire after ~1 hour, but the URL string persists in the DB — previously showed a broken image icon
+- New `FeaturedImageCard` component: attempts to load image, on `onError` shows a bronze-accented info card with `ImageOutlined` icon
+- Context-aware message:
+  - Published posts: "The image is live on your published site. The preview link has expired here."
+  - Draft/other: "The temporary preview link has expired. Generate a new post to get a fresh image."
+- WordPress images are unaffected — `_wp_upload_featured_image()` downloads and re-uploads at publish time
+
+**Files created:**
+- `backend/migrations/versions/h7i8j9k0l1m2_add_skipped_dates_to_blog_schedules.py`
+
+**Files changed:**
+- `backend/app/models/blog_schedule.py` — added `skipped_dates` column
+- `backend/app/schemas/schedules.py` — `SkipDateRequest`, `SkipDateResponse`, `is_skipped` on `CalendarEvent`, `skipped_dates` on `ScheduleResponse`
+- `backend/app/api/schedules.py` — 2 new endpoints + calendar skipped event handling
+- `backend/app/services/scheduler.py` — skip guard + past-date cleanup
+- `frontend/src/pages/calendar/ContentCalendar.jsx` — skip/restore UI, skipped styling, legend
+- `frontend/src/pages/posts/PostDetail.jsx` — `FeaturedImageCard` component with expired URL fallback
+
+---
+
+## Session Log
+
 ### 2026-02-14 (Session 20) — Content Calendar
 
 **What we did:**

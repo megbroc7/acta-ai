@@ -1,8 +1,9 @@
+import re
 import uuid
 from datetime import date, datetime
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class PostStatusOption(StrEnum):
@@ -14,6 +15,25 @@ class PostStatusOption(StrEnum):
 class TopicItem(BaseModel):
     topic: str = Field(min_length=1)
     experience: str | None = None
+
+
+class SkipDateRequest(BaseModel):
+    date: str = Field(..., description="Date to skip in YYYY-MM-DD format")
+
+    @field_validator("date")
+    @classmethod
+    def validate_date_format(cls, v: str) -> str:
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", v):
+            raise ValueError("Date must be in YYYY-MM-DD format")
+        # Validate it's a real date
+        datetime.strptime(v, "%Y-%m-%d")
+        return v
+
+
+class SkipDateResponse(BaseModel):
+    schedule_id: uuid.UUID
+    skipped_dates: list[str]
+    message: str
 
 
 class ScheduleCreate(BaseModel):
@@ -92,6 +112,7 @@ class ScheduleResponse(BaseModel):
     prompt_replacements: dict
     post_status: str
     enable_review: bool
+    skipped_dates: list[str] = []
     is_active: bool
     last_run: datetime | None
     next_run: datetime | None
@@ -130,6 +151,7 @@ class CalendarEvent(BaseModel):
     status: str | None = None
     # Scheduled-specific
     predicted_topic: str | None = None
+    is_skipped: bool = False
 
 
 class CalendarResponse(BaseModel):
