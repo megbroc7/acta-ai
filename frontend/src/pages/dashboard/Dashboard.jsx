@@ -260,6 +260,11 @@ export default function Dashboard() {
     queryFn: () => api.get('/posts/').then(r => r.data),
   });
 
+  const { data: attentionSchedules = [] } = useQuery({
+    queryKey: ['attentionSchedules'],
+    queryFn: () => api.get('/schedules/attention').then(r => r.data),
+  });
+
   const activeSchedules = schedules.filter(s => s.is_active);
   const recentPosts = posts.slice(0, 5);
   const pendingReview = posts.filter(p => p.status === 'pending_review');
@@ -267,7 +272,6 @@ export default function Dashboard() {
   const nextRun = activeSchedules
     .filter(s => s.next_run)
     .sort((a, b) => new Date(a.next_run) - new Date(b.next_run))[0]?.next_run;
-  const needsAttention = schedules.filter(s => s.retry_count > 0);
 
   const firstName = user?.email?.split('@')[0]?.split('.')[0] || 'Commander';
   const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
@@ -551,7 +555,7 @@ export default function Dashboard() {
             )}
 
             {/* Needs Attention */}
-            {needsAttention.length > 0 && (
+            {attentionSchedules.length > 0 && (
               <Card
                 sx={{
                   borderLeft: 4,
@@ -573,20 +577,81 @@ export default function Dashboard() {
                       color: 'error.main',
                     }}
                   >
-                    {needsAttention.length}
+                    {attentionSchedules.length}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                    {needsAttention.length === 1 ? 'schedule has' : 'schedules have'} failed retries
+                    {attentionSchedules.length === 1 ? 'schedule has' : 'schedules have'} failed retries
                   </Typography>
-                  <Stack spacing={0.5} sx={{ mb: 1.5 }}>
-                    {needsAttention.slice(0, 3).map(s => (
-                      <Typography key={s.id} variant="body2">
-                        {s.name} <Typography component="span" variant="caption" color="error.main">({s.retry_count} {s.retry_count === 1 ? 'retry' : 'retries'})</Typography>
-                      </Typography>
+                  <Stack spacing={1.5} sx={{ mb: 1.5 }}>
+                    {attentionSchedules.slice(0, 3).map(s => (
+                      <Box key={s.id}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                          <Typography variant="body2" fontWeight={600}>{s.name}</Typography>
+                          {!s.is_active && (
+                            <Chip label="PAUSED" size="small" color="error" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }} />
+                          )}
+                          <Typography component="span" variant="caption" color="error.main">
+                            ({s.retry_count} {s.retry_count === 1 ? 'retry' : 'retries'})
+                          </Typography>
+                        </Box>
+                        {s.error_title && (
+                          <Chip
+                            label={s.error_title}
+                            size="small"
+                            sx={{
+                              height: 20,
+                              fontSize: '0.65rem',
+                              fontWeight: 600,
+                              bgcolor: 'transparent',
+                              border: '1px solid #A0522D',
+                              color: '#A0522D',
+                              mb: 0.5,
+                            }}
+                          />
+                        )}
+                        {s.error_guidance && (
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.3 }}>
+                            {s.error_guidance}
+                          </Typography>
+                        )}
+                        <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                          {(s.last_error_category === 'publish_auth' || s.last_error_category === 'publish_connection') && (
+                            <Button
+                              size="small"
+                              variant="text"
+                              onClick={() => navigate(`/sites/${s.site_id}/edit`)}
+                              sx={{ textTransform: 'none', fontSize: '0.7rem', p: 0, minWidth: 0 }}
+                            >
+                              Edit Site
+                            </Button>
+                          )}
+                          <Button
+                            size="small"
+                            variant="text"
+                            onClick={() => navigate(`/schedules/${s.id}/edit`)}
+                            sx={{ textTransform: 'none', fontSize: '0.7rem', p: 0, minWidth: 0 }}
+                          >
+                            Edit Schedule
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="text"
+                            onClick={() => navigate(`/schedules/${s.id}/history`)}
+                            sx={{ textTransform: 'none', fontSize: '0.7rem', p: 0, minWidth: 0 }}
+                          >
+                            View History
+                          </Button>
+                        </Box>
+                      </Box>
                     ))}
                   </Stack>
+                  {attentionSchedules.length > 3 && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                      +{attentionSchedules.length - 3} more
+                    </Typography>
+                  )}
                   <Button variant="outlined" size="small" onClick={() => navigate('/schedules')}>
-                    View Schedules
+                    View All Schedules
                   </Button>
                 </CardContent>
               </Card>

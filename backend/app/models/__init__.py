@@ -5,6 +5,7 @@ from app.models.blog_schedule import BlogSchedule
 from app.models.blog_post import BlogPost, ExecutionHistory
 from app.models.feedback import Feedback
 from app.models.app_settings import AppSettings
+from app.models.notification import Notification
 
 __all__ = [
     "User",
@@ -17,4 +18,5 @@ __all__ = [
     "ExecutionHistory",
     "Feedback",
     "AppSettings",
+    "Notification",
 ]

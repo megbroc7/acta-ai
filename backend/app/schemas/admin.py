@@ -174,3 +174,19 @@ class MaintenanceStatus(BaseModel):
     maintenance_mode: bool
     message: str | None = None
     updated_at: datetime | None = None
+
+
+# --- Admin feedback schemas ---
+
+class AdminFeedbackEntry(BaseModel):
+    id: uuid.UUID
+    user_email: str
+    user_full_name: str
+    category: str
+    message: str
+    created_at: datetime
+
+
+class AdminFeedbackResponse(BaseModel):
+    total: int
+    entries: list[AdminFeedbackEntry]

@@ -22,6 +22,12 @@ from app.models.blog_schedule import BlogSchedule
 from app.services import content as content_service
 from app.services import publishing as publishing_service
 from app.services.content import GPT4O_INPUT_COST, GPT4O_OUTPUT_COST, DALLE3_COST
+from app.services.error_classifier import classify_error
+from app.services.notifications import (
+    create_deactivation_notification,
+    create_failure_notification,
+    create_publish_failure_notification,
+)
 from app.services.publishing import PublishError
 
 logger = logging.getLogger(__name__)
@@ -288,6 +294,7 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
                 logger.error("Publishing failed for schedule %s: %s", schedule_id, e)
                 db.add(post)
                 await db.flush()
+                await create_publish_failure_notification(db, schedule, post, error_msg)
                 await _record_failure(db, schedule, error_msg, execution_type, start, post_id=post.id)
                 result["error_message"] = error_msg
                 return result
@@ -354,6 +361,8 @@ async def _record_failure(
     """Record a failed execution and handle retry count / auto-deactivation."""
     duration_ms = int((time.monotonic() - start) * 1000)
 
+    error_category = classify_error(error_message)
+
     execution = ExecutionHistory(
         schedule_id=schedule.id,
         user_id=schedule.user_id,
@@ -362,8 +371,13 @@ async def _record_failure(
         duration_ms=duration_ms,
         success=False,
         error_message=error_message,
+        error_category=error_category,
     )
     db.add(execution)
+    await db.flush()  # need execution.id for notification FK
+
+    # Create failure notification
+    await create_failure_notification(db, schedule, execution, error_category, error_message)
 
     schedule.last_run = datetime.now(timezone.utc)
     schedule.retry_count = (schedule.retry_count or 0) + 1
@@ -377,6 +391,7 @@ async def _record_failure(
             "Schedule '%s' (id=%s) auto-deactivated after %d consecutive failures",
             schedule.name, schedule.id, schedule.retry_count,
         )
+        await create_deactivation_notification(db, schedule)
     else:
         schedule.next_run = _compute_next_run(schedule)
 

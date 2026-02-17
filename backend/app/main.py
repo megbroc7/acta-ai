@@ -14,6 +14,7 @@ from app.api.schedules import router as schedules_router
 from app.api.posts import router as posts_router
 from app.api.feedback import router as feedback_router
 from app.api.admin import router as admin_router
+from app.api.notifications import router as notifications_router
 from app.api.deps import get_current_user
 from app.services.maintenance import get_maintenance_status
 from app.services.scheduler import get_scheduler_status, start_scheduler, stop_scheduler
@@ -57,6 +58,7 @@ app.include_router(schedules_router, prefix=settings.API_V1_STR)
 app.include_router(posts_router, prefix=settings.API_V1_STR)
 app.include_router(feedback_router, prefix=settings.API_V1_STR)
 app.include_router(admin_router, prefix=settings.API_V1_STR)
+app.include_router(notifications_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/api/health")

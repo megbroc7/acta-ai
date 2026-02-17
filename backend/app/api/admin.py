@@ -15,6 +15,7 @@ from app.models.prompt_template import PromptTemplate
 from app.models.blog_schedule import BlogSchedule
 from app.models.blog_post import BlogPost, ExecutionHistory
 from app.models.app_settings import AppSettings
+from app.models.feedback import Feedback
 from app.schemas.admin import (
     AdminDashboardResponse,
     AdminPasswordResetResponse,
@@ -36,6 +37,8 @@ from app.schemas.admin import (
     StatusBreakdown,
     UserActivity,
     UserCostEntry,
+    AdminFeedbackEntry,
+    AdminFeedbackResponse,
 )
 from app.services.scheduler import (
     _compute_next_run,
@@ -403,6 +406,63 @@ async def get_error_log(
     ]
 
     return ErrorLogResponse(total=total, entries=entries)
+
+
+# --- Feedback log ---
+
+
+@router.get("/feedback", response_model=AdminFeedbackResponse)
+async def get_feedback_log(
+    days: int = Query(default=90, ge=1, le=365),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    category: str | None = Query(default=None),
+    _admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    since = datetime.now(timezone.utc) - timedelta(days=days)
+
+    base_filter = [Feedback.created_at >= since]
+    if category:
+        base_filter.append(Feedback.category == category)
+
+    # Total count
+    total = (
+        await db.execute(
+            select(func.count(Feedback.id)).where(*base_filter)
+        )
+    ).scalar() or 0
+
+    # Entries with user context
+    rows = await db.execute(
+        select(
+            Feedback.id,
+            Feedback.category,
+            Feedback.message,
+            Feedback.created_at,
+            User.email.label("user_email"),
+            User.full_name.label("user_full_name"),
+        )
+        .join(User, Feedback.user_id == User.id)
+        .where(*base_filter)
+        .order_by(Feedback.created_at.desc())
+        .offset(offset)
+        .limit(limit)
+    )
+
+    entries = [
+        AdminFeedbackEntry(
+            id=r.id,
+            user_email=r.user_email,
+            user_full_name=r.user_full_name,
+            category=r.category,
+            message=r.message,
+            created_at=r.created_at,
+        )
+        for r in rows.all()
+    ]
+
+    return AdminFeedbackResponse(total=total, entries=entries)
 
 
 # --- Schedule oversight ---

@@ -13,15 +13,18 @@ from app.models.blog_schedule import BlogSchedule
 from app.models.prompt_template import PromptTemplate
 from app.models.user import User
 from app.schemas.schedules import (
+    AttentionScheduleResponse,
     CalendarEvent,
     CalendarResponse,
     ExecutionHistoryResponse,
+    PaginatedExecutionResponse,
     ScheduleCreate,
     ScheduleResponse,
     ScheduleUpdate,
     SkipDateRequest,
     SkipDateResponse,
 )
+from app.services.error_classifier import get_guidance
 from app.services.scheduler import (
     _compute_next_run,
     add_schedule_job,
@@ -219,6 +222,76 @@ async def get_calendar(
     events.sort(key=lambda e: e.date)
 
     return CalendarResponse(events=events, start=start, end=end)
+
+
+@router.get("/attention", response_model=list[AttentionScheduleResponse])
+async def get_attention_schedules(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get schedules with retry_count > 0 — joined with most recent failed execution."""
+    from app.models.site import Site
+
+    # Subquery: most recent failed execution per schedule
+    latest_fail_sub = (
+        select(
+            ExecutionHistory.schedule_id,
+            func.max(ExecutionHistory.execution_time).label("max_time"),
+        )
+        .where(ExecutionHistory.success == False)
+        .group_by(ExecutionHistory.schedule_id)
+        .subquery()
+    )
+
+    rows = await db.execute(
+        select(
+            BlogSchedule.id,
+            BlogSchedule.name,
+            BlogSchedule.is_active,
+            BlogSchedule.retry_count,
+            BlogSchedule.site_id,
+            Site.name.label("site_name"),
+            ExecutionHistory.error_message.label("last_error_message"),
+            ExecutionHistory.error_category.label("last_error_category"),
+            ExecutionHistory.execution_time.label("last_error_time"),
+        )
+        .join(Site, BlogSchedule.site_id == Site.id)
+        .outerjoin(
+            latest_fail_sub,
+            BlogSchedule.id == latest_fail_sub.c.schedule_id,
+        )
+        .outerjoin(
+            ExecutionHistory,
+            (ExecutionHistory.schedule_id == BlogSchedule.id)
+            & (ExecutionHistory.execution_time == latest_fail_sub.c.max_time)
+            & (ExecutionHistory.success == False),
+        )
+        .where(
+            BlogSchedule.user_id == current_user.id,
+            BlogSchedule.retry_count > 0,
+        )
+        .order_by(BlogSchedule.retry_count.desc())
+    )
+
+    results = []
+    for r in rows.all():
+        guidance = get_guidance(r.last_error_category or "unknown")
+        results.append(
+            AttentionScheduleResponse(
+                id=r.id,
+                name=r.name,
+                is_active=r.is_active,
+                retry_count=r.retry_count,
+                site_id=r.site_id,
+                site_name=r.site_name,
+                last_error_message=r.last_error_message,
+                last_error_category=r.last_error_category,
+                last_error_time=r.last_error_time,
+                error_title=guidance.user_title,
+                error_guidance=guidance.user_guidance,
+            )
+        )
+    return results
 
 
 @router.post("/{schedule_id}/skip", response_model=SkipDateResponse)
@@ -454,11 +527,12 @@ async def deactivate_schedule(
     return result.scalar_one()
 
 
-@router.get("/{schedule_id}/executions", response_model=list[ExecutionHistoryResponse])
+@router.get("/{schedule_id}/executions", response_model=PaginatedExecutionResponse)
 async def get_executions(
     schedule_id: str,
     limit: int = 10,
     offset: int = 0,
+    success_filter: str | None = Query(default=None, description="Filter: 'success', 'failure', or None for all"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -472,14 +546,28 @@ async def get_executions(
     if not result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Schedule not found")
 
+    base_filter = [ExecutionHistory.schedule_id == schedule_id]
+    if success_filter == "success":
+        base_filter.append(ExecutionHistory.success == True)
+    elif success_filter == "failure":
+        base_filter.append(ExecutionHistory.success == False)
+
+    # Total count
+    total = (
+        await db.execute(
+            select(func.count(ExecutionHistory.id)).where(*base_filter)
+        )
+    ).scalar() or 0
+
     result = await db.execute(
         select(ExecutionHistory)
-        .where(ExecutionHistory.schedule_id == schedule_id)
+        .where(*base_filter)
         .order_by(ExecutionHistory.execution_time.desc())
         .offset(offset)
         .limit(limit)
     )
-    return result.scalars().all()
+    entries = result.scalars().all()
+    return PaginatedExecutionResponse(total=total, entries=entries)
 
 
 @router.post("/{schedule_id}/trigger", status_code=status.HTTP_202_ACCEPTED)

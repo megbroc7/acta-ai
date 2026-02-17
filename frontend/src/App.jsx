@@ -42,6 +42,8 @@ import AdminSchedules from './pages/admin/AdminSchedules';
 import AdminErrors from './pages/admin/AdminErrors';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCosts from './pages/admin/AdminCosts';
+import AdminFeedback from './pages/admin/AdminFeedback';
+import ScheduleHistory from './pages/schedules/ScheduleHistory';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -130,6 +132,7 @@ export default function App() {
                   <Route path="/schedules" element={<SchedulesList />} />
                   <Route path="/schedules/new" element={<ScheduleForm />} />
                   <Route path="/schedules/:id/edit" element={<ScheduleForm />} />
+                  <Route path="/schedules/:id/history" element={<ScheduleHistory />} />
 
                   <Route path="/calendar" element={<ContentCalendar />} />
 
@@ -179,6 +182,14 @@ export default function App() {
                     element={
                       <AdminRoute>
                         <AdminCosts />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/feedback"
+                    element={
+                      <AdminRoute>
+                        <AdminFeedback />
                       </AdminRoute>
                     }
                   />

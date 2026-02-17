@@ -133,7 +133,27 @@ class ExecutionHistoryResponse(BaseModel):
     duration_ms: int | None
     success: bool
     error_message: str | None
+    error_category: str | None = None
     model_config = {"from_attributes": True}
+
+
+class PaginatedExecutionResponse(BaseModel):
+    total: int
+    entries: list[ExecutionHistoryResponse]
+
+
+class AttentionScheduleResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+    is_active: bool
+    retry_count: int
+    site_id: uuid.UUID
+    site_name: str
+    last_error_message: str | None = None
+    last_error_category: str | None = None
+    last_error_time: datetime | None = None
+    error_title: str | None = None
+    error_guidance: str | None = None
 
 
 class CalendarEvent(BaseModel):

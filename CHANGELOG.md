@@ -16,6 +16,85 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-17 (Session 28) — Error Resilience & User Feedback
+
+**What we did:**
+Added an error classification system, in-app notification center, enhanced dashboard "Needs Attention" card, and paginated execution history with a dedicated full-page view. No more silent failures — users now get classified errors with actionable guidance delivered through a bell-icon notification center in the AppBar.
+
+**1. Error Classification System** (`services/error_classifier.py`)
+- `ErrorClassification` dataclass: `category`, `user_title`, `user_guidance`, `is_transient`
+- 11 categories: `api_rate_limit`, `api_auth`, `api_quota`, `api_timeout`, `publish_auth`, `publish_connection`, `publish_timeout`, `content_error`, `image_error`, `config_error`, `unknown`
+- `classify_error(error_message)` — substring pattern matching (order-sensitive for specificity)
+- `get_guidance(category)` — returns full classification with user-friendly title and actionable advice
+- `error_category` column added to `ExecutionHistory` model (String(30), nullable)
+
+**2. In-App Notification Center** (`NotificationCenter.jsx`)
+- Bell icon with bronze badge in AppBar (between email and avatar)
+- MUI Popover with notification list: category-specific icons, bold unread titles, truncated messages, relative timestamps, action buttons
+- "Mark all read" link in header
+- Polls `GET /notifications/unread-count` every 60s (same pattern as maintenance status)
+- Click: marks as read + navigates to `action_url`
+- Backend: `Notification` model with user_id, category, title, message, action_url/label, is_read, schedule_id FK, execution_id FK
+- 4 API endpoints: `GET /notifications/`, `GET /notifications/unread-count`, `POST /{id}/read`, `POST /mark-all-read`
+- Index on `(user_id, is_read)` for fast badge count
+
+**3. Automatic Notification Creation** (`services/notifications.py`)
+- `create_failure_notification()` — on every schedule failure, includes error guidance + truncated raw error
+- `create_deactivation_notification()` — urgent notification when schedule auto-pauses after 3 failures
+- `create_publish_failure_notification()` — when publishing fails but post saved as draft, action links to post
+- All wired into `scheduler.py` `_record_failure()` and publish error path
+
+**4. Enhanced Dashboard "Needs Attention"** (`Dashboard.jsx`)
+- Fetches from new `GET /schedules/attention` endpoint (replaces client-side filter)
+- Shows per-schedule: name, PAUSED chip if inactive, retry count, error category chip (sienna), guidance text
+- Contextual action buttons: "Edit Site" (for publish_auth/connection), "Edit Schedule", "View History"
+- Backend: `AttentionScheduleResponse` schema with joined Site name and enriched error guidance
+
+**5. Paginated Execution History**
+- `GET /{schedule_id}/executions` now returns `PaginatedExecutionResponse` with `total` + `entries`
+- `success_filter` query param: `success`, `failure`, or all
+- `SchedulesList.jsx`: handles new response shape, shows `error_category` chip on failures, "View Full History (N total)" link
+- New `ScheduleHistory.jsx` page at `/schedules/:id/history`: full MUI Table with time, status chip, type, duration, error category chip, error message tooltip. Filter chips (All/Successes/Failures). Pagination (20/page). Failed rows with light sienna background.
+
+**6. Admin Feedback Log** (from prior session work)
+- `GET /admin/feedback` endpoint with pagination, date filter, category filter
+- `AdminFeedback.jsx` + `FeedbackLog.jsx` pages
+- Added to admin sidebar nav
+
+**Database: migration `l1m2n3o4p5q6`**
+- `error_category` String(30) nullable column on `execution_history`
+- `notifications` table with index on `(user_id, is_read)`
+
+**Files created:**
+- `backend/app/services/error_classifier.py`
+- `backend/app/models/notification.py`
+- `backend/app/schemas/notifications.py`
+- `backend/app/services/notifications.py`
+- `backend/app/api/notifications.py`
+- `backend/migrations/versions/l1m2n3o4p5q6_add_error_category_and_notifications.py`
+- `frontend/src/components/common/NotificationCenter.jsx`
+- `frontend/src/pages/schedules/ScheduleHistory.jsx`
+- `frontend/src/pages/admin/AdminFeedback.jsx`
+- `frontend/src/pages/admin/components/FeedbackLog.jsx`
+
+**Files changed:**
+- `backend/app/models/__init__.py` — Notification export
+- `backend/app/models/blog_post.py` — error_category on ExecutionHistory
+- `backend/app/schemas/schedules.py` — error_category, PaginatedExecutionResponse, AttentionScheduleResponse
+- `backend/app/schemas/admin.py` — AdminFeedbackEntry, AdminFeedbackResponse
+- `backend/app/services/scheduler.py` — classify + notify on failure, deactivation, publish error
+- `backend/app/api/schedules.py` — attention endpoint, paginated executions with filter
+- `backend/app/api/admin.py` — feedback log endpoint
+- `backend/app/main.py` — notifications router
+- `frontend/src/App.jsx` — ScheduleHistory route, AdminFeedback route
+- `frontend/src/components/layouts/MainLayout.jsx` — NotificationCenter in AppBar, Feedback in admin nav
+- `frontend/src/pages/dashboard/Dashboard.jsx` — enriched Needs Attention card
+- `frontend/src/pages/schedules/SchedulesList.jsx` — paginated executions, category chips, history link
+
+**Open bugs:** None identified this session.
+
+---
+
 ### 2026-02-17 (Session 27) — AI Spend Controls & Admin Sub-Pages
 
 **What we did:**

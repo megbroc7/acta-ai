@@ -47,11 +47,13 @@ export default function SchedulesList() {
     queryFn: () => api.get('/schedules/').then(r => r.data),
   });
 
-  const { data: executions = [], isLoading: execLoading } = useQuery({
+  const { data: execData, isLoading: execLoading } = useQuery({
     queryKey: ['executions', expandedId],
     queryFn: () => api.get(`/schedules/${expandedId}/executions/?limit=5`).then(r => r.data),
     enabled: !!expandedId,
   });
+  const executions = execData?.entries || [];
+  const execTotal = execData?.total || 0;
 
   const deleteMutation = useMutation({
     mutationFn: (id) => api.delete(`/schedules/${id}`),
@@ -227,42 +229,67 @@ export default function SchedulesList() {
                           No executions yet
                         </Typography>
                       ) : (
-                        executions.map((exec) => (
-                          <Box
-                            key={exec.id}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 1,
-                              py: 0.5,
-                              borderBottom: '1px solid',
-                              borderColor: 'divider',
-                              '&:last-child': { borderBottom: 'none' },
-                            }}
-                          >
-                            {exec.success ? (
-                              <CheckCircle sx={{ fontSize: 16, color: 'success.main' }} />
-                            ) : (
-                              <Tooltip title={exec.error_message || 'Failed'}>
-                                <CancelIcon sx={{ fontSize: 16, color: 'error.main' }} />
-                              </Tooltip>
-                            )}
-                            <Typography variant="caption" sx={{ minWidth: 100 }}>
-                              {formatExecTime(exec.execution_time)}
-                            </Typography>
-                            <Chip
-                              label={exec.execution_type}
-                              size="small"
-                              variant="outlined"
-                              sx={{ height: 20, fontSize: '0.7rem' }}
-                            />
-                            {exec.duration_ms != null && (
-                              <Typography variant="caption" color="text.secondary">
-                                {(exec.duration_ms / 1000).toFixed(1)}s
+                        <>
+                          {executions.map((exec) => (
+                            <Box
+                              key={exec.id}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                py: 0.5,
+                                borderBottom: '1px solid',
+                                borderColor: 'divider',
+                                '&:last-child': { borderBottom: 'none' },
+                              }}
+                            >
+                              {exec.success ? (
+                                <CheckCircle sx={{ fontSize: 16, color: 'success.main' }} />
+                              ) : (
+                                <Tooltip title={exec.error_message || 'Failed'}>
+                                  <CancelIcon sx={{ fontSize: 16, color: 'error.main' }} />
+                                </Tooltip>
+                              )}
+                              <Typography variant="caption" sx={{ minWidth: 100 }}>
+                                {formatExecTime(exec.execution_time)}
                               </Typography>
-                            )}
-                          </Box>
-                        ))
+                              <Chip
+                                label={exec.execution_type}
+                                size="small"
+                                variant="outlined"
+                                sx={{ height: 20, fontSize: '0.7rem' }}
+                              />
+                              {!exec.success && exec.error_category && (
+                                <Chip
+                                  label={exec.error_category.replace(/_/g, ' ')}
+                                  size="small"
+                                  sx={{
+                                    height: 20,
+                                    fontSize: '0.65rem',
+                                    fontWeight: 600,
+                                    bgcolor: 'transparent',
+                                    border: '1px solid #A0522D',
+                                    color: '#A0522D',
+                                  }}
+                                />
+                              )}
+                              {exec.duration_ms != null && (
+                                <Typography variant="caption" color="text.secondary">
+                                  {(exec.duration_ms / 1000).toFixed(1)}s
+                                </Typography>
+                              )}
+                            </Box>
+                          ))}
+                          {execTotal > 5 && (
+                            <Button
+                              size="small"
+                              onClick={() => navigate(`/schedules/${sched.id}/history`)}
+                              sx={{ mt: 1, textTransform: 'none', fontSize: '0.75rem' }}
+                            >
+                              View Full History ({execTotal} total)
+                            </Button>
+                          )}
+                        </>
                       )}
                     </Box>
                   </Collapse>

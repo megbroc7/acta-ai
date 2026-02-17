@@ -108,6 +108,7 @@ class ExecutionHistory(Base):
     duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     success: Mapped[bool] = mapped_column(Boolean, nullable=False)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error_category: Mapped[str | None] = mapped_column(String(30), nullable=True)
 
     # Cost tracking
     prompt_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)

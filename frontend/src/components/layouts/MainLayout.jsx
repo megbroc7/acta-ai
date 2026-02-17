@@ -44,9 +44,11 @@ import {
   ErrorOutline as ErrorsIcon,
   People as UsersIcon,
   AttachMoney as CostsIcon,
+  Forum as AdminFeedbackIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
+import NotificationCenter from '../common/NotificationCenter';
 
 const DRAWER_WIDTH = 260;
 const DRAWER_WIDTH_COLLAPSED = 72;
@@ -57,6 +59,7 @@ const ADMIN_CHILDREN = [
   { label: 'Error Log', icon: <ErrorsIcon fontSize="small" />, path: '/admin/errors' },
   { label: 'Users', icon: <UsersIcon fontSize="small" />, path: '/admin/users' },
   { label: 'Costs', icon: <CostsIcon fontSize="small" />, path: '/admin/costs' },
+  { label: 'Feedback', icon: <AdminFeedbackIcon fontSize="small" />, path: '/admin/feedback' },
 ];
 
 function buildNavItems(isAdmin) {
@@ -525,6 +528,7 @@ export default function MainLayout() {
             })()}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <NotificationCenter />
             <Typography
               variant="body2"
               sx={{
