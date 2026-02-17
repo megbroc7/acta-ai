@@ -43,6 +43,11 @@ META_MAX_TOKENS = 500
 MAX_RETRIES = 2
 MARKDOWN_EXTENSIONS = ["extra", "codehilite", "toc", "nl2br"]
 
+# --- Cost calculation (GPT-4o pricing as of 2026) ---
+GPT4O_INPUT_COST = 2.50 / 1_000_000    # $2.50 per 1M input tokens
+GPT4O_OUTPUT_COST = 10.00 / 1_000_000   # $10.00 per 1M output tokens
+DALLE3_COST = 0.04                       # per standard image
+
 # Hardcoded anti-robot banned phrases — always included in system prompt.
 # Organized by AI-tell category. ~70 phrases total (expanded in Session 15).
 BANNED_TRANSITIONS = [
@@ -160,6 +165,29 @@ CONTRASTIVE_EXAMPLES = (
 )
 
 
+# --- OpenAI response wrapper + token tracking ---
+
+
+@dataclass
+class OpenAIResponse:
+    text: str
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+
+
+@dataclass
+class TokenAccumulator:
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+
+    def add(self, resp: OpenAIResponse):
+        self.prompt_tokens += resp.prompt_tokens
+        self.completion_tokens += resp.completion_tokens
+        self.total_tokens += resp.total_tokens
+
+
 # --- Return types ---
 
 
@@ -168,6 +196,9 @@ class TitleResult:
     titles: list[str]
     title_system_prompt_used: str
     topic_prompt_used: str
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
 
 
 @dataclass
@@ -182,6 +213,9 @@ class ContentResult:
     meta_title: str | None = None
     meta_description: str | None = None
     image_alt_text: str | None = None
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
 
 
 @dataclass
@@ -190,6 +224,9 @@ class RevisionResult:
     content_html: str
     excerpt: str
     revision_prompt_used: str
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
 
 
 @dataclass
@@ -214,6 +251,9 @@ class GenerationResult:
     meta_title: str | None = None
     meta_description: str | None = None
     image_alt_text: str | None = None
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
 
 
 # --- Helper: strip HTML tags ---
@@ -606,8 +646,8 @@ async def _call_openai(
     max_tokens: int = DRAFT_MAX_TOKENS,
     max_retries: int = MAX_RETRIES,
     temperature: float = 0.7,
-) -> str:
-    """Call OpenAI with retry logic for transient errors."""
+) -> OpenAIResponse:
+    """Call OpenAI with retry logic for transient errors. Returns text + token usage."""
     client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY, timeout=timeout)
 
     for attempt in range(max_retries + 1):
@@ -621,7 +661,13 @@ async def _call_openai(
                 max_tokens=max_tokens,
                 temperature=temperature,
             )
-            return response.choices[0].message.content.strip()
+            usage = response.usage
+            return OpenAIResponse(
+                text=response.choices[0].message.content.strip(),
+                prompt_tokens=usage.prompt_tokens if usage else 0,
+                completion_tokens=usage.completion_tokens if usage else 0,
+                total_tokens=usage.total_tokens if usage else 0,
+            )
         except (APIConnectionError, APITimeoutError, RateLimitError) as e:
             if attempt == max_retries:
                 raise
@@ -657,7 +703,7 @@ async def generate_titles(
             f"{titles_list}"
         )
 
-    raw = await _call_openai(
+    resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=topic_prompt,
         timeout=TITLE_TIMEOUT,
@@ -665,13 +711,13 @@ async def generate_titles(
         temperature=0.8,
     )
 
-    titles = _parse_numbered_titles(raw)
+    titles = _parse_numbered_titles(resp.text)
     print(f"[TITLE DEBUG] Parsed {len(titles)} titles: {titles}")
 
     # Fallback: if parsing yields fewer than 5, pad with what we got
     if not titles:
-        print(f"[TITLE DEBUG] WARNING: 0 parsed titles. Raw: {raw[:300]}")
-        titles = [clean_title(raw)]
+        print(f"[TITLE DEBUG] WARNING: 0 parsed titles. Raw: {resp.text[:300]}")
+        titles = [clean_title(resp.text)]
     while len(titles) < 5:
         titles.append(titles[-1])
 
@@ -679,6 +725,9 @@ async def generate_titles(
         titles=titles[:5],
         title_system_prompt_used=system_prompt,
         topic_prompt_used=topic_prompt,
+        prompt_tokens=resp.prompt_tokens,
+        completion_tokens=resp.completion_tokens,
+        total_tokens=resp.total_tokens,
     )
 
 
@@ -708,7 +757,7 @@ async def generate_interview(
         "Return only the questions, numbered 1-5, one per line."
     )
 
-    raw = await _call_openai(
+    resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         timeout=INTERVIEW_TIMEOUT,
@@ -716,8 +765,8 @@ async def generate_interview(
         temperature=0.7,
     )
 
-    questions = _parse_numbered_titles(raw)
-    return questions[:5] if questions else [raw.strip()]
+    questions = _parse_numbered_titles(resp.text)
+    return questions[:5] if questions else [resp.text.strip()]
 
 
 # --- Stage 1.6: Template-level experience interview ---
@@ -764,7 +813,7 @@ async def generate_template_interview(
         "Return only the questions, numbered 1-5, one per line."
     )
 
-    raw = await _call_openai(
+    resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         timeout=INTERVIEW_TIMEOUT,
@@ -772,8 +821,8 @@ async def generate_template_interview(
         temperature=0.7,
     )
 
-    questions = _parse_numbered_titles(raw)
-    return questions[:5] if questions else [raw.strip()]
+    questions = _parse_numbered_titles(resp.text)
+    return questions[:5] if questions else [resp.text.strip()]
 
 
 def format_experience_qa(qa_pairs: list[dict]) -> str:
@@ -796,6 +845,7 @@ async def _generate_outline(
     system_prompt: str,
     title: str,
     word_count: int,
+    tokens: TokenAccumulator | None = None,
 ) -> str:
     """Step 1 of article chain: generate a structured outline."""
     # Reserve ~250 words for intro + conclusion, split rest across sections
@@ -819,13 +869,16 @@ async def _generate_outline(
         "to the next (use conversational connectors, not 'Moreover' or 'Furthermore')\n\n"
         "Return ONLY the outline in the format above."
     )
-    return await _call_openai(
+    resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         timeout=OUTLINE_TIMEOUT,
         max_tokens=OUTLINE_MAX_TOKENS,
         temperature=0.7,
     )
+    if tokens:
+        tokens.add(resp)
+    return resp.text
 
 
 def _build_voice_preservation(
@@ -936,6 +989,7 @@ async def _generate_review(
     use_rhetorical_questions: bool = False,
     use_contractions: bool = True,
     brand_voice_description: str | None = None,
+    tokens: TokenAccumulator | None = None,
 ) -> str:
     """Step 3 of article chain: review and polish the draft using rubric."""
     voice_instructions = _build_voice_preservation(
@@ -975,13 +1029,16 @@ async def _generate_review(
         "## Article Draft\n"
         f"{draft}"
     )
-    return await _call_openai(
+    resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         timeout=REVIEW_TIMEOUT,
         max_tokens=REVIEW_MAX_TOKENS,
         temperature=0.2,
     )
+    if tokens:
+        tokens.add(resp)
+    return resp.text
 
 
 def _parse_seo_meta(raw: str, title: str, excerpt: str, has_image: bool) -> SeoMetaResult:
@@ -1059,6 +1116,7 @@ async def _generate_seo_meta(
     industry: str | None = None,
     focus_keyword: str | None = None,
     image_source: str | None = None,
+    tokens: TokenAccumulator | None = None,
 ) -> SeoMetaResult:
     """Generate SEO meta title, meta description, and image alt text."""
     has_image = image_source and image_source != "none"
@@ -1109,14 +1167,16 @@ async def _generate_seo_meta(
     )
 
     try:
-        raw = await _call_openai(
+        resp = await _call_openai(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             timeout=META_TIMEOUT,
             max_tokens=META_MAX_TOKENS,
             temperature=0.4,
         )
-        return _parse_seo_meta(raw, title, excerpt, has_image)
+        if tokens:
+            tokens.add(resp)
+        return _parse_seo_meta(resp.text, title, excerpt, has_image)
     except Exception as e:
         logger.warning("SEO meta generation failed (non-fatal): %s", e)
         return SeoMetaResult(
@@ -1155,6 +1215,9 @@ async def generate_content(
     has_image = image_source and image_source != "none"
     total_steps = 5 if has_image else 4
 
+    # Token accumulator for the entire content pipeline
+    acc = TokenAccumulator()
+
     # Build the content prompt from structured fields
     content_prompt = (
         f"Write a {effective_word_count}-word article titled: {title}\n\n"
@@ -1164,7 +1227,7 @@ async def generate_content(
     # Step 1: Outline
     if progress_callback:
         await progress_callback("outline", 1, total_steps, "Building article outline...")
-    outline = await _generate_outline(system_prompt, title, effective_word_count)
+    outline = await _generate_outline(system_prompt, title, effective_word_count, tokens=acc)
 
     # Step 2: Draft (content prompt + outline with word budgets)
     if progress_callback:
@@ -1175,13 +1238,14 @@ async def generate_content(
         f"Write at least {effective_word_count} words total.\n\n"
         f"{outline}"
     )
-    draft = await _call_openai(
+    draft_resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=draft_prompt,
         timeout=DRAFT_TIMEOUT,
         max_tokens=DRAFT_MAX_TOKENS,
     )
-    draft = _strip_code_fences(draft)
+    acc.add(draft_resp)
+    draft = _strip_code_fences(draft_resp.text)
 
     # Step 3: Review/Polish
     if progress_callback:
@@ -1196,6 +1260,7 @@ async def generate_content(
         use_rhetorical_questions=template.use_rhetorical_questions or False,
         use_contractions=template.use_contractions if template.use_contractions is not None else True,
         brand_voice_description=template.brand_voice_description,
+        tokens=acc,
     )
     polished = _strip_code_fences(polished)
 
@@ -1211,6 +1276,7 @@ async def generate_content(
         industry=industry or template.industry,
         focus_keyword=template.seo_focus_keyword,
         image_source=image_source,
+        tokens=acc,
     )
 
     # Step 5: Featured image (optional)
@@ -1237,6 +1303,9 @@ async def generate_content(
         meta_title=seo_meta.meta_title,
         meta_description=seo_meta.meta_description,
         image_alt_text=seo_meta.image_alt_text,
+        prompt_tokens=acc.prompt_tokens,
+        completion_tokens=acc.completion_tokens,
+        total_tokens=acc.total_tokens,
     )
 
 
@@ -1260,6 +1329,7 @@ async def _generate_revision_polish(
     use_rhetorical_questions: bool = False,
     use_contractions: bool = True,
     brand_voice_description: str | None = None,
+    tokens: TokenAccumulator | None = None,
 ) -> str:
     """Lighter polish pass for revisions — anti-robot + voice only, no structural rubric."""
     voice_instructions = _build_voice_preservation(
@@ -1285,13 +1355,16 @@ async def _generate_revision_polish(
         "## Article\n"
         f"{revised_markdown}"
     )
-    return await _call_openai(
+    resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         timeout=REVISION_TIMEOUT,
         max_tokens=REVISION_MAX_TOKENS,
         temperature=0.2,
     )
+    if tokens:
+        tokens.add(resp)
+    return resp.text
 
 
 async def revise_content(
@@ -1312,6 +1385,7 @@ async def revise_content(
     """
     total_steps = 2 if template else 1
     current_markdown = html_to_markdown(content_html)
+    acc = TokenAccumulator()
 
     # Step 1: Revise — apply user feedback
     if progress_callback:
@@ -1325,14 +1399,15 @@ async def revise_content(
         f"## Editor's Feedback\n{feedback}\n\n"
         f"## Current Article\n{current_markdown}"
     )
-    revised = await _call_openai(
+    revised_resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=revision_prompt,
         timeout=REVISION_TIMEOUT,
         max_tokens=REVISION_MAX_TOKENS,
         temperature=0.4,
     )
-    revised = _strip_code_fences(revised)
+    acc.add(revised_resp)
+    revised = _strip_code_fences(revised_resp.text)
 
     # Step 2: Polish — lighter quality pass (skipped if template deleted)
     if template:
@@ -1347,6 +1422,7 @@ async def revise_content(
             use_rhetorical_questions=template.use_rhetorical_questions or False,
             use_contractions=template.use_contractions if template.use_contractions is not None else True,
             brand_voice_description=template.brand_voice_description,
+            tokens=acc,
         )
         polished = _strip_code_fences(polished)
     else:
@@ -1360,6 +1436,9 @@ async def revise_content(
         content_html=html,
         excerpt=excerpt,
         revision_prompt_used=feedback,
+        prompt_tokens=acc.prompt_tokens,
+        completion_tokens=acc.completion_tokens,
+        total_tokens=acc.total_tokens,
     )
 
 
@@ -1413,4 +1492,7 @@ async def generate_post(
         meta_title=content_result.meta_title,
         meta_description=content_result.meta_description,
         image_alt_text=content_result.image_alt_text,
+        prompt_tokens=title_result.prompt_tokens + content_result.prompt_tokens,
+        completion_tokens=title_result.completion_tokens + content_result.completion_tokens,
+        total_tokens=title_result.total_tokens + content_result.total_tokens,
     )

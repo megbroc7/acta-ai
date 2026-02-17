@@ -16,10 +16,12 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.core.database import async_session
+from app.models.app_settings import AppSettings
 from app.models.blog_post import BlogPost, ExecutionHistory
 from app.models.blog_schedule import BlogSchedule
 from app.services import content as content_service
 from app.services import publishing as publishing_service
+from app.services.content import GPT4O_INPUT_COST, GPT4O_OUTPUT_COST, DALLE3_COST
 from app.services.publishing import PublishError
 
 logger = logging.getLogger(__name__)
@@ -101,6 +103,17 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
     result = {"schedule_id": str(schedule_id), "execution_type": execution_type, "success": False}
 
     async with async_session() as db:
+        # 0. Maintenance mode guard — skip silently (no ExecutionHistory)
+        maint_row = await db.execute(
+            select(AppSettings.maintenance_mode).where(AppSettings.id == 1)
+        )
+        if maint_row.scalar_one_or_none():
+            logger.warning(
+                "Maintenance mode active — skipping schedule %s", schedule_id
+            )
+            result["error_message"] = "Skipped: maintenance mode"
+            return result
+
         # 1. Load schedule with relationships
         stmt = (
             select(BlogSchedule)
@@ -286,8 +299,13 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
         db.add(post)
         await db.flush()
 
-        # 9. Log successful execution
+        # 9. Log successful execution with cost data
         duration_ms = int((time.monotonic() - start) * 1000)
+        est_cost = (
+            gen.prompt_tokens * GPT4O_INPUT_COST
+            + gen.completion_tokens * GPT4O_OUTPUT_COST
+        )
+        img_cost = DALLE3_COST if template.image_source == "dalle" else 0.0
         execution = ExecutionHistory(
             schedule_id=schedule.id,
             user_id=schedule.user_id,
@@ -295,6 +313,11 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
             execution_type=execution_type,
             duration_ms=duration_ms,
             success=True,
+            prompt_tokens=gen.prompt_tokens,
+            completion_tokens=gen.completion_tokens,
+            total_tokens=gen.total_tokens,
+            estimated_cost_usd=round(est_cost, 6),
+            image_cost_usd=img_cost,
         )
         db.add(execution)
 

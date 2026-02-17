@@ -1,11 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.database import engine
+from app.core.database import engine, get_db
 from app.api.auth import router as auth_router
 from app.api.sites import router as sites_router
 from app.api.templates import router as templates_router
@@ -13,6 +14,8 @@ from app.api.schedules import router as schedules_router
 from app.api.posts import router as posts_router
 from app.api.feedback import router as feedback_router
 from app.api.admin import router as admin_router
+from app.api.deps import get_current_user
+from app.services.maintenance import get_maintenance_status
 from app.services.scheduler import get_scheduler_status, start_scheduler, stop_scheduler
 
 
@@ -63,3 +66,12 @@ async def health_check():
         "service": settings.PROJECT_NAME,
         "scheduler": get_scheduler_status(),
     }
+
+
+@app.get(f"{settings.API_V1_STR}/system/maintenance-status")
+async def maintenance_status(
+    db: AsyncSession = Depends(get_db),
+    _user=Depends(get_current_user),
+):
+    """Lightweight maintenance mode check for the frontend banner."""
+    return await get_maintenance_status(db)

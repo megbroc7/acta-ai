@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
+from app.services.maintenance import is_maintenance_mode
 from app.models.blog_post import BlogPost
 from app.models.prompt_template import PromptTemplate
 from app.models.user import User
@@ -307,6 +308,11 @@ async def revise_stream(
     current_user: User = Depends(get_current_user),
 ):
     """SSE streaming endpoint for AI-powered content revision."""
+    if await is_maintenance_mode(db):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI generation is paused — maintenance mode is active",
+        )
     result = await db.execute(
         select(BlogPost).where(
             BlogPost.id == post_id, BlogPost.user_id == current_user.id

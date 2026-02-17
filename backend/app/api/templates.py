@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.models.prompt_template import PromptTemplate
 from app.models.user import User
+from app.services.maintenance import is_maintenance_mode
 from app.schemas.templates import (
     ExperienceInterviewResponse,
     InterviewRequest,
@@ -455,6 +456,11 @@ async def test_content_stream(
     current_user: User = Depends(get_current_user),
 ):
     """SSE streaming endpoint for content generation with real-time progress."""
+    if await is_maintenance_mode(db):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI generation is paused — maintenance mode is active",
+        )
     if not settings.OPENAI_API_KEY:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

@@ -16,6 +16,90 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-17 (Session 27) — AI Spend Controls & Admin Sub-Pages
+
+**What we did:**
+Added real OpenAI token tracking across the entire content pipeline, per-user cost breakdowns, and a global maintenance mode kill-switch. Also refactored the admin dashboard from a single page with stacked panels into a proper sub-page navigation with expandable sidebar menu.
+
+**1. Token Tracking** (`services/content.py`)
+- New `OpenAIResponse` dataclass captures `prompt_tokens`, `completion_tokens`, `total_tokens` from every OpenAI call
+- `TokenAccumulator` aggregates costs across multi-step pipeline stages
+- `_call_openai()` return type changed from `str` → `OpenAIResponse`; all 9 call sites updated
+- Token fields added to `TitleResult`, `ContentResult`, `RevisionResult`, `GenerationResult` dataclasses
+- GPT-4o pricing constants: `$2.50/1M input`, `$10.00/1M output`, `$0.04/DALL-E 3 image`
+
+**2. Database: migration `k0l1m2n3o4p5`**
+- 5 new columns on `execution_history`: `prompt_tokens`, `completion_tokens`, `total_tokens`, `estimated_cost_usd`, `image_cost_usd` (all nullable — old rows use flat-rate fallback)
+- New `app_settings` table (single-row config): `maintenance_mode`, `maintenance_message`, `updated_at`, `updated_by`
+
+**3. Cost Storage** (`services/scheduler.py`)
+- `execute_schedule()` now stores token counts + calculated USD cost on each `ExecutionHistory` row
+- Image cost tracked separately (`$0.04` for DALL-E, `$0` otherwise)
+
+**4. Maintenance Mode**
+- `services/maintenance.py` — `is_maintenance_mode()` + `get_maintenance_status()` helpers
+- Scheduler guard: silently skips execution when maintenance active (no ExecutionHistory recorded)
+- API guards on 3 endpoints (`test_content_stream`, `trigger_schedule`, `revise_stream`) — return 503
+- `GET /api/v1/system/maintenance-status` — lightweight authenticated endpoint for frontend polling
+- Frontend: sienna `Alert` banner in `MainLayout.jsx` (polls every 60s, visible to all users)
+
+**5. Per-User Cost Breakdown** (`UserCostBreakdown.jsx`)
+- `GET /admin/user-costs?days=N` — JOINs ExecutionHistory with User, GROUP BY user
+- Sortable table: User, Executions, Tokens, Text Cost, Image Cost, Total
+- Footer row with totals, top spender highlighted in bronze
+
+**6. Admin Dashboard Toggle** (`MaintenanceToggle.jsx`)
+- Prominent panel with large MUI Switch — sienna ON / green OFF
+- Warning alert listing what's blocked when active
+- `POST /admin/maintenance/toggle` flips the flag, records who + when
+
+**7. Cost Chart Update**
+- `CostEstimateChart` title changed from "Estimated AI Cost" → "AI Spend (Monthly)"
+- Dashboard cost query now uses real tracked costs with flat-rate fallback for pre-migration rows
+
+**8. Admin Sub-Page Refactor**
+- Operations panels (Error Log, User Management, Schedule Oversight, Cost Breakdown) moved to dedicated sub-pages
+- 4 new page wrappers: `AdminSchedules.jsx`, `AdminErrors.jsx`, `AdminUsers.jsx`, `AdminCosts.jsx`
+- `MainLayout.jsx` updated with expandable sidebar sub-menu using MUI `Collapse`
+- `ADMIN_CHILDREN` constant with 5 items (Overview, Schedules, Error Log, Users, Costs)
+- Admin icon click: navigates to `/admin` when collapsed, toggles sub-menu when expanded
+- `AdminDashboard.jsx` stripped to charts + maintenance toggle only
+- 4 new routes in `App.jsx` with `AdminRoute` wrapper
+
+**Schemas added:** `UserCostEntry`, `MaintenanceStatus`
+**Fields added to existing `AdminDashboardResponse`:** `maintenance_mode`
+
+**Files created:**
+- `backend/app/models/app_settings.py`
+- `backend/app/services/maintenance.py`
+- `backend/migrations/versions/k0l1m2n3o4p5_add_spend_controls.py`
+- `frontend/src/pages/admin/AdminSchedules.jsx`
+- `frontend/src/pages/admin/AdminErrors.jsx`
+- `frontend/src/pages/admin/AdminUsers.jsx`
+- `frontend/src/pages/admin/AdminCosts.jsx`
+- `frontend/src/pages/admin/components/MaintenanceToggle.jsx`
+- `frontend/src/pages/admin/components/UserCostBreakdown.jsx`
+
+**Files changed:**
+- `backend/app/models/blog_post.py` — 5 cost columns on ExecutionHistory
+- `backend/app/models/__init__.py` — AppSettings export
+- `backend/app/services/content.py` — OpenAIResponse, TokenAccumulator, all 9 call sites + dataclasses
+- `backend/app/services/scheduler.py` — maintenance guard + cost storage
+- `backend/app/schemas/admin.py` — 2 new schemas + maintenance_mode on dashboard response
+- `backend/app/api/admin.py` — 3 new endpoints + updated cost query
+- `backend/app/api/templates.py` — maintenance guard
+- `backend/app/api/schedules.py` — maintenance guard
+- `backend/app/api/posts.py` — maintenance guard
+- `backend/app/main.py` — public maintenance-status endpoint
+- `frontend/src/App.jsx` — 4 new admin sub-routes
+- `frontend/src/components/layouts/MainLayout.jsx` — expandable admin sub-menu + maintenance banner
+- `frontend/src/pages/admin/AdminDashboard.jsx` — stripped operations panels
+- `frontend/src/pages/admin/components/CostEstimateChart.jsx` — title update
+
+**Open bugs:** None identified this session.
+
+---
+
 ### 2026-02-17 (Session 26) — Admin User Management, Error Log & Schedule Oversight
 
 **What we did:**

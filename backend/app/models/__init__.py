@@ -4,6 +4,7 @@ from app.models.prompt_template import PromptTemplate
 from app.models.blog_schedule import BlogSchedule
 from app.models.blog_post import BlogPost, ExecutionHistory
 from app.models.feedback import Feedback
+from app.models.app_settings import AppSettings
 
 __all__ = [
     "User",
@@ -15,4 +16,5 @@ __all__ = [
     "BlogPost",
     "ExecutionHistory",
     "Feedback",
+    "AppSettings",
 ]

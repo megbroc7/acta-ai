@@ -14,6 +14,7 @@ from app.models.site import Site
 from app.models.prompt_template import PromptTemplate
 from app.models.blog_schedule import BlogSchedule
 from app.models.blog_post import BlogPost, ExecutionHistory
+from app.models.app_settings import AppSettings
 from app.schemas.admin import (
     AdminDashboardResponse,
     AdminPasswordResetResponse,
@@ -27,12 +28,14 @@ from app.schemas.admin import (
     DailyCount,
     ErrorLogEntry,
     ErrorLogResponse,
+    MaintenanceStatus,
     MonthlyCost,
     PlatformBreakdown,
     ScheduleOversightEntry,
     SchedulerDayHealth,
     StatusBreakdown,
     UserActivity,
+    UserCostEntry,
 )
 from app.services.scheduler import (
     _compute_next_run,
@@ -42,9 +45,8 @@ from app.services.scheduler import (
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-# Rough cost estimates per OpenAI call (GPT-4o-mini)
-COST_PER_EXECUTION = 0.025  # ~$0.025 per full pipeline (titles + outline + draft + review)
-COST_PER_IMAGE = 0.04  # DALL-E 3 standard
+# Flat-rate fallback for old rows without token data
+COST_PER_EXECUTION_FALLBACK = 0.025
 
 
 @router.get("/dashboard", response_model=AdminDashboardResponse)
@@ -186,11 +188,17 @@ async def get_admin_dashboard(
     ]
 
     # --- Cost estimates (monthly) ---
+    # Use actual tracked cost where available, flat-rate fallback for old rows
     exec_month_col = func.to_char(ExecutionHistory.execution_time, "YYYY-MM")
+    tracked_cost = func.coalesce(ExecutionHistory.estimated_cost_usd, 0) + func.coalesce(ExecutionHistory.image_cost_usd, 0)
+    fallback_cost = case(
+        (ExecutionHistory.estimated_cost_usd.is_(None), COST_PER_EXECUTION_FALLBACK),
+        else_=tracked_cost,
+    )
     cost_q = await db.execute(
         select(
             exec_month_col.label("month"),
-            func.count().label("total_executions"),
+            func.sum(fallback_cost).label("total_cost"),
         )
         .where(ExecutionHistory.execution_time >= since)
         .group_by(exec_month_col)
@@ -199,10 +207,16 @@ async def get_admin_dashboard(
     cost_estimates = [
         MonthlyCost(
             month=row.month,
-            estimated_usd=round(row.total_executions * COST_PER_EXECUTION, 2),
+            estimated_usd=round(float(row.total_cost or 0), 2),
         )
         for row in cost_q.all()
     ]
+
+    # --- Maintenance mode ---
+    maint_result = await db.execute(
+        select(AppSettings.maintenance_mode).where(AppSettings.id == 1)
+    )
+    maintenance_mode = bool(maint_result.scalar_one_or_none())
 
     # --- Signups over time ---
     signup_date_col = func.date(User.created_at)
@@ -224,6 +238,7 @@ async def get_admin_dashboard(
         total_schedules=total_schedules,
         total_posts=total_posts,
         active_schedules=active_schedules,
+        maintenance_mode=maintenance_mode,
         posts_over_time=posts_over_time,
         status_breakdown=status_breakdown,
         platform_breakdown=platform_breakdown,
@@ -231,6 +246,102 @@ async def get_admin_dashboard(
         user_activity=user_activity,
         cost_estimates=cost_estimates,
         signups_over_time=signups_over_time,
+    )
+
+
+# --- Per-user cost breakdown ---
+
+
+@router.get("/user-costs", response_model=list[UserCostEntry])
+async def get_user_costs(
+    days: int = Query(default=30, ge=1, le=365),
+    _admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Per-user cost breakdown: tokens, text cost, image cost."""
+    since = datetime.now(timezone.utc) - timedelta(days=days)
+
+    rows = await db.execute(
+        select(
+            ExecutionHistory.user_id,
+            User.email,
+            User.full_name,
+            func.count().label("total_executions"),
+            func.coalesce(func.sum(ExecutionHistory.prompt_tokens), 0).label("total_prompt_tokens"),
+            func.coalesce(func.sum(ExecutionHistory.completion_tokens), 0).label("total_completion_tokens"),
+            func.coalesce(func.sum(ExecutionHistory.total_tokens), 0).label("total_tokens"),
+            func.coalesce(func.sum(ExecutionHistory.estimated_cost_usd), 0).label("text_cost"),
+            func.coalesce(func.sum(ExecutionHistory.image_cost_usd), 0).label("image_cost"),
+        )
+        .join(User, ExecutionHistory.user_id == User.id)
+        .where(ExecutionHistory.execution_time >= since)
+        .group_by(ExecutionHistory.user_id, User.email, User.full_name)
+        .order_by(
+            (func.coalesce(func.sum(ExecutionHistory.estimated_cost_usd), 0)
+             + func.coalesce(func.sum(ExecutionHistory.image_cost_usd), 0)).desc()
+        )
+    )
+
+    return [
+        UserCostEntry(
+            user_id=r.user_id,
+            email=r.email,
+            full_name=r.full_name,
+            total_executions=r.total_executions,
+            total_prompt_tokens=r.total_prompt_tokens,
+            total_completion_tokens=r.total_completion_tokens,
+            total_tokens=r.total_tokens,
+            text_cost_usd=round(float(r.text_cost), 4),
+            image_cost_usd=round(float(r.image_cost), 4),
+            total_cost_usd=round(float(r.text_cost) + float(r.image_cost), 4),
+        )
+        for r in rows.all()
+    ]
+
+
+# --- Maintenance mode ---
+
+
+@router.get("/maintenance", response_model=MaintenanceStatus)
+async def get_maintenance_status(
+    _admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(AppSettings).where(AppSettings.id == 1))
+    settings = result.scalar_one_or_none()
+    if not settings:
+        return MaintenanceStatus(maintenance_mode=False)
+    return MaintenanceStatus(
+        maintenance_mode=settings.maintenance_mode,
+        message=settings.maintenance_message,
+        updated_at=settings.updated_at,
+    )
+
+
+@router.post("/maintenance/toggle", response_model=MaintenanceStatus)
+async def toggle_maintenance(
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(AppSettings).where(AppSettings.id == 1))
+    settings = result.scalar_one_or_none()
+    if not settings:
+        raise HTTPException(status_code=500, detail="App settings not initialized")
+
+    settings.maintenance_mode = not settings.maintenance_mode
+    settings.updated_at = datetime.now(timezone.utc)
+    settings.updated_by = admin.id
+
+    if not settings.maintenance_mode:
+        settings.maintenance_message = None
+
+    await db.commit()
+    await db.refresh(settings)
+
+    return MaintenanceStatus(
+        maintenance_mode=settings.maintenance_mode,
+        message=settings.maintenance_message,
+        updated_at=settings.updated_at,
     )
 
 

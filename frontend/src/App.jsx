@@ -38,6 +38,10 @@ import AboutActaAI from './pages/guide/AboutActaAI';
 import Feedback from './pages/feedback/Feedback';
 import ContentCalendar from './pages/calendar/ContentCalendar';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminSchedules from './pages/admin/AdminSchedules';
+import AdminErrors from './pages/admin/AdminErrors';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminCosts from './pages/admin/AdminCosts';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -143,6 +147,38 @@ export default function App() {
                     element={
                       <AdminRoute>
                         <AdminDashboard />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/schedules"
+                    element={
+                      <AdminRoute>
+                        <AdminSchedules />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/errors"
+                    element={
+                      <AdminRoute>
+                        <AdminErrors />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/users"
+                    element={
+                      <AdminRoute>
+                        <AdminUsers />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/costs"
+                    element={
+                      <AdminRoute>
+                        <AdminCosts />
                       </AdminRoute>
                     }
                   />

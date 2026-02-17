@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
+  Alert,
   Box,
+  Collapse,
   Drawer,
   AppBar,
   Toolbar,
@@ -36,12 +38,26 @@ import {
   AssignmentTurnedIn as ReviewIcon,
   CalendarMonth as CalendarIcon,
   AdminPanelSettings as AdminIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  EventNote as OversightIcon,
+  ErrorOutline as ErrorsIcon,
+  People as UsersIcon,
+  AttachMoney as CostsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
 
 const DRAWER_WIDTH = 260;
 const DRAWER_WIDTH_COLLAPSED = 72;
+
+const ADMIN_CHILDREN = [
+  { label: 'Overview', icon: <DashboardIcon fontSize="small" />, path: '/admin' },
+  { label: 'Schedules', icon: <OversightIcon fontSize="small" />, path: '/admin/schedules' },
+  { label: 'Error Log', icon: <ErrorsIcon fontSize="small" />, path: '/admin/errors' },
+  { label: 'Users', icon: <UsersIcon fontSize="small" />, path: '/admin/users' },
+  { label: 'Costs', icon: <CostsIcon fontSize="small" />, path: '/admin/costs' },
+];
 
 function buildNavItems(isAdmin) {
   const items = [
@@ -59,7 +75,7 @@ function buildNavItems(isAdmin) {
   ];
   if (isAdmin) {
     items.push({ divider: true });
-    items.push({ label: 'Admin Dashboard', icon: <AdminIcon />, path: '/admin' });
+    items.push({ label: 'Admin', icon: <AdminIcon />, path: '/admin', children: ADMIN_CHILDREN });
   }
   return items;
 }
@@ -71,6 +87,7 @@ export default function MainLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [adminOpen, setAdminOpen] = useState(() => location.pathname.startsWith('/admin'));
 
   const navItems = buildNavItems(user?.is_admin);
 
@@ -81,10 +98,24 @@ export default function MainLayout() {
   });
   const pendingCount = postCounts?.pending_review || 0;
 
+  const { data: maintenanceData } = useQuery({
+    queryKey: ['maintenanceStatus'],
+    queryFn: () => api.get('/system/maintenance-status').then(r => r.data),
+    refetchInterval: 60000,
+  });
+  const isMaintenanceMode = maintenanceData?.maintenance_mode || false;
+
   const drawerWidth = collapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH;
 
-  const isActive = (path) =>
-    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+  const isActive = (path) => {
+    if (path === '/') return location.pathname === '/';
+    // Exact match for admin child routes (e.g. /admin/costs)
+    if (path.startsWith('/admin/')) return location.pathname === path;
+    // Admin parent: highlight when any admin route is active
+    if (path === '/admin') return location.pathname.startsWith('/admin');
+    return location.pathname.startsWith(path);
+  };
+  const isExactActive = (path) => location.pathname === path;
 
   const renderNavIcon = (item) => {
     const icon = item.icon;
@@ -129,6 +160,58 @@ export default function MainLayout() {
         {navItems.map((item, idx) =>
           item.divider ? (
             <Divider key={`div-${idx}`} sx={{ my: 1 }} />
+          ) : item.children ? (
+            <Box key={item.path}>
+              <ListItem disablePadding>
+                <ListItemButton
+                  selected={isActive(item.path)}
+                  onClick={() => setAdminOpen(!adminOpen)}
+                  sx={{
+                    py: 1.5,
+                    pl: 3,
+                    '&.Mui-selected': {
+                      backgroundColor: 'rgba(74, 124, 111, 0.08)',
+                      borderRight: '4px solid',
+                      borderColor: 'primary.main',
+                      '&:hover': { backgroundColor: 'rgba(74, 124, 111, 0.12)' },
+                    },
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: isActive(item.path) ? 'primary.main' : 'inherit', minWidth: 40 }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: isActive(item.path) ? 700 : 500, fontSize: '0.95rem' }} />
+                  {adminOpen ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                </ListItemButton>
+              </ListItem>
+              <Collapse in={adminOpen} timeout="auto" unmountOnExit>
+                <List disablePadding>
+                  {item.children.map((child) => (
+                    <ListItem key={child.path} disablePadding>
+                      <ListItemButton
+                        selected={isExactActive(child.path)}
+                        onClick={() => { navigate(child.path); setMobileOpen(false); }}
+                        sx={{
+                          py: 1,
+                          pl: 5,
+                          '&.Mui-selected': {
+                            backgroundColor: 'rgba(74, 124, 111, 0.08)',
+                            '&:hover': { backgroundColor: 'rgba(74, 124, 111, 0.12)' },
+                          },
+                          '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                        }}
+                      >
+                        <ListItemIcon sx={{ color: isExactActive(child.path) ? 'primary.main' : 'text.secondary', minWidth: 32 }}>
+                          {child.icon}
+                        </ListItemIcon>
+                        <ListItemText primary={child.label} primaryTypographyProps={{ fontWeight: isExactActive(child.path) ? 700 : 400, fontSize: '0.85rem' }} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Collapse>
+            </Box>
           ) : (
             <ListItem key={item.path} disablePadding>
               <ListItemButton
@@ -248,6 +331,87 @@ export default function MainLayout() {
         {navItems.map((item, idx) =>
           item.divider ? (
             <Divider key={`div-${idx}`} sx={{ my: 1 }} />
+          ) : item.children ? (
+            <Box key={item.path}>
+              <ListItem disablePadding sx={{ position: 'relative' }}>
+                {isActive(item.path) && <LaurelIndicator />}
+                <Tooltip title={collapsed ? item.label : ''} placement="right" arrow>
+                  <ListItemButton
+                    selected={isActive(item.path)}
+                    onClick={() => {
+                      if (collapsed) {
+                        navigate(item.path);
+                      } else {
+                        setAdminOpen(!adminOpen);
+                      }
+                    }}
+                    sx={{
+                      py: 1.5,
+                      pl: collapsed ? 0 : 3,
+                      justifyContent: collapsed ? 'center' : 'flex-start',
+                      '&.Mui-selected': {
+                        backgroundColor: 'rgba(74, 124, 111, 0.08)',
+                        borderRight: 'none',
+                        '&:hover': { backgroundColor: 'rgba(74, 124, 111, 0.12)' },
+                      },
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: isActive(item.path) ? 'primary.main' : 'inherit',
+                        minWidth: collapsed ? 0 : 40,
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    {!collapsed && (
+                      <>
+                        <ListItemText
+                          primary={item.label}
+                          primaryTypographyProps={{ fontWeight: isActive(item.path) ? 700 : 500, fontSize: '0.95rem' }}
+                        />
+                        {adminOpen ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                      </>
+                    )}
+                  </ListItemButton>
+                </Tooltip>
+              </ListItem>
+              {!collapsed && (
+                <Collapse in={adminOpen} timeout="auto" unmountOnExit>
+                  <List disablePadding>
+                    {item.children.map((child) => (
+                      <ListItem key={child.path} disablePadding sx={{ position: 'relative' }}>
+                        {isExactActive(child.path) && <LaurelIndicator />}
+                        <ListItemButton
+                          selected={isExactActive(child.path)}
+                          onClick={() => navigate(child.path)}
+                          sx={{
+                            py: 0.75,
+                            pl: 5,
+                            '&.Mui-selected': {
+                              backgroundColor: 'rgba(74, 124, 111, 0.08)',
+                              borderRight: 'none',
+                              '&:hover': { backgroundColor: 'rgba(74, 124, 111, 0.12)' },
+                            },
+                            '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                          }}
+                        >
+                          <ListItemIcon sx={{ color: isExactActive(child.path) ? 'primary.main' : 'text.secondary', minWidth: 32 }}>
+                            {child.icon}
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={child.label}
+                            primaryTypographyProps={{ fontWeight: isExactActive(child.path) ? 700 : 400, fontSize: '0.85rem' }}
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Collapse>
+              )}
+            </Box>
           ) : (
             <ListItem key={item.path} disablePadding sx={{ position: 'relative' }}>
               {isActive(item.path) && <LaurelIndicator />}
@@ -350,7 +514,15 @@ export default function MainLayout() {
               fontSize: '1rem',
             }}
           >
-            {navItems.find((item) => item.path && isActive(item.path))?.label || 'Acta AI'}
+            {(() => {
+              // Check admin children first for exact match
+              const adminItem = navItems.find((i) => i.children);
+              if (adminItem) {
+                const child = adminItem.children.find((c) => isExactActive(c.path));
+                if (child) return `Admin — ${child.label}`;
+              }
+              return navItems.find((item) => item.path && isActive(item.path))?.label || 'Acta AI';
+            })()}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography
@@ -472,6 +644,21 @@ export default function MainLayout() {
           transition,
         }}
       >
+        {isMaintenanceMode && (
+          <Alert
+            severity="warning"
+            sx={{
+              mb: 3,
+              borderRadius: 0,
+              border: '2px solid #A0522D',
+              bgcolor: 'rgba(160, 82, 45, 0.06)',
+              '& .MuiAlert-icon': { color: '#A0522D' },
+              fontWeight: 600,
+            }}
+          >
+            AI generation is temporarily paused for maintenance. Scheduled runs, content testing, and revisions are disabled.
+          </Alert>
+        )}
         <Outlet />
       </Box>
     </Box>

@@ -5,11 +5,11 @@ import { CHART_COLORS, CHART_FONT } from './chartTheme';
 
 export default function CostEstimateChart({ data }) {
   if (!data?.length) {
-    return <ChartCard title="Estimated AI Cost"><em>No cost data yet</em></ChartCard>;
+    return <ChartCard title="AI Spend (Monthly)"><em>No cost data yet</em></ChartCard>;
   }
 
   return (
-    <ChartCard title="Estimated AI Cost">
+    <ChartCard title="AI Spend (Monthly)">
       <ResponsiveContainer width="100%" height={260}>
         <BarChart data={data} margin={{ top: 4, right: 8, left: -4, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.stone} />

@@ -55,6 +55,9 @@ class AdminDashboardResponse(BaseModel):
     total_posts: int
     active_schedules: int
 
+    # System state
+    maintenance_mode: bool = False
+
     # Chart data
     posts_over_time: list[DailyCount]
     status_breakdown: StatusBreakdown
@@ -148,3 +151,26 @@ class ScheduleOversightEntry(BaseModel):
     site_platform: str
     template_name: str
     template_industry: str | None = None
+
+
+# --- Per-user cost breakdown ---
+
+class UserCostEntry(BaseModel):
+    user_id: uuid.UUID
+    email: str
+    full_name: str
+    total_executions: int
+    total_prompt_tokens: int = 0
+    total_completion_tokens: int = 0
+    total_tokens: int = 0
+    text_cost_usd: float = 0.0
+    image_cost_usd: float = 0.0
+    total_cost_usd: float = 0.0
+
+
+# --- Maintenance status ---
+
+class MaintenanceStatus(BaseModel):
+    maintenance_mode: bool
+    message: str | None = None
+    updated_at: datetime | None = None

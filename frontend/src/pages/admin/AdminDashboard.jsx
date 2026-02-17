@@ -25,9 +25,7 @@ import PlatformChart from './components/PlatformChart';
 import SchedulerHealthChart from './components/SchedulerHealthChart';
 import CostEstimateChart from './components/CostEstimateChart';
 import SignupsChart from './components/SignupsChart';
-import ScheduleOversight from './components/ScheduleOversight';
-import ErrorLog from './components/ErrorLog';
-import UserManagement from './components/UserManagement';
+import MaintenanceToggle from './components/MaintenanceToggle';
 
 const PERIOD_OPTIONS = [
   { value: 7, label: 'Last 7 days' },
@@ -180,11 +178,9 @@ export default function AdminDashboard() {
             <SignupsChart data={data.signups_over_time} />
           </Box>
 
-          {/* Operations panels — own data sources, independent of dashboard period */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 3 }}>
-            <ScheduleOversight />
-            <ErrorLog />
-            <UserManagement data={data.user_activity} />
+          {/* Maintenance toggle */}
+          <Box sx={{ mt: 3 }}>
+            <MaintenanceToggle isActive={data.maintenance_mode} />
           </Box>
         </>
       )}
