@@ -37,6 +37,7 @@ import UserGuide from './pages/guide/UserGuide';
 import AboutActaAI from './pages/guide/AboutActaAI';
 import Feedback from './pages/feedback/Feedback';
 import ContentCalendar from './pages/calendar/ContentCalendar';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +52,14 @@ function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!user.is_admin) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -128,6 +137,15 @@ export default function App() {
                   <Route path="/guide" element={<UserGuide />} />
                   <Route path="/about" element={<AboutActaAI />} />
                   <Route path="/feedback" element={<Feedback />} />
+
+                  <Route
+                    path="/admin"
+                    element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    }
+                  />
                 </Route>
 
                 {/* Catch-all */}

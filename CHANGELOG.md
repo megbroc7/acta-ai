@@ -16,6 +16,274 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-17 (Session 26) — Admin User Management, Error Log & Schedule Oversight
+
+**What we did:**
+Transformed the read-only admin dashboard into a full platform operations center. Added user management controls (toggle active/admin, reset password, delete with cascade, drill-down detail), a global error log with pagination and date filtering, and a schedule oversight panel to monitor and pause/resume any user's schedules.
+
+**1. User Management** (`UserManagement.jsx` replaces `UserActivityTable.jsx`)
+- **Status chip** (green Active / sienna Inactive) — click to toggle, disabled for own row
+- **Role chip** (bronze Admin / grey User) — click to toggle, disabled for own row
+- **Reset Password** — confirmation dialog → generates temp password via `secrets.token_urlsafe(12)` → result dialog with copy-to-clipboard
+- **Delete User** — confirmation dialog with cascade warning, removes user + all their data
+- **Expandable detail row** — lazy-loads `GET /admin/users/{id}/detail`: 4-column grid (Sites, Templates, Schedules, Recent Posts) + sienna-tinted Recent Errors section
+- Backend: 5 new endpoints (`toggle-active`, `toggle-admin`, `delete`, `reset-password`, `detail`) all with self-guards (can't modify your own account)
+- 8 new schemas in `admin.py`
+
+**2. Global Error Log** (`ErrorLog.jsx`)
+- Own date range selector (7/30/90 days), independent of dashboard period
+- Paginated table (20/page) with prev/next controls
+- Columns: Time, User (name + email), Schedule name, Type chip (scheduled/manual), Error message (truncated with full monospace tooltip on hover)
+- Sienna-tinted border when errors present, count chip
+- Backend: `GET /admin/errors` with `days`/`limit`/`offset` params, joins ExecutionHistory with User + BlogSchedule
+
+**3. Schedule Oversight** (`ScheduleOversight.jsx`)
+- Table of all schedules across all users with joined context
+- Columns: Schedule name, Owner (name + email), Site (name + platform chip), Template (name + industry), Frequency chip, Next Run (with relative time — "in 3h 12m" or red "overdue"), Last Run, Status toggle
+- Active-only filter switch + count chips (active / total)
+- Clickable status chip to pause/resume — mirrors user-facing activate/deactivate logic exactly (experience notes validation, scheduler job sync, next_run computation)
+- Backend: `GET /admin/schedules` with `active_only` filter, `PATCH /admin/schedules/{id}/toggle-active`
+
+**4. Dashboard layout reorganization**
+- Charts grid on top (6 chart cards)
+- Operations section below: Schedule Oversight → Error Log → User Management (stacked, each with own data source)
+
+**Schemas added:** `AdminUserResponse`, `AdminPasswordResetResponse`, `AdminUserSite`, `AdminUserTemplate`, `AdminUserSchedule`, `AdminUserPost`, `AdminUserError`, `AdminUserDetail`, `ErrorLogEntry`, `ErrorLogResponse`, `ScheduleOversightEntry`
+**Fields added to existing `UserActivity`:** `is_active`, `is_admin`, `created_at`
+
+**Files created:**
+- `frontend/src/pages/admin/components/UserManagement.jsx`
+- `frontend/src/pages/admin/components/ErrorLog.jsx`
+- `frontend/src/pages/admin/components/ScheduleOversight.jsx`
+
+**Files changed:**
+- `backend/app/schemas/admin.py` — 11 new schemas + 3 fields on UserActivity
+- `backend/app/api/admin.py` — updated dashboard query, 8 new endpoints (5 user mgmt + 1 error log + 2 schedule oversight)
+- `frontend/src/pages/admin/AdminDashboard.jsx` — swapped imports, reorganized layout
+
+**Files deleted:**
+- `frontend/src/pages/admin/components/UserActivityTable.jsx` — superseded by UserManagement
+
+**Open bugs:** None identified this session.
+
+---
+
+### 2026-02-16 (Session 25) — SEO Meta Titles, Meta Descriptions & Image Alt Tags
+
+**What we did:**
+Added an AI-powered SEO metadata generation step to the content pipeline. Every article now gets a meta title, meta description, and (when images are enabled) image alt text — generated using 2026 SEO best practices for both traditional search engines and AI answer engines. Metadata is stored on each blog post, displayed with copy buttons and character count indicators in the UI, and published to WordPress via Yoast, RankMath, and native excerpt fields simultaneously.
+
+**1. Database: migration `i8j9k0l1m2n3`**
+- Added 3 nullable columns to `blog_posts`: `meta_title` (String 200), `meta_description` (String 500), `image_alt_text` (String 300)
+- Model updated with corresponding `Mapped` fields after `featured_image_url`
+
+**2. Content pipeline: new SEO meta step** (`services/content.py`)
+- New constants: `META_TIMEOUT = 20`, `META_MAX_TOKENS = 500`
+- New `SeoMetaResult` dataclass (meta_title, meta_description, image_alt_text)
+- New `_generate_seo_meta(title, excerpt, industry, focus_keyword, image_source)` — calls OpenAI (temp 0.4) with prompt encoding 2026 SEO research:
+  - **Meta title** (50-60 chars): entity-rich "Who + What + Context" pattern, power words, NOT identical to H1
+  - **Meta description** (140-160 chars): atomic answer (~120 chars AI engines can cite) + value tease (~40 chars requiring click-through), no generic CTAs
+  - **Image alt text** (~100-125 chars): descriptive, keyword-relevant, no "Image of" prefix
+- New `_parse_seo_meta()` — robust parser handles section headers, colons, numbered lists, strips quotes. Falls back to truncated title/excerpt on parse failure.
+- Pipeline flow changed from Outline(1)→Draft(2)→Review(3)→Image?(4) to **Outline(1)→Draft(2)→Review(3)→Meta(4)→Image?(5)**
+- `total_steps` updated from `4/3` to `5/4`
+- Both `ContentResult` and `GenerationResult` dataclasses carry new fields
+- `generate_post()` passes through meta fields
+
+**3. API + Scheduler**
+- SSE `complete` event includes `meta_title`, `meta_description`, `image_alt_text`
+- Non-streaming `test_content` endpoint returns same fields in `TestContentResponse`
+- Scheduler `BlogPost()` creation includes all 3 meta fields from `GenerationResult`
+- Post schemas (`PostCreate`, `PostUpdate`, `PostResponse`) include all 3 fields — existing `PUT /posts/{id}` edit flow works automatically
+
+**4. WordPress publishing** (`services/publishing.py`)
+- `_wp_upload_featured_image()` now accepts `alt_text` param — PATCHes the media item after upload (non-fatal)
+- `publish_to_wordpress()` uses `meta_description` as excerpt (overrides `post.excerpt` when available)
+- Yoast + RankMath meta fields via shotgun approach (silently ignored if plugins not installed):
+  - `_yoast_wpseo_title` + `rank_math_title` ← meta_title
+  - `_yoast_wpseo_metadesc` + `rank_math_description` ← meta_description
+- Alt text passed to image upload: `alt_text=post.image_alt_text`
+
+**5. Frontend — Progress bar** (`PromptForm.jsx`)
+- `BASE_PIPELINE_STAGES` now has 4 entries: Outline, Draft, Review, **SEO Meta**
+- Image stage shows when `progress.total > 4` (was `> 3`)
+
+**6. Frontend — Test panel SEO card** (`PromptForm.jsx`)
+- New SEO Metadata card below excerpt with patina green left accent border
+- **Meta Title**: blue text (#1a0dab, mimics Google SERP), char count chip (green ≤60, bronze 61-78, sienna >78), copy button
+- **Meta Description**: secondary text, char count chip (green 140-160, bronze outside), copy button
+- **Image Alt Text** (conditional): italic text, char count chip (green ≤125, bronze >125), copy button
+- Featured image `alt` attribute uses generated alt text
+
+**7. Frontend — PostDetail SEO card** (`PostDetail.jsx`)
+- New SEO Metadata card (borderLeft: 3px green) between Excerpt and Content cards
+- Same layout as test panel: meta title (blue), meta description, image alt text
+- Each with char count chip + copy button using existing `enqueueSnackbar`
+- `FeaturedImageCard` component accepts `altText` prop, uses it as `alt` attribute
+- Added `Tooltip`, `IconButton`, `ContentCopy` imports
+
+**Files created:**
+- `backend/migrations/versions/i8j9k0l1m2n3_add_seo_meta_to_blog_posts.py`
+
+**Files changed:**
+- `backend/app/models/blog_post.py` — 3 new columns
+- `backend/app/schemas/posts.py` — 3 fields on PostCreate, PostUpdate, PostResponse
+- `backend/app/schemas/templates.py` — 3 fields on TestContentResponse
+- `backend/app/services/content.py` — constants, SeoMetaResult, _generate_seo_meta(), _parse_seo_meta(), pipeline wiring, dataclass updates
+- `backend/app/services/publishing.py` — alt_text on image upload, meta_description as excerpt, Yoast/RankMath meta fields
+- `backend/app/services/scheduler.py` — 3 meta fields on BlogPost creation
+- `backend/app/api/templates.py` — 3 meta fields on SSE complete event + non-streaming endpoint
+- `frontend/src/pages/prompts/PromptForm.jsx` — meta stage in progress bar, SSE parsing, SEO metadata card, image alt text
+- `frontend/src/pages/posts/PostDetail.jsx` — SEO metadata card, FeaturedImageCard altText prop, new imports
+
+**Open bugs:** None identified this session.
+
+---
+
+### 2026-02-16 (Session 24) — Docker Setup, Trailing Slash Fix, Content Quality
+
+**What we did:**
+Containerized the full stack with Docker Compose (3 containers: postgres, backend, frontend/nginx), fixed a trailing-slash bug in WordPress API URLs, removed a redundant schedule toggle, and improved article openings to eliminate generic AI patterns.
+
+**1. Docker Compose setup (6 new files)**
+- `backend/Dockerfile` — Python 3.13-slim, system deps (gcc, libpq, postgresql-client)
+- `backend/start.sh` — waits for postgres (`pg_isready`), runs `alembic upgrade head`, starts uvicorn
+- `frontend/Dockerfile` — multi-stage: node:22-alpine build → nginx:alpine serve
+- `frontend/nginx.conf` — static files, `/api/` proxy to backend, SPA fallback, gzip, SSE support (`proxy_buffering off`)
+- `docker-compose.yml` — 3 services, health checks, persistent postgres volume, bridge network. Only port 80 exposed. Backend health check uses Python urllib (no curl in slim image). `env_file` optional.
+- `.env.example` — documents required env vars for fresh clones
+- `backend/.dockerignore` + `frontend/.dockerignore` — exclude .venv, node_modules, .env
+- **Discovered missing dep**: added `email-validator==2.2.0` to `requirements.txt` (Pydantic `EmailStr` needs it; was transitively installed locally but not in fresh container)
+
+**2. Trailing-slash bug fix (WordPress API URLs)**
+- REST API URLs ending with `/` caused double slashes (e.g. `wp-json//wp/v2/users/me` → 404)
+- Added `api_url.rstrip("/")` in `_test_wp_connection()`, `_fetch_categories()`, `_fetch_tags()` (sites.py) and `publish_to_wordpress()`, `_wp_upload_featured_image()` (publishing.py)
+
+**3. Removed "Include AI-generated images" toggle from schedules**
+- `ScheduleForm.jsx`: removed `<Switch>` + `FormControlLabel`, cleaned `include_images` from form state and edit loading. Image source is already configured per-template in the Defaults tab — the schedule toggle was redundant.
+
+**4. Article opening quality improvement**
+- Added `OPENING PARAGRAPH` rule to Writing Guardrails: explicitly bans hypothetical/rhetorical openers ("Imagine...", "Picture yourself...", "Have you ever...", "What if...") and instructs AI to lead with facts, bold claims, statistics, or direct answers instead
+- Updated first contrastive example: BAD now shows "Imagine/Picture/What if" pattern (was generic transition spam), GOOD shows substance-first opening
+- Added "Imagine", "Picture this", "Have you ever wondered" to `BANNED_CLICHES` (86 phrases total)
+
+**5. SEO keyword instruction softened**
+- Title prompt no longer says "incorporate near the front of titles" — was causing the AI to force the exact keyword phrase (e.g. "direct benefits") into every title regardless of headline style
+- New instruction: "Incorporate this keyword's core concept naturally — do NOT force the exact phrase into every title. Adapt, abbreviate, or rephrase to fit the headline style."
+- Task section changed from "place the primary keyword near the front" to "Prioritize click-worthy, natural-sounding headlines over keyword stuffing."
+
+**6. Test panel uses unsaved form state for headline style**
+- **Bug**: Changing the headline style dropdown (e.g. contrarian → how-to) in the template form and clicking "Test" still generated titles in the old style, because the test endpoint loaded the saved template from the DB
+- **Fix**: `TestTopicRequest` schema now accepts optional `content_type` override. Frontend sends current `form.content_type` with the test request. Backend applies the override before generating titles. No save required to test style changes.
+
+**Files changed (8 modified, 8 new):**
+- `backend/Dockerfile` (new)
+- `backend/start.sh` (new)
+- `frontend/Dockerfile` (new)
+- `frontend/nginx.conf` (new)
+- `docker-compose.yml` (new)
+- `.env.example` (new)
+- `backend/.dockerignore` (new)
+- `frontend/.dockerignore` (new)
+- `backend/requirements.txt` — added `email-validator==2.2.0`
+- `backend/app/api/sites.py` — trailing-slash fix in 3 functions
+- `backend/app/services/publishing.py` — trailing-slash fix in 2 functions
+- `backend/app/services/content.py` — opening paragraph guardrail, updated contrastive example, 3 new banned phrases, softened keyword instruction
+- `backend/app/schemas/templates.py` — `TestTopicRequest` now accepts optional `content_type`
+- `backend/app/api/templates.py` — test endpoint applies `content_type` override from request
+- `frontend/src/pages/prompts/PromptForm.jsx` — sends `form.content_type` with test request
+- `frontend/src/pages/schedules/ScheduleForm.jsx` — removed include_images toggle + unused imports
+
+**Open bugs:** None identified this session.
+
+---
+
+### 2026-02-15 (Session 23) — Remove Draft from Schedules + User Guide Overhaul
+
+**What we did:**
+Simplified the schedule post status options by removing "Draft" (which had no clear workflow) and updated the User Guide to reflect all features built since it was originally written.
+
+**1. Remove "Draft" from schedule post status**
+- **Backend** (`schemas/schedules.py`): Changed `ScheduleCreate.post_status` default from `DRAFT` to `PENDING_REVIEW`
+- **Frontend** (`ScheduleForm.jsx`): Removed "Draft" `<MenuItem>` from dropdown. Now only "Review First" (default) and "Auto-Publish". Existing schedules with `post_status: "draft"` display as "Review First" when editing.
+- **Rationale**: "Draft" was a dead zone — the scheduler would generate content that silently sat in the posts list with no notification or review workflow. Every scheduled post should either go live or land in the Review Queue.
+
+**2. User Guide overhaul** (`pages/guide/UserGuide.jsx`)
+- **New section: "Posts & Review"** — covers Review Queue, Revise with AI, Content Calendar, and Skip Scheduled Runs. Added to TOC with `Article` icon.
+- **Templates > Prompts**: Removed dead fields `topic_generation_prompt` and `content_generation_prompt` (unused since Session 11). Renamed `system_prompt` → `custom_instructions` with accurate description. Updated `experience_notes` to mention the Experience Interview button.
+- **Templates > Defaults**: Removed `special_requirements` (removed from UI in Session 12). Added `image_source` and `image_style_guidance` (featured images from Session 18).
+- **Schedules > Overrides**: Updated `post_status` to "Review First" / "Auto-Publish". Removed `include_images` (replaced by template-level image source) and `prompt_replacements` (unused).
+- **Pipeline steps**: Added step 6 "Featured Image" (DALL-E 3 / Unsplash). Updated header from "5-Stage" to "Content Pipeline".
+- **Getting Started**: Updated step 4 from "Publish Posts" to "Review & Publish" mentioning the Review Queue.
+- **Calendar chips**: Removed "gray = draft" from color legend.
+- **New MUI icon imports**: `Gavel`, `CalendarMonth`, `AutoFixHigh`, `SkipNext`.
+
+**Files changed (3 total, 0 new files, 0 migrations):**
+- `backend/app/schemas/schedules.py` — default `post_status` changed to `PENDING_REVIEW`
+- `frontend/src/pages/schedules/ScheduleForm.jsx` — removed Draft option, updated defaults and load logic
+- `frontend/src/pages/guide/UserGuide.jsx` — new Posts & Review section, removed dead fields, updated descriptions
+
+**Open bugs:** None identified this session.
+
+---
+
+### 2026-02-15 (Session 22) — Content Iteration: "Revise with AI" Feature
+
+**What we did:**
+Added an AI-powered revision loop so users can give natural-language feedback on draft or pending_review posts and have the AI revise the article while preserving everything that works. Also fixed a pre-existing bug in schedule creation (`ScheduleCreate` schema missing `is_active` field).
+
+**1. Backend dependency: `markdownify==0.14.1`**
+- Added to `requirements.txt` — converts HTML back to markdown for the AI revision pipeline (posts store HTML, AI needs markdown)
+
+**2. Content service: revision pipeline** (`services/content.py`)
+- `html_to_markdown(html)` — wraps `markdownify` with ATX headings, dash bullets, strips images
+- `RevisionResult` dataclass — `content_markdown`, `content_html`, `excerpt`, `revision_prompt_used`
+- `revise_content(content_html, feedback, system_prompt, template?, progress_callback?)` — 2-step pipeline:
+  - **Step 1 (Revise):** Sends current article markdown + user feedback to GPT-4o. Temperature 0.4. Prompt: "Preserve everything that works — only change what the feedback asks for."
+  - **Step 2 (Polish):** Lighter quality pass — anti-robot checks + voice preservation only (no structural rubric since article was already reviewed). Temperature 0.2. Skipped if template is deleted.
+- `_generate_revision_polish()` — simplified version of `_generate_review()`: banned phrases, paragraph openings, sentence length variation, active voice, voice preservation per personality level
+- New constants: `REVISION_TIMEOUT = 120`, `REVISION_MAX_TOKENS = 4500`
+
+**3. Schema** (`schemas/posts.py`)
+- `ReviseRequest(BaseModel)` — `feedback: str` (min_length=1, max_length=5000)
+
+**4. SSE streaming endpoint** (`api/posts.py`)
+- `POST /{post_id}/revise-stream` — same SSE pattern as template `content-stream`
+- Validates post ownership + status (draft/pending_review only)
+- Loads template for voice settings (graceful if deleted)
+- System prompt fallback chain: stored on post → rebuilt from template → generic fallback
+- Streams `progress`/`complete`/`error` events via `asyncio.Queue`
+- Does NOT auto-save — returns revised content for frontend preview
+- New imports: `asyncio`, `json`, `logging`, `StreamingResponse`, `PromptTemplate`, `ReviseRequest`
+
+**5. PostDetail frontend** (`pages/posts/PostDetail.jsx`)
+- **"Revise with AI" button** — bronze-styled (`#B08D57`), `AutoFixHigh` icon, two placements:
+  - Review Decision Bar (between Edit First and Reject) for `pending_review` posts
+  - Top action bar for `draft` posts
+- **Revision Dialog** (MUI `Dialog`, `maxWidth="md"`, `fullWidth`) with 3 states:
+  - **Feedback state:** textarea (4 rows), Cancel + Revise buttons
+  - **Progress state:** `RevisionProgressBar` component (2-step: Revise → Polish), dialog locked (`disableEscapeKeyDown`)
+  - **Preview state:** scrollable HTML preview, three buttons: Discard / Revise Again / Accept Revision
+- `RevisionProgressBar` component — numbered circles, `LinearProgress` bar, italic status message. Adapts to 1 or 2 steps (1 when template deleted = no polish).
+- `handleRevise` function — SSE parsing via existing `fetchSSE()` helper, same buffer/parsing pattern as PromptForm
+- `acceptRevisionMutation` — saves revised `content` + `excerpt` via `PUT /posts/{id}`, invalidates queries, triggers "EDITED" chip
+
+**6. Bugfix: schedule creation crash**
+- `api/schedules.py` line 60 referenced `data.is_active` but `ScheduleCreate` schema has no `is_active` field (schedules always start inactive)
+- Removed the dead `if data.is_active:` guard — experience validation already runs on activate
+
+**Files changed (6 total, 0 new files, 0 migrations):**
+- `backend/requirements.txt` — added `markdownify==0.14.1`
+- `backend/app/services/content.py` — `html_to_markdown()`, `RevisionResult`, `revise_content()`, `_generate_revision_polish()`
+- `backend/app/schemas/posts.py` — `ReviseRequest` schema
+- `backend/app/api/posts.py` — `POST /{post_id}/revise-stream` SSE endpoint
+- `frontend/src/pages/posts/PostDetail.jsx` — Revise button, dialog, SSE handling, progress bar, accept mutation
+- `backend/app/api/schedules.py` — removed invalid `data.is_active` reference in `create_schedule`
+
+**Open bugs:** None identified this session.
+
+---
+
 ### 2026-02-15 (Session 21) — Skip/Cancel Individual Scheduled Runs from Calendar
 
 **What we did:**

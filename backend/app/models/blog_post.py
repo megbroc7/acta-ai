@@ -38,6 +38,12 @@ class BlogPost(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     excerpt: Mapped[str | None] = mapped_column(String(500), nullable=True)
     featured_image_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+
+    # SEO Metadata
+    meta_title: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    meta_description: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    image_alt_text: Mapped[str | None] = mapped_column(String(300), nullable=True)
+
     categories: Mapped[list] = mapped_column(JSON, default=list)
     tags: Mapped[list] = mapped_column(JSON, default=list)
 

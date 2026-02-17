@@ -53,7 +53,7 @@ class ScheduleCreate(BaseModel):
     category_ids: list[int] = []
     tag_ids: list[int] = []
     prompt_replacements: dict = {}
-    post_status: PostStatusOption = PostStatusOption.DRAFT
+    post_status: PostStatusOption = PostStatusOption.PENDING_REVIEW
     enable_review: bool = True  # deprecated — use post_status instead
 
 

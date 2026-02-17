@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from html.parser import HTMLParser
 
 import markdown
+from markdownify import markdownify as md
 from openai import APIConnectionError, APITimeoutError, AsyncOpenAI, RateLimitError
 
 from app.core.config import settings
@@ -33,8 +34,12 @@ DRAFT_TIMEOUT = 120
 DRAFT_MAX_TOKENS = 4000
 REVIEW_TIMEOUT = 120
 REVIEW_MAX_TOKENS = 4500
+REVISION_TIMEOUT = 120
+REVISION_MAX_TOKENS = 4500
 INTERVIEW_TIMEOUT = 30
 INTERVIEW_MAX_TOKENS = 800
+META_TIMEOUT = 20
+META_MAX_TOKENS = 500
 MAX_RETRIES = 2
 MARKDOWN_EXTENSIONS = ["extra", "codehilite", "toc", "nl2br"]
 
@@ -77,6 +82,7 @@ BANNED_CLICHES = [
     "at the end of the day", "when it comes to",
     "without further ado", "in the realm of",
     "look no further", "whether you're a seasoned",
+    "Imagine", "Picture this", "Have you ever wondered",
 ]
 BANNED_PHRASES = (
     BANNED_TRANSITIONS + BANNED_AI_ISMS + BANNED_HEDGING
@@ -126,12 +132,11 @@ def resolve_content_type(raw: str | None) -> str:
 # vocabulary, place near end of prompt to avoid "lost in the middle" effect.
 CONTRASTIVE_EXAMPLES = (
     "## Writing Examples (Do NOT copy these — internalize the patterns)\n\n"
-    "### BAD — Generic AI opening\n"
-    "In today's rapidly evolving digital landscape, businesses are increasingly "
-    "leveraging content marketing to harness the power of organic reach. It is "
-    "important to note that a robust content strategy encompasses multiple facets "
-    "of audience engagement.\n\n"
-    "### GOOD — Answer-first, specific\n"
+    "### BAD — Hypothetical AI opening\n"
+    "Imagine you're a business owner trying to grow your online presence. "
+    "Picture yourself scrolling through your analytics, wondering why your "
+    "content isn't getting traction. What if there was a better way?\n\n"
+    "### GOOD — Lead with substance\n"
     "Companies that publish 2-4 long-form posts per week see 3.5x more organic "
     "traffic than those posting daily short pieces. The difference isn't volume — "
     "it's depth. Here's how that plays out in practice.\n\n"
@@ -174,6 +179,24 @@ class ContentResult:
     content_prompt_used: str
     outline_used: str
     featured_image_url: str | None = None
+    meta_title: str | None = None
+    meta_description: str | None = None
+    image_alt_text: str | None = None
+
+
+@dataclass
+class RevisionResult:
+    content_markdown: str
+    content_html: str
+    excerpt: str
+    revision_prompt_used: str
+
+
+@dataclass
+class SeoMetaResult:
+    meta_title: str
+    meta_description: str
+    image_alt_text: str | None
 
 
 @dataclass
@@ -188,6 +211,9 @@ class GenerationResult:
     content_prompt_used: str
     outline_used: str
     featured_image_url: str | None = None
+    meta_title: str | None = None
+    meta_description: str | None = None
+    image_alt_text: str | None = None
 
 
 # --- Helper: strip HTML tags ---
@@ -232,8 +258,10 @@ def build_title_system_prompt(template: PromptTemplate) -> str:
     keyword_line = ""
     if template.seo_focus_keyword:
         keyword_line = (
-            f"\nPrimary keyword to incorporate near the front of titles: "
-            f'"{template.seo_focus_keyword}"'
+            f"\nSEO focus keyword: \"{template.seo_focus_keyword}\". "
+            "Incorporate this keyword's core concept naturally — do NOT force "
+            "the exact phrase into every title. Adapt, abbreviate, or rephrase "
+            "to fit the headline style."
         )
 
     header = (
@@ -241,8 +269,9 @@ def build_title_system_prompt(template: PromptTemplate) -> str:
         f"{industry_line}{keyword_line}\n\n"
         "## Task\n"
         "Generate exactly 5 headline variants for the given topic. "
-        "Each title MUST be under 60 characters and place the primary keyword "
-        "near the front when one is provided.\n\n"
+        "Each title MUST be under 60 characters. "
+        "Prioritize click-worthy, natural-sounding headlines over "
+        "keyword stuffing.\n\n"
     )
 
     if style == "ai_selected":
@@ -435,7 +464,13 @@ def build_content_system_prompt(
         "Vary sentence length deliberately — mix short punchy fragments with "
         "longer complex sentences. Break symmetrical patterns. "
         "Do not start consecutive paragraphs the same way.\n"
-        "Default to active voice. Avoid passive constructions."
+        "Default to active voice. Avoid passive constructions.\n"
+        "OPENING PARAGRAPH: NEVER open an article with a hypothetical scenario, "
+        "rhetorical question, or reader address (e.g. \"Imagine...\", \"Picture "
+        "yourself...\", \"Have you ever...\", \"What if...\", \"You're standing...\"). "
+        "Instead, open with a concrete fact, a bold claim, a surprising statistic, "
+        "a real-world example, or a direct answer to the topic. "
+        "Lead with substance, not a setup."
     )
     if preferred_line:
         guardrails += preferred_line
@@ -949,6 +984,148 @@ async def _generate_review(
     )
 
 
+def _parse_seo_meta(raw: str, title: str, excerpt: str, has_image: bool) -> SeoMetaResult:
+    """Parse the AI response for SEO metadata fields.
+
+    Handles various formats: section headers, numbered lists, label: value pairs.
+    Falls back gracefully on parse failure.
+    """
+    meta_title = None
+    meta_description = None
+    image_alt_text = None
+
+    current_field = None
+    for line in raw.strip().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+
+        upper = line.upper()
+        # Detect field headers
+        if "META_TITLE" in upper or "META TITLE" in upper:
+            current_field = "title"
+            # Check if value is on the same line after a colon
+            if ":" in line:
+                val = line.split(":", 1)[1].strip().strip('"\'')
+                if val:
+                    meta_title = val
+            continue
+        elif "META_DESCRIPTION" in upper or "META DESCRIPTION" in upper:
+            current_field = "desc"
+            if ":" in line:
+                val = line.split(":", 1)[1].strip().strip('"\'')
+                if val:
+                    meta_description = val
+            continue
+        elif "IMAGE_ALT_TEXT" in upper or "IMAGE ALT TEXT" in upper or "ALT_TEXT" in upper or "ALT TEXT" in upper:
+            current_field = "alt"
+            if ":" in line:
+                val = line.split(":", 1)[1].strip().strip('"\'')
+                if val:
+                    image_alt_text = val
+            continue
+
+        # Strip leading numbering: "1.", "1)", etc.
+        cleaned = re.sub(r"^\d+[\.\)\:\-]\s*", "", line).strip().strip('"\'')
+        if not cleaned:
+            continue
+
+        # If we're under a field header and haven't captured the value yet
+        if current_field == "title" and not meta_title:
+            meta_title = cleaned
+        elif current_field == "desc" and not meta_description:
+            meta_description = cleaned
+        elif current_field == "alt" and not image_alt_text:
+            image_alt_text = cleaned
+
+    # Fallbacks
+    if not meta_title:
+        meta_title = title[:200] if title else "Untitled"
+    if not meta_description:
+        meta_description = excerpt[:500] if excerpt else ""
+    if has_image and not image_alt_text:
+        image_alt_text = None  # will be None — non-fatal
+
+    return SeoMetaResult(
+        meta_title=meta_title,
+        meta_description=meta_description,
+        image_alt_text=image_alt_text,
+    )
+
+
+async def _generate_seo_meta(
+    title: str,
+    excerpt: str,
+    industry: str | None = None,
+    focus_keyword: str | None = None,
+    image_source: str | None = None,
+) -> SeoMetaResult:
+    """Generate SEO meta title, meta description, and image alt text."""
+    has_image = image_source and image_source != "none"
+
+    system_prompt = (
+        "You are an SEO metadata specialist optimizing for both traditional search "
+        "engines and AI answer engines (Google SGE, Perplexity, ChatGPT search) "
+        "using 2026 best practices."
+    )
+
+    keyword_line = ""
+    if focus_keyword:
+        keyword_line = f"\nPrimary keyword: \"{focus_keyword}\"\n"
+
+    industry_line = ""
+    if industry:
+        industry_line = f"\nIndustry context: {industry}\n"
+
+    alt_text_section = ""
+    if has_image:
+        alt_text_section = (
+            "\n3. IMAGE_ALT_TEXT (~100-125 characters)\n"
+            "   - Descriptive, keyword-relevant\n"
+            "   - Do NOT start with \"Image of\" or \"Photo of\"\n"
+            "   - Describe what the image would show for this article topic\n"
+        )
+
+    user_prompt = (
+        f"Generate SEO metadata for an article titled: \"{title}\"\n\n"
+        f"Article excerpt: \"{excerpt}\"\n"
+        f"{keyword_line}{industry_line}\n"
+        "Return EXACTLY these fields, each on its own labeled line:\n\n"
+        "1. META_TITLE (50-60 characters, hard max 78)\n"
+        "   - Entity-rich \"Who + What + Context\" pattern\n"
+        "   - Power words or numbers where natural\n"
+        "   - Thematically aligned with the H1 but NOT identical\n"
+        "   - Primary keyword near front, conversational flow over exact-match\n\n"
+        "2. META_DESCRIPTION (140-160 characters total)\n"
+        "   - First ~120 chars: Atomic answer — direct factual statement AI engines can cite\n"
+        "   - Last ~40 chars: Value tease requiring click-through\n"
+        "   - Must match the page's core entity and intent\n"
+        "   - No generic CTAs (\"Discover\", \"Learn how\", \"Find out\")\n"
+        f"{alt_text_section}\n"
+        "Format:\n"
+        "META_TITLE: your title here\n"
+        "META_DESCRIPTION: your description here\n"
+        + ("IMAGE_ALT_TEXT: your alt text here\n" if has_image else "")
+    )
+
+    try:
+        raw = await _call_openai(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            timeout=META_TIMEOUT,
+            max_tokens=META_MAX_TOKENS,
+            temperature=0.4,
+        )
+        return _parse_seo_meta(raw, title, excerpt, has_image)
+    except Exception as e:
+        logger.warning("SEO meta generation failed (non-fatal): %s", e)
+        return SeoMetaResult(
+            meta_title=title[:200],
+            meta_description=excerpt[:500] if excerpt else "",
+            image_alt_text=None,
+        )
+
+
 async def generate_content(
     template: PromptTemplate,
     title: str,
@@ -976,7 +1153,7 @@ async def generate_content(
     effective_tone = tone or template.default_tone
 
     has_image = image_source and image_source != "none"
-    total_steps = 4 if has_image else 3
+    total_steps = 5 if has_image else 4
 
     # Build the content prompt from structured fields
     content_prompt = (
@@ -1025,11 +1202,22 @@ async def generate_content(
     html = markdown_to_html(polished)
     excerpt = extract_excerpt(html)
 
-    # Step 4: Featured image (optional)
+    # Step 4: SEO metadata
+    if progress_callback:
+        await progress_callback("meta", 4, total_steps, "Generating SEO metadata...")
+    seo_meta = await _generate_seo_meta(
+        title=title,
+        excerpt=excerpt,
+        industry=industry or template.industry,
+        focus_keyword=template.seo_focus_keyword,
+        image_source=image_source,
+    )
+
+    # Step 5: Featured image (optional)
     featured_image_url = None
     if has_image:
         if progress_callback:
-            await progress_callback("image", 4, total_steps, "Generating featured image...")
+            await progress_callback("image", 5, total_steps, "Generating featured image...")
         from app.services.images import generate_featured_image
         featured_image_url = await generate_featured_image(
             source=image_source,
@@ -1046,6 +1234,132 @@ async def generate_content(
         content_prompt_used=content_prompt,
         outline_used=outline,
         featured_image_url=featured_image_url,
+        meta_title=seo_meta.meta_title,
+        meta_description=seo_meta.meta_description,
+        image_alt_text=seo_meta.image_alt_text,
+    )
+
+
+# --- HTML → Markdown conversion ---
+
+
+def html_to_markdown(html: str) -> str:
+    """Convert HTML content back to markdown for AI revision."""
+    return md(html, heading_style="ATX", bullets="-", strip=["img"]).strip()
+
+
+# --- Revision pipeline (2-step: revise + polish) ---
+
+
+async def _generate_revision_polish(
+    system_prompt: str,
+    revised_markdown: str,
+    personality_level: int = 5,
+    use_humor: bool = False,
+    use_anecdotes: bool = False,
+    use_rhetorical_questions: bool = False,
+    use_contractions: bool = True,
+    brand_voice_description: str | None = None,
+) -> str:
+    """Lighter polish pass for revisions — anti-robot + voice only, no structural rubric."""
+    voice_instructions = _build_voice_preservation(
+        personality_level=personality_level,
+        use_humor=use_humor,
+        use_anecdotes=use_anecdotes,
+        use_rhetorical_questions=use_rhetorical_questions,
+        use_contractions=use_contractions,
+        brand_voice_description=brand_voice_description,
+    )
+
+    user_prompt = (
+        "Polish the revised article below. "
+        "Output ONLY the polished article in markdown — no commentary.\n\n"
+        "## Quality Checklist\n"
+        "- [ ] Zero banned phrases remain\n"
+        "- [ ] No two consecutive paragraphs start the same way\n"
+        "- [ ] Sentence length varies (mix short <8 words with long 20+ words)\n"
+        "- [ ] Active voice throughout\n"
+        "- [ ] Paragraphs 2-4 sentences max\n\n"
+        "## Voice Preservation\n"
+        f"{voice_instructions}\n\n"
+        "## Article\n"
+        f"{revised_markdown}"
+    )
+    return await _call_openai(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        timeout=REVISION_TIMEOUT,
+        max_tokens=REVISION_MAX_TOKENS,
+        temperature=0.2,
+    )
+
+
+async def revise_content(
+    content_html: str,
+    feedback: str,
+    system_prompt: str,
+    template: "PromptTemplate | None" = None,
+    progress_callback=None,
+) -> RevisionResult:
+    """2-step revision pipeline: Revise (apply feedback) → Polish (quality pass).
+
+    Args:
+        content_html: Current post HTML content.
+        feedback: Natural-language revision instructions from the user.
+        system_prompt: The system prompt to use (preserves original context).
+        template: Optional template for voice settings. If None, polish step is skipped.
+        progress_callback: Optional async callable(stage, step, total, message).
+    """
+    total_steps = 2 if template else 1
+    current_markdown = html_to_markdown(content_html)
+
+    # Step 1: Revise — apply user feedback
+    if progress_callback:
+        await progress_callback("revise", 1, total_steps, "Applying your feedback...")
+
+    revision_prompt = (
+        "Revise the article below based on the editor's feedback. "
+        "Preserve everything that works — only change what the feedback asks for. "
+        "Output ONLY the revised article in markdown — no commentary, "
+        "no acknowledgment of the feedback.\n\n"
+        f"## Editor's Feedback\n{feedback}\n\n"
+        f"## Current Article\n{current_markdown}"
+    )
+    revised = await _call_openai(
+        system_prompt=system_prompt,
+        user_prompt=revision_prompt,
+        timeout=REVISION_TIMEOUT,
+        max_tokens=REVISION_MAX_TOKENS,
+        temperature=0.4,
+    )
+    revised = _strip_code_fences(revised)
+
+    # Step 2: Polish — lighter quality pass (skipped if template deleted)
+    if template:
+        if progress_callback:
+            await progress_callback("polish", 2, total_steps, "Polishing revised content...")
+        polished = await _generate_revision_polish(
+            system_prompt=system_prompt,
+            revised_markdown=revised,
+            personality_level=template.personality_level or 5,
+            use_humor=template.use_humor or False,
+            use_anecdotes=template.use_anecdotes or False,
+            use_rhetorical_questions=template.use_rhetorical_questions or False,
+            use_contractions=template.use_contractions if template.use_contractions is not None else True,
+            brand_voice_description=template.brand_voice_description,
+        )
+        polished = _strip_code_fences(polished)
+    else:
+        polished = revised
+
+    html = markdown_to_html(polished)
+    excerpt = extract_excerpt(html)
+
+    return RevisionResult(
+        content_markdown=polished,
+        content_html=html,
+        excerpt=excerpt,
+        revision_prompt_used=feedback,
     )
 
 
@@ -1096,4 +1410,7 @@ async def generate_post(
         content_prompt_used=content_result.content_prompt_used,
         outline_used=content_result.outline_used,
         featured_image_url=content_result.featured_image_url,
+        meta_title=content_result.meta_title,
+        meta_description=content_result.meta_description,
+        image_alt_text=content_result.image_alt_text,
     )

@@ -56,10 +56,6 @@ async def create_schedule(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Validate experience notes if activating immediately
-    if data.is_active:
-        await _validate_template_experience(db, data.prompt_template_id)
-
     schedule = BlogSchedule(user_id=current_user.id, **data.model_dump())
     db.add(schedule)
     await db.commit()

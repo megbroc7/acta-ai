@@ -27,6 +27,7 @@ router = APIRouter(prefix="/sites", tags=["sites"])
 async def _test_wp_connection(api_url: str, username: str, app_password: str) -> dict:
     import base64
 
+    api_url = api_url.rstrip("/")
     credentials = base64.b64encode(f"{username}:{app_password}".encode()).decode()
     headers = {"Authorization": f"Basic {credentials}"}
     async with httpx.AsyncClient(timeout=10.0) as client:
@@ -39,6 +40,7 @@ async def _test_wp_connection(api_url: str, username: str, app_password: str) ->
 async def _fetch_categories(api_url: str, username: str, app_password: str) -> list[dict]:
     import base64
 
+    api_url = api_url.rstrip("/")
     credentials = base64.b64encode(f"{username}:{app_password}".encode()).decode()
     headers = {"Authorization": f"Basic {credentials}"}
     async with httpx.AsyncClient(timeout=10.0) as client:
@@ -49,6 +51,7 @@ async def _fetch_categories(api_url: str, username: str, app_password: str) -> l
 async def _fetch_tags(api_url: str, username: str, app_password: str) -> list[dict]:
     import base64
 
+    api_url = api_url.rstrip("/")
     credentials = base64.b64encode(f"{username}:{app_password}".encode()).decode()
     headers = {"Authorization": f"Basic {credentials}"}
     async with httpx.AsyncClient(timeout=10.0) as client:

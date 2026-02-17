@@ -35,6 +35,7 @@ import {
   RateReview as FeedbackIcon,
   AssignmentTurnedIn as ReviewIcon,
   CalendarMonth as CalendarIcon,
+  AdminPanelSettings as AdminIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
@@ -42,19 +43,26 @@ import api from '../../services/api';
 const DRAWER_WIDTH = 260;
 const DRAWER_WIDTH_COLLAPSED = 72;
 
-const NAV_ITEMS = [
-  { label: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { label: 'Sites', icon: <SitesIcon />, path: '/sites' },
-  { label: 'Prompt Templates', icon: <TemplatesIcon />, path: '/prompts' },
-  { label: 'Schedules', icon: <SchedulesIcon />, path: '/schedules' },
-  { label: 'Content Calendar', icon: <CalendarIcon />, path: '/calendar' },
-  { label: 'Blog Posts', icon: <PostsIcon />, path: '/posts' },
-  { label: 'Review Queue', icon: <ReviewIcon />, path: '/review', badge: true },
-  { divider: true },
-  { label: 'User Guide', icon: <GuideIcon />, path: '/guide' },
-  { label: 'About Acta AI', icon: <AboutIcon />, path: '/about' },
-  { label: 'Feedback', icon: <FeedbackIcon />, path: '/feedback' },
-];
+function buildNavItems(isAdmin) {
+  const items = [
+    { label: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+    { label: 'Sites', icon: <SitesIcon />, path: '/sites' },
+    { label: 'Prompt Templates', icon: <TemplatesIcon />, path: '/prompts' },
+    { label: 'Schedules', icon: <SchedulesIcon />, path: '/schedules' },
+    { label: 'Content Calendar', icon: <CalendarIcon />, path: '/calendar' },
+    { label: 'Blog Posts', icon: <PostsIcon />, path: '/posts' },
+    { label: 'Review Queue', icon: <ReviewIcon />, path: '/review', badge: true },
+    { divider: true },
+    { label: 'User Guide', icon: <GuideIcon />, path: '/guide' },
+    { label: 'About Acta AI', icon: <AboutIcon />, path: '/about' },
+    { label: 'Feedback', icon: <FeedbackIcon />, path: '/feedback' },
+  ];
+  if (isAdmin) {
+    items.push({ divider: true });
+    items.push({ label: 'Admin Dashboard', icon: <AdminIcon />, path: '/admin' });
+  }
+  return items;
+}
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
@@ -63,6 +71,8 @@ export default function MainLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const navItems = buildNavItems(user?.is_admin);
 
   const { data: postCounts } = useQuery({
     queryKey: ['postCounts'],
@@ -116,7 +126,7 @@ export default function MainLayout() {
       </Toolbar>
       <Divider />
       <List sx={{ mt: 2 }}>
-        {NAV_ITEMS.map((item, idx) =>
+        {navItems.map((item, idx) =>
           item.divider ? (
             <Divider key={`div-${idx}`} sx={{ my: 1 }} />
           ) : (
@@ -235,7 +245,7 @@ export default function MainLayout() {
       </Toolbar>
       <Divider />
       <List sx={{ mt: 2, flexGrow: 1 }}>
-        {NAV_ITEMS.map((item, idx) =>
+        {navItems.map((item, idx) =>
           item.divider ? (
             <Divider key={`div-${idx}`} sx={{ my: 1 }} />
           ) : (
@@ -340,7 +350,7 @@ export default function MainLayout() {
               fontSize: '1rem',
             }}
           >
-            {NAV_ITEMS.find((item) => item.path && isActive(item.path))?.label || 'Acta AI'}
+            {navItems.find((item) => item.path && isActive(item.path))?.label || 'Acta AI'}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography

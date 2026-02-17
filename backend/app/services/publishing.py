@@ -29,12 +29,13 @@ def _wp_auth_headers(site: Site) -> dict:
 
 
 async def _wp_upload_featured_image(
-    image_url: str, site: Site, title: str,
+    image_url: str, site: Site, title: str, alt_text: str | None = None,
 ) -> int | None:
     """Download an image and upload it to WordPress as a media attachment.
 
     Returns the WordPress media ID, or None on failure (non-fatal).
     """
+    api_url = site.api_url.rstrip("/")
     headers = _wp_auth_headers(site)
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
@@ -61,7 +62,7 @@ async def _wp_upload_featured_image(
                 "Content-Disposition": f'attachment; filename="{filename}"',
             }
             upload_resp = await client.post(
-                f"{site.api_url}/wp/v2/media",
+                f"{api_url}/wp/v2/media",
                 headers=upload_headers,
                 content=img_resp.content,
             )
@@ -74,6 +75,18 @@ async def _wp_upload_featured_image(
 
             media_id = upload_resp.json().get("id")
             logger.info("Uploaded featured image to WordPress: media_id=%s", media_id)
+
+            # Set alt text on the uploaded media item
+            if media_id and alt_text:
+                try:
+                    await client.post(
+                        f"{api_url}/wp/v2/media/{media_id}",
+                        headers=headers,
+                        json={"alt_text": alt_text},
+                    )
+                except Exception:
+                    logger.warning("Alt text update failed (non-fatal)")
+
             return media_id
     except Exception as e:
         logger.error("Featured image upload failed: %s", e)
@@ -82,23 +95,38 @@ async def _wp_upload_featured_image(
 
 async def publish_to_wordpress(post: BlogPost, site: Site) -> PublishResult:
     """Publish a blog post to WordPress via REST API."""
+    site.api_url = site.api_url.rstrip("/")
     headers = _wp_auth_headers(site)
     payload = {
         "title": post.title,
         "content": post.content,
         "status": "publish",
     }
-    if post.excerpt:
-        payload["excerpt"] = post.excerpt
+    # Use meta_description as excerpt if available, else fall back to post.excerpt
+    excerpt = post.meta_description or post.excerpt
+    if excerpt:
+        payload["excerpt"] = excerpt
     if post.categories:
         payload["categories"] = [int(c) for c in post.categories]
     if post.tags:
         payload["tags"] = [int(t) for t in post.tags]
 
+    # Yoast + RankMath SEO meta (shotgun — silently ignored if plugin not installed)
+    meta_fields = {}
+    if post.meta_title:
+        meta_fields["_yoast_wpseo_title"] = post.meta_title
+        meta_fields["rank_math_title"] = post.meta_title
+    if post.meta_description:
+        meta_fields["_yoast_wpseo_metadesc"] = post.meta_description
+        meta_fields["rank_math_description"] = post.meta_description
+    if meta_fields:
+        payload["meta"] = meta_fields
+
     # Upload featured image if available
     if post.featured_image_url:
         media_id = await _wp_upload_featured_image(
             post.featured_image_url, site, post.title,
+            alt_text=post.image_alt_text,
         )
         if media_id:
             payload["featured_media"] = media_id

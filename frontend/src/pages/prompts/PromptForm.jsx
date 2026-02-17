@@ -65,12 +65,13 @@ const BASE_PIPELINE_STAGES = [
   { key: 'outline', label: 'Outline' },
   { key: 'draft', label: 'Draft' },
   { key: 'review', label: 'Review' },
+  { key: 'meta', label: 'SEO Meta' },
 ];
 const IMAGE_STAGE = { key: 'image', label: 'Image' };
 
 function ContentProgressBar({ progress }) {
   if (!progress) return null;
-  const stages = progress.total > 3
+  const stages = progress.total > 4
     ? [...BASE_PIPELINE_STAGES, IMAGE_STAGE]
     : BASE_PIPELINE_STAGES;
   return (
@@ -431,7 +432,7 @@ export default function PromptForm() {
     setInterviewAnswers([]);
     setInterviewLoading(false);
     try {
-      const res = await api.post(`/templates/${id}/test/topic`, { topic: testTopic });
+      const res = await api.post(`/templates/${id}/test/topic`, { topic: testTopic, content_type: form.content_type });
       const titles = res.data.titles || [];
       setTestTitles(titles);
       if (titles.length > 0) {
@@ -490,6 +491,9 @@ export default function PromptForm() {
               content_html: parsed.content_html,
               content_markdown: parsed.content_markdown,
               excerpt: parsed.excerpt,
+              meta_title: parsed.meta_title || null,
+              meta_description: parsed.meta_description || null,
+              image_alt_text: parsed.image_alt_text || null,
             });
             setFeaturedImageUrl(parsed.featured_image_url || null);
             setTestPrompts(prev => ({
@@ -1295,7 +1299,7 @@ export default function PromptForm() {
                             <Box
                               component="img"
                               src={featuredImageUrl}
-                              alt="Featured image"
+                              alt={testContent?.image_alt_text || "Featured image"}
                               sx={{
                                 width: '100%',
                                 maxHeight: 400,
@@ -1361,6 +1365,114 @@ export default function PromptForm() {
                             <Typography variant="body2" color="text.secondary">
                               {testContent.excerpt}
                             </Typography>
+                          </Box>
+                        )}
+
+                        {/* SEO Metadata Card */}
+                        {(testContent.meta_title || testContent.meta_description) && (
+                          <Box sx={{
+                            mt: 2, p: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderLeft: '3px solid #4A7C6F',
+                            backgroundColor: 'background.default',
+                          }}>
+                            <Typography variant="caption" sx={{
+                              textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700,
+                              display: 'block', mb: 1.5, color: 'primary.main',
+                            }}>
+                              SEO Metadata
+                            </Typography>
+
+                            {testContent.meta_title && (
+                              <Box sx={{ mb: 1.5 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                                    Meta Title
+                                  </Typography>
+                                  <Chip
+                                    label={`${testContent.meta_title.length} chars`}
+                                    size="small"
+                                    sx={{
+                                      height: 20, fontSize: '0.65rem', fontWeight: 600,
+                                      bgcolor: testContent.meta_title.length <= 60 ? 'rgba(74, 124, 111, 0.12)' : testContent.meta_title.length <= 78 ? 'rgba(176, 141, 87, 0.15)' : 'rgba(160, 82, 45, 0.15)',
+                                      color: testContent.meta_title.length <= 60 ? '#4A7C6F' : testContent.meta_title.length <= 78 ? '#B08D57' : '#A0522D',
+                                    }}
+                                  />
+                                  <Tooltip title="Copy meta title">
+                                    <IconButton size="small" onClick={() => {
+                                      navigator.clipboard.writeText(testContent.meta_title);
+                                      enqueueSnackbar('Meta title copied', { variant: 'success' });
+                                    }}>
+                                      <ContentCopy sx={{ fontSize: 14 }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
+                                <Typography variant="body2" sx={{ color: '#1a0dab', fontWeight: 500 }}>
+                                  {testContent.meta_title}
+                                </Typography>
+                              </Box>
+                            )}
+
+                            {testContent.meta_description && (
+                              <Box sx={{ mb: testContent.image_alt_text ? 1.5 : 0 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                                    Meta Description
+                                  </Typography>
+                                  <Chip
+                                    label={`${testContent.meta_description.length} chars`}
+                                    size="small"
+                                    sx={{
+                                      height: 20, fontSize: '0.65rem', fontWeight: 600,
+                                      bgcolor: (testContent.meta_description.length >= 140 && testContent.meta_description.length <= 160) ? 'rgba(74, 124, 111, 0.12)' : 'rgba(176, 141, 87, 0.15)',
+                                      color: (testContent.meta_description.length >= 140 && testContent.meta_description.length <= 160) ? '#4A7C6F' : '#B08D57',
+                                    }}
+                                  />
+                                  <Tooltip title="Copy meta description">
+                                    <IconButton size="small" onClick={() => {
+                                      navigator.clipboard.writeText(testContent.meta_description);
+                                      enqueueSnackbar('Meta description copied', { variant: 'success' });
+                                    }}>
+                                      <ContentCopy sx={{ fontSize: 14 }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
+                                <Typography variant="body2" color="text.secondary">
+                                  {testContent.meta_description}
+                                </Typography>
+                              </Box>
+                            )}
+
+                            {testContent.image_alt_text && (
+                              <Box>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                                    Image Alt Text
+                                  </Typography>
+                                  <Chip
+                                    label={`${testContent.image_alt_text.length} chars`}
+                                    size="small"
+                                    sx={{
+                                      height: 20, fontSize: '0.65rem', fontWeight: 600,
+                                      bgcolor: testContent.image_alt_text.length <= 125 ? 'rgba(74, 124, 111, 0.12)' : 'rgba(176, 141, 87, 0.15)',
+                                      color: testContent.image_alt_text.length <= 125 ? '#4A7C6F' : '#B08D57',
+                                    }}
+                                  />
+                                  <Tooltip title="Copy alt text">
+                                    <IconButton size="small" onClick={() => {
+                                      navigator.clipboard.writeText(testContent.image_alt_text);
+                                      enqueueSnackbar('Alt text copied', { variant: 'success' });
+                                    }}>
+                                      <ContentCopy sx={{ fontSize: 14 }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
+                                <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                                  {testContent.image_alt_text}
+                                </Typography>
+                              </Box>
+                            )}
                           </Box>
                         )}
                       </Box>

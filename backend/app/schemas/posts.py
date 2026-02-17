@@ -10,6 +10,9 @@ class PostCreate(BaseModel):
     content: str = Field(min_length=1)
     excerpt: str | None = None
     featured_image_url: str | None = None
+    meta_title: str | None = None
+    meta_description: str | None = None
+    image_alt_text: str | None = None
     categories: list[int] = []
     tags: list[int] = []
     status: str = "draft"
@@ -20,6 +23,9 @@ class PostUpdate(BaseModel):
     content: str | None = None
     excerpt: str | None = None
     featured_image_url: str | None = None
+    meta_title: str | None = None
+    meta_description: str | None = None
+    image_alt_text: str | None = None
     categories: list[int] | None = None
     tags: list[int] | None = None
     status: str | None = None
@@ -42,6 +48,9 @@ class PostResponse(BaseModel):
     content: str
     excerpt: str | None
     featured_image_url: str | None
+    meta_title: str | None = None
+    meta_description: str | None = None
+    image_alt_text: str | None = None
     categories: list
     tags: list
     status: str
@@ -69,6 +78,10 @@ class BulkActionRequest(BaseModel):
 class BulkRejectRequest(BaseModel):
     post_ids: list[uuid.UUID] = Field(min_length=1)
     review_notes: str = Field(min_length=1)
+
+
+class ReviseRequest(BaseModel):
+    feedback: str = Field(min_length=1, max_length=5000)
 
 
 class PostCountsResponse(BaseModel):

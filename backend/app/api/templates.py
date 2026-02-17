@@ -324,6 +324,10 @@ async def test_topic(
     if not template:
         raise HTTPException(status_code=404, detail="Template not found")
 
+    # Allow test panel to override content_type from unsaved form state
+    if data.content_type is not None:
+        template.content_type = data.content_type
+
     from app.services.content import generate_titles
 
     try:
@@ -428,6 +432,9 @@ async def test_content(
             content_html=content_result.content_html,
             excerpt=content_result.excerpt,
             featured_image_url=content_result.featured_image_url,
+            meta_title=content_result.meta_title,
+            meta_description=content_result.meta_description,
+            image_alt_text=content_result.image_alt_text,
             system_prompt_used=content_result.system_prompt_used,
             content_prompt_used=content_result.content_prompt_used,
             outline_used=content_result.outline_used,
@@ -499,6 +506,9 @@ async def test_content_stream(
                     "content_html": content_result.content_html,
                     "excerpt": content_result.excerpt,
                     "featured_image_url": content_result.featured_image_url,
+                    "meta_title": content_result.meta_title,
+                    "meta_description": content_result.meta_description,
+                    "image_alt_text": content_result.image_alt_text,
                     "system_prompt_used": content_result.system_prompt_used,
                     "content_prompt_used": content_result.content_prompt_used,
                     "outline_used": content_result.outline_used,

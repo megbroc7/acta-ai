@@ -10,6 +10,7 @@ import {
   Tune, RecordVoiceOver, Search, Settings, Science,
   Shield, Psychology, AutoAwesome, CheckCircleOutline,
   Warning as WarningIcon, TipsAndUpdates, FormatQuote,
+  Gavel, CalendarMonth, AutoFixHigh, SkipNext,
 } from '@mui/icons-material';
 
 // ---------------------------------------------------------------------------
@@ -20,6 +21,7 @@ const SECTIONS = [
   { id: 'getting-started', label: 'Getting Started', icon: <RocketLaunch /> },
   { id: 'templates', label: 'Prompt Templates', icon: <Description /> },
   { id: 'schedules', label: 'Schedules', icon: <Schedule /> },
+  { id: 'posts', label: 'Posts & Review', icon: <Article /> },
   { id: 'sites', label: 'Sites', icon: <Language /> },
   { id: 'quality', label: 'Content Quality & Ranking', icon: <AutoAwesome /> },
 ];
@@ -69,6 +71,7 @@ const PIPELINE_STEPS = [
   { num: 3, title: 'Outline', desc: 'A structured outline is generated from your chosen title, ensuring logical flow before any prose is written.' },
   { num: 4, title: 'Draft', desc: 'Full article generated with your voice settings, SEO targets, experience context, and all guardrails active.' },
   { num: 5, title: 'Review', desc: 'A second AI pass reviews the draft for quality, coherence, and compliance with your style rules.' },
+  { num: 6, title: 'Featured Image', desc: 'Optional. A featured image is generated via DALL-E 3 or sourced from Unsplash, based on the template\'s image setting.' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -227,8 +230,8 @@ function GettingStartedSection() {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <WorkflowStep
             number={4}
-            title="Publish Posts"
-            description="The system generates articles on schedule. Review drafts or auto-publish directly."
+            title="Review & Publish"
+            description="Generated posts land in your Review Queue. Approve, edit, revise with AI, or reject before publishing."
           />
         </Grid>
       </Grid>
@@ -297,26 +300,25 @@ function TemplatesSection() {
 
       {/* Prompts */}
       <SubCard title="Prompts" icon={<Psychology fontSize="small" color="primary" />}>
-        <FieldRow name="system_prompt">
-          The AI's role and identity. This is the most important field — it tells the AI
-          who it is and how it should behave. Example: "You are a senior cybersecurity
-          analyst writing for IT professionals."
+        <FieldRow name="custom_instructions">
+          Optional freeform instructions appended to the AI's system prompt. Use this for
+          anything specific to your brand that isn't covered by the structured fields.
+          Example: "Always include a cost breakdown. Never recommend competitor products by name."
         </FieldRow>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          The AI's role is built automatically from your <strong>Industry</strong>,{' '}
+          <strong>Headline Style</strong>, and <strong>Audience Level</strong> settings — you
+          don't need to write "You are a..." yourself.
+        </Typography>
         <FieldRow name="experience_notes">
           Your general authority and background for E-E-A-T. Required to activate schedules.
-          Example: "15 years as a licensed electrician, OSHA-certified, worked on 200+ commercial projects."
-        </FieldRow>
-        <FieldRow name="topic_generation_prompt">
-          Advanced. Controls how titles are generated. Uses the <FieldChip label="{idea}" /> placeholder
-          for the topic. Usually the default works well.
-        </FieldRow>
-        <FieldRow name="content_generation_prompt">
-          Advanced. Controls the article generation prompt. Uses <FieldChip label="{topic}" />,{' '}
-          <FieldChip label="{word_count}" />, and <FieldChip label="{tone}" /> placeholders.
+          Use the <strong>Experience Interview</strong> button to have the AI ask you targeted
+          questions — your answers are automatically formatted into experience notes.
+          You can also write them manually.
         </FieldRow>
         <Tip>
-          You don't need to mention SEO, guardrails, or structure rules in your system prompt — those
-          are automatically injected by the pipeline.
+          You don't need to mention SEO, guardrails, or structure rules in your custom instructions — those
+          are automatically injected by the pipeline. Focus on what makes your content unique.
         </Tip>
       </SubCard>
 
@@ -399,9 +401,14 @@ function TemplatesSection() {
         <FieldRow name="default_tags">
           Tags to assign to generated posts. Enter as chips.
         </FieldRow>
-        <FieldRow name="special_requirements">
-          Any extra instructions. Example: "Always include a comparison table.
-          Never recommend competitor products by name."
+        <FieldRow name="image_source">
+          Featured image for generated posts. Options: None (no image), DALL-E 3
+          (AI-generated, $0.04/image), or Unsplash (free stock photos). Images are
+          automatically uploaded to WordPress when publishing.
+        </FieldRow>
+        <FieldRow name="image_style_guidance">
+          Only for DALL-E 3. Describe the visual style you want. Example: "Clean
+          minimalist illustration with soft colors, no text overlays."
         </FieldRow>
       </SubCard>
 
@@ -501,15 +508,20 @@ function SchedulesSection() {
         <FieldRow name="word_count">Override the template's default word count for this schedule.</FieldRow>
         <FieldRow name="tone">Override the template's default tone.</FieldRow>
         <FieldRow name="post_status">
-          What happens after generation. Options: Draft (saved for review), Pending Review
-          (flagged for editor), Publish (goes live immediately).
+          What happens after generation. Two options:
         </FieldRow>
-        <FieldRow name="include_images">Whether to include image placeholders in posts.</FieldRow>
+        <Box sx={{ pl: 2, mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Review First (default):</strong> Posts land in the Review Queue for you to
+            approve or reject before anything goes live.
+          </Typography>
+          <Typography variant="body2">
+            <strong>Auto-Publish:</strong> Posts are published to your site immediately after generation.
+            Only use this once you trust your template's output.
+          </Typography>
+        </Box>
         <FieldRow name="category_ids">Override categories for posts from this schedule.</FieldRow>
         <FieldRow name="tag_ids">Override tags for posts from this schedule.</FieldRow>
-        <FieldRow name="prompt_replacements">
-          Key-value pairs to substitute into template placeholders.
-        </FieldRow>
         <Alert
           severity="warning"
           variant="outlined"
@@ -518,6 +530,103 @@ function SchedulesSection() {
           Activating a schedule requires the linked template to have non-empty experience_notes.
           This ensures every automated article has authentic E-E-A-T signals.
         </Alert>
+      </SubCard>
+    </Box>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Section: Posts & Review
+// ---------------------------------------------------------------------------
+
+function PostsSection() {
+  return (
+    <Box>
+      <Typography variant="body1" sx={{ mb: 3 }}>
+        Once your schedules generate content, posts flow into your review workflow.
+        Here's how to manage them.
+      </Typography>
+
+      <SubCard title="Review Queue" icon={<Gavel fontSize="small" sx={{ color: '#B08D57' }} />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          The Review Queue is your editorial inbox. Posts with "Review First" status
+          land here automatically after generation.
+        </Typography>
+        <Box sx={{ pl: 2, mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Approve:</strong> Publishes the post to your connected site immediately.
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Reject:</strong> Marks the post as rejected with your feedback notes.
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Edit:</strong> Opens the post editor so you can make manual changes before deciding.
+          </Typography>
+          <Typography variant="body2">
+            <strong>Bulk actions:</strong> Select multiple posts to approve or reject them all at once.
+          </Typography>
+        </Box>
+        <Tip>
+          Posts waiting more than 24 hours get a bronze timestamp highlight so you can spot
+          a backlog at a glance.
+        </Tip>
+      </SubCard>
+
+      <SubCard title="Revise with AI" icon={<AutoFixHigh fontSize="small" sx={{ color: '#B08D57' }} />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          Don't like something about a generated post? Instead of editing manually, you can
+          give the AI natural-language feedback and let it revise the article.
+        </Typography>
+        <Box sx={{ pl: 2, mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            Click <strong>"Revise with AI"</strong> on any post in the Review Queue or
+            on draft posts.
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            Describe what you want changed — e.g. "Make the intro punchier, add more data
+            to section 3, tone down the conclusion."
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            The AI revises the article (preserving everything that works) and shows you a preview.
+          </Typography>
+          <Typography variant="body2">
+            Accept the revision to save it, or click "Revise Again" to iterate further.
+          </Typography>
+        </Box>
+        <Tip>
+          Be specific in your feedback. "Make it better" gives the AI nothing to work with.
+          "The third section needs a concrete example with real numbers" gets results.
+        </Tip>
+      </SubCard>
+
+      <SubCard title="Content Calendar" icon={<CalendarMonth fontSize="small" color="primary" />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          The Content Calendar shows a monthly view of your publishing activity — past posts
+          and upcoming scheduled runs. Use it to see what's coming and spot gaps in your
+          content plan.
+        </Typography>
+        <Box sx={{ pl: 2, mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Color-coded chips:</strong> Green = scheduled, bronze = published,
+            bronze outline = pending review, sienna = rejected.
+          </Typography>
+          <Typography variant="body2">
+            <strong>Click any day</strong> to see a detailed list of posts and upcoming
+            runs for that date, with links to post details.
+          </Typography>
+        </Box>
+      </SubCard>
+
+      <SubCard title="Skip Scheduled Runs" icon={<SkipNext fontSize="small" color="primary" />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          Need to cancel a specific upcoming run without turning off the whole schedule?
+          Click any future scheduled event on the Content Calendar and hit "Skip This Run."
+        </Typography>
+        <Typography variant="body2">
+          Skipped runs appear dimmed with a strikethrough. You can restore them anytime
+          before the date passes. The topic that was skipped becomes the next non-skipped
+          run's topic — nothing is lost.
+        </Typography>
       </SubCard>
     </Box>
   );
@@ -600,9 +709,9 @@ function QualitySection() {
       </Typography>
 
       {/* Pipeline */}
-      <SubCard title="5-Stage Content Pipeline" icon={<AutoAwesome fontSize="small" color="primary" />}>
+      <SubCard title="Content Pipeline" icon={<AutoAwesome fontSize="small" color="primary" />}>
         <Typography variant="body2" sx={{ mb: 2 }}>
-          Every article goes through 5 distinct AI stages rather than a single prompt.
+          Every article goes through up to 6 distinct AI stages rather than a single prompt.
           This produces dramatically better results than one-shot generation.
         </Typography>
         {PIPELINE_STEPS.map((step) => (
@@ -842,6 +951,7 @@ export default function UserGuide() {
     'getting-started': <GettingStartedSection />,
     templates: <TemplatesSection />,
     schedules: <SchedulesSection />,
+    posts: <PostsSection />,
     sites: <SitesSection />,
     quality: <QualitySection />,
   };

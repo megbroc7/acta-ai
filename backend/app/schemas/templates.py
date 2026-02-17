@@ -163,6 +163,7 @@ class KeywordSuggestionResponse(BaseModel):
 class TestTopicRequest(BaseModel):
     topic: str = Field(min_length=1, max_length=500)
     replacements: dict[str, str] = Field(default_factory=dict)
+    content_type: str | None = None
 
 
 class TestTopicResponse(BaseModel):
@@ -192,6 +193,9 @@ class TestContentResponse(BaseModel):
     content_html: str
     excerpt: str
     featured_image_url: str | None = None
+    meta_title: str | None = None
+    meta_description: str | None = None
+    image_alt_text: str | None = None
     system_prompt_used: str
     content_prompt_used: str
     outline_used: str

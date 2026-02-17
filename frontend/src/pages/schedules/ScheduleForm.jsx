@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Box, Typography, Card, CardContent, TextField, Button, Stack,
-  MenuItem, Divider, FormControlLabel, Switch, IconButton, Collapse,
+  MenuItem, Divider, IconButton, Collapse,
   Tooltip,
 } from '@mui/material';
 import { Save, ArrowBack, Add, Close, ExpandMore } from '@mui/icons-material';
@@ -30,7 +30,7 @@ export default function ScheduleForm() {
     time_of_day: '09:00', timezone: 'UTC',
     topics: [], // [{topic: string, experience: string}]
     word_count: '', tone: '',
-    include_images: false, post_status: 'draft',
+    post_status: 'pending_review',
   });
   const [topicInput, setTopicInput] = useState('');
   const [expandedTopic, setExpandedTopic] = useState(null);
@@ -71,8 +71,7 @@ export default function ScheduleForm() {
         topics: normalizedTopics,
         word_count: schedule.word_count || '',
         tone: schedule.tone || '',
-        include_images: schedule.include_images || false,
-        post_status: schedule.post_status || 'draft',
+        post_status: schedule.post_status === 'draft' ? 'pending_review' : (schedule.post_status || 'pending_review'),
       });
     }
   }, [schedule]);
@@ -305,19 +304,13 @@ export default function ScheduleForm() {
                   <TextField select label="Post Status" value={form.post_status} onChange={update('post_status')} sx={{ width: 200 }}
                     helperText={
                       form.post_status === 'publish' ? 'Auto-publish to your site immediately' :
-                      form.post_status === 'pending_review' ? 'Hold for editorial review before publishing' :
-                      'Save as draft for manual publishing later'
+                      'Hold for editorial review before publishing'
                     }
                   >
-                    <MenuItem value="draft">Draft</MenuItem>
-                    <MenuItem value="pending_review">Pending Review</MenuItem>
+                    <MenuItem value="pending_review">Review First</MenuItem>
                     <MenuItem value="publish">Auto-Publish</MenuItem>
                   </TextField>
                 </Box>
-                <FormControlLabel
-                  control={<Switch checked={form.include_images} onChange={updateChecked('include_images')} />}
-                  label="Include AI-generated images"
-                />
               </Stack>
             </CardContent>
           </Card>
