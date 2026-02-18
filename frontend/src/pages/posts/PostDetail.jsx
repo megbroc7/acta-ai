@@ -2,17 +2,31 @@ import { useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Box, Typography, Card, CardContent, Button, Stack, Chip, Divider,
+  Box, Typography, Card, CardContent, Button, Stack, Chip, Divider, Collapse,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   LinearProgress, CircularProgress, Tooltip, IconButton,
 } from '@mui/material';
 import {
   ArrowBack, Edit, Publish, ThumbDown, OpenInNew, Gavel, ImageOutlined,
   AutoFixHigh, CheckCircle, ContentCopy, LinkedIn, Refresh, RecordVoiceOver,
-  CheckCircleOutline,
+  CheckCircleOutline, ExpandMore, Code,
 } from '@mui/icons-material';
+import TurndownService from 'turndown';
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
+
+const turndown = new TurndownService({ headingStyle: 'atx', bulletListMarker: '-' });
+
+// Strip FAQ schema script tag from content for clean copying
+function stripSchemaScript(html) {
+  const marker = '<script type="application/ld+json">';
+  const idx = html.indexOf(marker);
+  if (idx === -1) return html;
+  const endTag = '<' + '/script>';
+  const endIdx = html.indexOf(endTag, idx);
+  if (endIdx === -1) return html;
+  return (html.substring(0, idx) + html.substring(endIdx + endTag.length)).trim();
+}
 
 const STATUS_COLORS = {
   draft: 'default', pending_review: 'warning', published: 'success', rejected: 'error',
@@ -159,6 +173,7 @@ export default function PostDetail() {
   // Mark as Published state (copy platform)
   const [markPublishedOpen, setMarkPublishedOpen] = useState(false);
   const [markPublishedUrl, setMarkPublishedUrl] = useState('');
+  const [showFaqSchema, setShowFaqSchema] = useState(false);
 
   const fromReview = location.state?.from === 'review';
 
@@ -537,8 +552,18 @@ export default function PostDetail() {
         {post.excerpt && (
           <Card>
             <CardContent>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ textTransform: 'uppercase', letterSpacing: '0.03em' }}>Excerpt</Typography>
-              <Typography variant="body1">{post.excerpt}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ textTransform: 'uppercase', letterSpacing: '0.03em', mb: 0 }}>Excerpt</Typography>
+                <Tooltip title="Copy excerpt">
+                  <IconButton size="small" onClick={() => {
+                    navigator.clipboard.writeText(post.excerpt);
+                    enqueueSnackbar('Excerpt copied', { variant: 'success' });
+                  }}>
+                    <ContentCopy sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+              <Typography variant="body1" sx={{ mt: 1 }}>{post.excerpt}</Typography>
             </CardContent>
           </Card>
         )}
@@ -647,9 +672,106 @@ export default function PostDetail() {
           </Card>
         )}
 
+        {/* FAQ Schema Card */}
+        {(() => {
+          try {
+            const content = post.content || '';
+            const marker = 'application/ld+json';
+            const markerIdx = content.indexOf(marker);
+            if (markerIdx === -1) return null;
+            const jsonStart = content.indexOf('{', markerIdx);
+            const scriptEnd = content.indexOf('<' + '/script>', markerIdx);
+            if (jsonStart === -1 || scriptEnd === -1) return null;
+            const jsonStr = content.substring(jsonStart, scriptEnd).trim();
+            const schema = JSON.parse(jsonStr);
+            if (schema['@type'] !== 'FAQPage' || !schema.mainEntity?.length) return null;
+            const pairs = schema.mainEntity;
+            return (
+              <Card sx={{ borderLeft: 3, borderColor: '#B08D57' }}>
+                <CardContent>
+                  <Box
+                    onClick={() => setShowFaqSchema(!showFaqSchema)}
+                    sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }}
+                  >
+                    <Typography variant="subtitle2" sx={{
+                      textTransform: 'uppercase', letterSpacing: '0.03em',
+                      color: '#B08D57', fontWeight: 700,
+                    }}>
+                      FAQ Schema
+                    </Typography>
+                    <Chip
+                      label={`${pairs.length} Q&A`}
+                      size="small"
+                      sx={{
+                        height: 20, fontSize: '0.65rem', fontWeight: 600,
+                        bgcolor: 'rgba(176, 141, 87, 0.15)',
+                        color: '#B08D57',
+                      }}
+                    />
+                    <Tooltip title="Copy JSON-LD">
+                      <IconButton size="small" onClick={(e) => {
+                        e.stopPropagation();
+                        const scriptTag = '<script type="application/ld+json">\n' + JSON.stringify(schema, null, 2) + '\n<' + '/script>';
+                        navigator.clipboard.writeText(scriptTag);
+                        enqueueSnackbar('FAQ schema copied', { variant: 'success' });
+                      }}>
+                        <ContentCopy sx={{ fontSize: 14, color: '#B08D57' }} />
+                      </IconButton>
+                    </Tooltip>
+                    <ExpandMore sx={{
+                      fontSize: 18, color: '#B08D57', ml: 'auto',
+                      transform: showFaqSchema ? 'rotate(180deg)' : 'none',
+                      transition: 'transform 0.2s',
+                    }} />
+                  </Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                    Invisible structured data that helps your post appear in Google rich snippets and AI answer engines.
+                  </Typography>
+                  <Collapse in={showFaqSchema}>
+                    <Box sx={{ mt: 1.5 }}>
+                      {pairs.map((item, idx) => (
+                        <Box key={idx} sx={{ mb: idx < pairs.length - 1 ? 1.5 : 0 }}>
+                          <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.25 }}>
+                            Q: {item.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {item.acceptedAnswer?.text}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Collapse>
+                </CardContent>
+              </Card>
+            );
+          } catch { return null; }
+        })()}
+
         <Card>
           <CardContent>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ textTransform: 'uppercase', letterSpacing: '0.03em' }}>Content</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.03em' }}>Content</Typography>
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <Tooltip title="Copy as Markdown">
+                  <IconButton size="small" onClick={() => {
+                    const clean = stripSchemaScript(post.content);
+                    navigator.clipboard.writeText(turndown.turndown(clean));
+                    enqueueSnackbar('Markdown copied to clipboard', { variant: 'success' });
+                  }}>
+                    <ContentCopy sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Copy as HTML">
+                  <IconButton size="small" onClick={() => {
+                    const clean = stripSchemaScript(post.content);
+                    navigator.clipboard.writeText(clean);
+                    enqueueSnackbar('HTML copied to clipboard', { variant: 'success' });
+                  }}>
+                    <Code sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             <Box
               sx={{ '& h1,& h2,& h3': { mt: 2, mb: 1 }, '& p': { mb: 1.5 }, lineHeight: 1.7, '& blockquote': { borderLeft: '4px solid', borderColor: 'primary.main', backgroundColor: 'rgba(74, 124, 111, 0.06)', pl: 2.5, pr: 2.5, py: 2, ml: 0, my: 2.5, fontStyle: 'normal', '& p': { mb: 0 } } }}

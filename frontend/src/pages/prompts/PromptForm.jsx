@@ -69,6 +69,7 @@ const BASE_PIPELINE_STAGES = [
   { key: 'draft', label: 'Draft' },
   { key: 'charts', label: 'Charts' },
   { key: 'review', label: 'Review' },
+  { key: 'faq_schema', label: 'FAQ' },
   { key: 'meta', label: 'SEO Meta' },
 ];
 const IMAGE_STAGE = { key: 'image', label: 'Image' };
@@ -260,6 +261,7 @@ export default function PromptForm() {
   const [contentProgress, setContentProgress] = useState(null); // { stage, step, total, message }
   const [featuredImageUrl, setFeaturedImageUrl] = useState(null);
   const [showPrompts, setShowPrompts] = useState(false);
+  const [showFaqSchema, setShowFaqSchema] = useState(false);
 
   // Interview state
   const [interviewQuestions, setInterviewQuestions] = useState([]);
@@ -576,6 +578,7 @@ export default function PromptForm() {
               meta_title: parsed.meta_title || null,
               meta_description: parsed.meta_description || null,
               image_alt_text: parsed.image_alt_text || null,
+              faq_schema: parsed.faq_schema || null,
             });
             setFeaturedImageUrl(parsed.featured_image_url || null);
             setTestPrompts(prev => ({
@@ -626,12 +629,12 @@ export default function PromptForm() {
   };
 
   const handleSaveToPostsSubmit = () => {
-    if (!saveSiteId || !testContent) return;
+    if (!testContent) return;
     const outlineAudit = testContent.outline_used
       ? `--- OUTLINE ---\n${testContent.outline_used}\n\n--- CONTENT PROMPT ---\n${testContent.content_prompt_used || ''}`
       : testContent.content_prompt_used || null;
     saveToPostsMutation.mutate({
-      site_id: saveSiteId,
+      site_id: saveSiteId || null,
       title: testTitle,
       content: testContent.content_html,
       excerpt: testContent.excerpt || null,
@@ -1800,6 +1803,71 @@ export default function PromptForm() {
                             )}
                           </Box>
                         )}
+
+                        {/* FAQ Schema Card */}
+                        {testContent.faq_schema && (() => {
+                          try {
+                            const raw = testContent.faq_schema;
+                            const startIdx = raw.indexOf('{');
+                            const endIdx = raw.lastIndexOf('}');
+                            if (startIdx === -1 || endIdx === -1) return null;
+                            const jsonStr = raw.substring(startIdx, endIdx + 1);
+                            const schema = JSON.parse(jsonStr);
+                            const pairs = schema.mainEntity || [];
+                            return (
+                              <Box sx={{
+                                mt: 2, p: 2,
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                borderLeft: '3px solid #B08D57',
+                                backgroundColor: 'background.default',
+                              }}>
+                                <Box
+                                  onClick={() => setShowFaqSchema(!showFaqSchema)}
+                                  sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }}
+                                >
+                                  <Typography variant="caption" sx={{
+                                    textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700,
+                                    color: '#B08D57',
+                                  }}>
+                                    FAQ Schema
+                                  </Typography>
+                                  <Chip
+                                    label={`${pairs.length} Q&A`}
+                                    size="small"
+                                    sx={{
+                                      height: 20, fontSize: '0.65rem', fontWeight: 600,
+                                      bgcolor: 'rgba(176, 141, 87, 0.15)',
+                                      color: '#B08D57',
+                                    }}
+                                  />
+                                  <ExpandMore sx={{
+                                    fontSize: 18, color: '#B08D57', ml: 'auto',
+                                    transform: showFaqSchema ? 'rotate(180deg)' : 'none',
+                                    transition: 'transform 0.2s',
+                                  }} />
+                                </Box>
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                                  Invisible structured data that helps your post appear in Google rich snippets and AI answer engines.
+                                </Typography>
+                                <Collapse in={showFaqSchema}>
+                                  <Box sx={{ mt: 1.5 }}>
+                                    {pairs.map((item, idx) => (
+                                      <Box key={idx} sx={{ mb: idx < pairs.length - 1 ? 1.5 : 0 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.25 }}>
+                                          Q: {item.name}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                          {item.acceptedAnswer?.text}
+                                        </Typography>
+                                      </Box>
+                                    ))}
+                                  </Box>
+                                </Collapse>
+                              </Box>
+                            );
+                          } catch { return null; }
+                        })()}
                       </Box>
                     </>
                   )}
@@ -1976,34 +2044,30 @@ export default function PromptForm() {
           <Typography sx={{ mb: 2 }} color="text.secondary">
             Save this generated article as a tracked post. You can review, revise, and publish it later.
           </Typography>
-          {sites?.length > 0 ? (
-            <TextField
-              select
-              fullWidth
-              label="Select Site"
-              value={saveSiteId}
-              onChange={(e) => setSaveSiteId(e.target.value)}
-              helperText="Choose which site this post belongs to"
-            >
-              {sites.map((s) => (
-                <MenuItem key={s.id} value={s.id}>
-                  {s.name} ({s.platform})
-                </MenuItem>
-              ))}
-            </TextField>
-          ) : (
-            <Alert severity="warning">
-              You need to add a site first before saving posts.{' '}
-              <Button size="small" onClick={() => navigate('/sites/new')}>Add Site</Button>
-            </Alert>
-          )}
+          <TextField
+            select
+            fullWidth
+            label="Select Site"
+            value={saveSiteId}
+            onChange={(e) => setSaveSiteId(e.target.value)}
+            helperText="Choose a site or leave unlisted if you plan to copy-paste elsewhere"
+          >
+            <MenuItem value="">
+              <em>Unlisted (no site)</em>
+            </MenuItem>
+            {(sites || []).map((s) => (
+              <MenuItem key={s.id} value={s.id}>
+                {s.name} ({s.platform})
+              </MenuItem>
+            ))}
+          </TextField>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
           <Button
             variant="contained"
             onClick={handleSaveToPostsSubmit}
-            disabled={!saveSiteId || saveToPostsMutation.isPending}
+            disabled={saveToPostsMutation.isPending}
             startIcon={saveToPostsMutation.isPending ? <CircularProgress size={18} color="inherit" /> : <SaveAlt />}
             sx={{ bgcolor: '#4A7C6F', '&:hover': { bgcolor: '#2D5E4A' } }}
           >

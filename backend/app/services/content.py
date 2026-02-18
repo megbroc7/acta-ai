@@ -47,6 +47,8 @@ CHART_TIMEOUT = 30
 CHART_MAX_TOKENS = 1500
 LINKEDIN_TIMEOUT = 30
 LINKEDIN_MAX_TOKENS = 500
+FAQ_SCHEMA_TIMEOUT = 30
+FAQ_SCHEMA_MAX_TOKENS = 1500
 
 # --- Cost calculation (GPT-4o pricing as of 2026) ---
 GPT4O_INPUT_COST = 2.50 / 1_000_000    # $2.50 per 1M input tokens
@@ -268,6 +270,7 @@ class ContentResult:
     meta_title: str | None = None
     meta_description: str | None = None
     image_alt_text: str | None = None
+    faq_schema: str | None = None
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
@@ -306,6 +309,7 @@ class GenerationResult:
     meta_title: str | None = None
     meta_description: str | None = None
     image_alt_text: str | None = None
+    faq_schema: str | None = None
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
@@ -1793,6 +1797,111 @@ def _inject_charts_into_draft(
     return "\n".join(lines)
 
 
+# --- FAQ Schema Generation ---
+
+
+async def _extract_faq_pairs(
+    article_text: str,
+    title: str,
+    industry: str | None = None,
+    tokens: TokenAccumulator | None = None,
+) -> list[dict] | None:
+    """Extract 3-5 Q&A pairs from the finished article for FAQPage JSON-LD.
+
+    Returns None on any failure (non-fatal). AI never invents information —
+    it only extracts questions and answers from content already in the article.
+    """
+    system_prompt = (
+        "You are an SEO structured data specialist. Extract 3-5 question-and-answer "
+        "pairs from the article that would make good FAQ rich results.\n\n"
+        "Rules:\n"
+        "- Questions must be real questions a searcher would type (natural language, "
+        "not article headings verbatim)\n"
+        "- Answers must be concise (1-3 sentences), factual, drawn directly from the article\n"
+        "- Return a JSON array: [{\"question\": \"...\", \"answer\": \"...\"}, ...]\n"
+        "- Return empty array [] if article has no FAQ-worthy content\n"
+        "- NEVER invent information not in the article\n"
+        "- Return ONLY valid JSON — no markdown fences, no commentary"
+    )
+
+    industry_hint = f"\nArticle industry: {industry}" if industry else ""
+
+    user_prompt = (
+        f"Extract FAQ pairs from this article titled \"{title}\".{industry_hint}\n\n"
+        f"ARTICLE:\n\n{article_text}"
+    )
+
+    try:
+        resp = await _call_openai(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            timeout=FAQ_SCHEMA_TIMEOUT,
+            max_tokens=FAQ_SCHEMA_MAX_TOKENS,
+            temperature=0.3,
+        )
+        if tokens:
+            tokens.add(resp)
+
+        raw = _strip_code_fences(resp.text).strip()
+        pairs = json.loads(raw)
+
+        if not isinstance(pairs, list):
+            logger.warning("FAQ extraction returned non-list: %s", type(pairs))
+            return None
+
+        # Validate structure and cap at 5 pairs
+        valid = []
+        for pair in pairs[:5]:
+            if (
+                isinstance(pair, dict)
+                and isinstance(pair.get("question"), str)
+                and isinstance(pair.get("answer"), str)
+                and pair["question"].strip()
+                and pair["answer"].strip()
+            ):
+                valid.append({
+                    "question": pair["question"].strip(),
+                    "answer": pair["answer"].strip(),
+                })
+
+        return valid if valid else None
+
+    except (json.JSONDecodeError, ValueError) as e:
+        logger.warning("FAQ extraction JSON parse failed (non-fatal): %s", e)
+        return None
+    except Exception as e:
+        logger.warning("FAQ extraction failed (non-fatal): %s", e)
+        return None
+
+
+def _build_faq_schema_json(pairs: list[dict]) -> str:
+    """Build a Schema.org FAQPage JSON-LD script tag from Q&A pairs."""
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": pair["question"],
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": pair["answer"],
+                },
+            }
+            for pair in pairs
+        ],
+    }
+    json_str = json.dumps(schema, ensure_ascii=False, indent=2)
+    # Safety: escape any </script> in answer text to prevent XSS
+    json_str = json_str.replace("</script>", "<\\/script>")
+    return f'<script type="application/ld+json">\n{json_str}\n</script>'
+
+
+def _inject_faq_schema(html: str, schema_script: str) -> str:
+    """Append FAQ schema JSON-LD script tag at the end of HTML content."""
+    return html + "\n" + schema_script
+
+
 async def generate_content(
     template: PromptTemplate,
     title: str,
@@ -1807,7 +1916,7 @@ async def generate_content(
     dalle_quality: str = "standard",
     web_research_enabled: bool = False,
 ) -> ContentResult:
-    """Pipeline: [Research] → Outline → Draft → Charts → Review/Polish → Meta → [Image].
+    """Pipeline: [Research] → Outline → Draft → Charts → Review → FAQ Schema → Meta → [Image].
 
     Args:
         progress_callback: Optional async callable(stage, step, total, message,
@@ -1826,8 +1935,8 @@ async def generate_content(
     has_image = image_source and image_source != "none"
     has_research = web_research_enabled
 
-    # Dynamic step counting: 5 base + optional research + optional image
-    total_steps = 5 + (1 if has_research else 0) + (1 if has_image else 0)
+    # Dynamic step counting: 6 base + optional research + optional image
+    total_steps = 6 + (1 if has_research else 0) + (1 if has_image else 0)
     step = 0  # running counter, incremented before each stage
 
     # Token accumulator for the entire content pipeline
@@ -1954,6 +2063,28 @@ async def generate_content(
     html = markdown_to_html(polished)
     excerpt = extract_excerpt(html)
 
+    # Step: FAQ Schema (non-fatal)
+    faq_schema_script = None
+    step += 1
+    if progress_callback:
+        await progress_callback(
+            "faq_schema", step, total_steps, "Generating FAQ schema...",
+            has_research=has_research, has_image=has_image,
+        )
+    try:
+        faq_pairs = await _extract_faq_pairs(
+            article_text=polished,
+            title=title,
+            industry=industry or template.industry,
+            tokens=acc,
+        )
+        if faq_pairs:
+            faq_schema_script = _build_faq_schema_json(faq_pairs)
+            html = _inject_faq_schema(html, faq_schema_script)
+            logger.info("Injected FAQ schema with %d Q&A pairs", len(faq_pairs))
+    except Exception as e:
+        logger.warning("FAQ schema generation failed (non-fatal): %s", e)
+
     # Step: SEO metadata
     step += 1
     if progress_callback:
@@ -1999,6 +2130,7 @@ async def generate_content(
         meta_title=seo_meta.meta_title,
         meta_description=seo_meta.meta_description,
         image_alt_text=seo_meta.image_alt_text,
+        faq_schema=faq_schema_script,
         prompt_tokens=acc.prompt_tokens,
         completion_tokens=acc.completion_tokens,
         total_tokens=acc.total_tokens,
@@ -2191,6 +2323,7 @@ async def generate_post(
         meta_title=content_result.meta_title,
         meta_description=content_result.meta_description,
         image_alt_text=content_result.image_alt_text,
+        faq_schema=content_result.faq_schema,
         prompt_tokens=title_result.prompt_tokens + content_result.prompt_tokens,
         completion_tokens=title_result.completion_tokens + content_result.completion_tokens,
         total_tokens=title_result.total_tokens + content_result.total_tokens,

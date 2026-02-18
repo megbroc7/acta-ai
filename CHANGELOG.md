@@ -16,6 +16,40 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-18 (Session 39) — FAQ Schema Auto-Generation, Unlisted Posts, Post Copy Buttons
+
+**What we did:**
+Three features that improve SEO automation and the copy-paste publishing workflow.
+
+**1. FAQ Schema Auto-Generation** (`services/content.py`, `api/templates.py`, `PromptForm.jsx`, `PostDetail.jsx`)
+- New always-on pipeline step after Review: one GPT-4o call extracts 3-5 Q&A pairs from the polished article
+- Builds Schema.org `FAQPage` JSON-LD and appends it as an invisible `<script>` tag at the end of the HTML
+- Helps posts appear in Google FAQ rich snippets and get cited by AI answer engines (ChatGPT, Perplexity, etc.)
+- Non-fatal — if extraction fails, post generates normally without schema
+- Progress bar updated: 6 base steps (was 5), new "FAQ" stage shown between Review and SEO Meta
+- SSE `complete` event includes `faq_schema` field for frontend preview
+- Frontend: collapsible bronze-accented FAQ Schema card (collapsed by default) with explanation text, shows Q&A pairs on expand. Appears in both test panel and PostDetail
+- Cost: ~$0.01 per post (similar to charts step)
+
+**2. Unlisted Posts / Optional Site** (`schemas/posts.py`, `models/blog_post.py`, `PromptForm.jsx`)
+- `blog_posts.site_id` now nullable — posts can exist without being tied to a site
+- Migration `796f1623951b`: `ALTER COLUMN site_id SET NULL`
+- Save to Posts dialog: "Unlisted (no site)" option in site dropdown, save button no longer requires site selection
+- All existing pages (PostsList, PostDetail, ReviewQueue) already handle null site via optional chaining
+
+**3. Post Detail Copy Buttons** (`PostDetail.jsx`)
+- Content card: "Copy as Markdown" and "Copy as HTML" buttons in header (strips FAQ schema script tag for clean output)
+- Excerpt card: copy button added
+- FAQ Schema card: copy button for raw JSON-LD script tag
+- Markdown conversion via `turndown` library (new dependency)
+- SEO metadata fields already had individual copy buttons (unchanged)
+
+**Files changed:** `content.py`, `templates.py`, `blog_post.py`, `posts.py` (schema), `PromptForm.jsx`, `PostDetail.jsx`, `package.json`
+**Migration:** `796f1623951b` — make `blog_posts.site_id` nullable
+**New dependency:** `turndown` (frontend, HTML-to-Markdown)
+
+---
+
 ### 2026-02-18 (Session 38) — Copy & Paste Platform, Save to Posts, Test Panel LinkedIn
 
 **What we did:**

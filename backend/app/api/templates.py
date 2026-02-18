@@ -605,6 +605,7 @@ async def test_content_stream(
                     "meta_title": content_result.meta_title,
                     "meta_description": content_result.meta_description,
                     "image_alt_text": content_result.image_alt_text,
+                    "faq_schema": content_result.faq_schema,
                     "system_prompt_used": content_result.system_prompt_used,
                     "content_prompt_used": content_result.content_prompt_used,
                     "outline_used": content_result.outline_used,

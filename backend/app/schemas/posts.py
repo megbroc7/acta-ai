@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 
 class PostCreate(BaseModel):
-    site_id: uuid.UUID
+    site_id: uuid.UUID | None = None
     title: str = Field(min_length=1)
     content: str = Field(min_length=1)
     excerpt: str | None = None
@@ -45,7 +45,7 @@ class PostSiteInfo(BaseModel):
 
 class PostResponse(BaseModel):
     id: uuid.UUID
-    site_id: uuid.UUID
+    site_id: uuid.UUID | None
     schedule_id: uuid.UUID | None
     prompt_template_id: uuid.UUID | None
     title: str

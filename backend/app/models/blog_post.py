@@ -17,10 +17,10 @@ class BlogPost(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    site_id: Mapped[uuid.UUID] = mapped_column(
+    site_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("sites.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
     )
     schedule_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
@@ -74,7 +74,7 @@ class BlogPost(Base):
 
     # Relationships
     schedule: Mapped["BlogSchedule | None"] = relationship(back_populates="posts")
-    site: Mapped["Site"] = relationship(lazy="selectin")
+    site: Mapped["Site | None"] = relationship(lazy="selectin")
 
 
 class ExecutionHistory(Base):
