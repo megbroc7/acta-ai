@@ -19,11 +19,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### 2026-02-18 (Session 33) — Billing & Subscription Tiers (Session 2 of 3): Stripe Integration + Frontend
 
 **What we did:**
-Wired Stripe Checkout, Customer Portal, and Webhooks into the backend, and built the frontend Billing page. Users can now subscribe to a plan via Stripe Checkout, manage their subscription through the Stripe Customer Portal, and see their current plan/usage on the `/billing` page.
+Wired Stripe Checkout, Customer Portal, and Webhooks into the backend. Built the subscription UI as a section inside the Settings page — current plan badge, usage bars, trial alerts, plan comparison grid with Stripe checkout/portal integration.
 
 **1. Stripe Package + Config**
 - Added `stripe>=11.0.0` to `requirements.txt` (installed v14.3.0)
 - Added 5 Stripe settings to `config.py`: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_SCRIPTOR`, `STRIPE_PRICE_TRIBUNE`, `STRIPE_PRICE_IMPERATOR`
+- Installed Stripe CLI (`/tmp/stripe`) for local webhook forwarding
 
 **2. Stripe Service** (`services/stripe_service.py`) — NEW
 - `get_or_create_customer(user, db)` — finds or creates Stripe customer, persists `stripe_customer_id`
@@ -47,20 +48,21 @@ Wired Stripe Checkout, Customer Portal, and Webhooks into the backend, and built
 - `POST /billing/webhook` — no auth, raw body + Stripe signature verification, own DB session
 - Extended `GET /billing/tier-info` to include subscription details
 
-**5. Frontend Billing Page** (`pages/billing/Billing.jsx`) — NEW
-- Current Plan card with tier badge, trial countdown alert, usage bars (sites/templates/schedules via LinearProgress), "Manage Subscription" button → Stripe Portal
-- Plan comparison grid: 3 tier cards (Scriptor/Tribune/Imperator) with price, feature list, excluded features
-- Current tier highlighted with green border, Tribune marked "Most Popular"
+**5. Frontend — Subscription in Settings** (`pages/settings/Settings.jsx`)
+- Subscription section added as first card in Settings page (no separate nav item)
+- Current plan badge + trial countdown chip + cancellation chip
+- Usage bars (sites/templates/schedules) with LinearProgress
+- 3-column plan comparison grid (Scriptor/Tribune/Imperator) with features, excluded features, prices
 - Smart button labels: "Current Plan" (disabled) / "Subscribe" / "Upgrade" / "Manage Plan"
+- "Manage Subscription" button → Stripe Customer Portal
+- `/billing` route redirects to `/settings` (handles Stripe return URLs)
 - Success/cancel URL handling: reads query params, shows snackbar, cleans URL
-
-**6. Routing + Navigation**
-- Added `/billing` route in `App.jsx`
-- Added "Subscription" nav item with `WorkspacePremium` icon in `MainLayout.jsx` (before Settings)
 
 **No migration needed** — all DB schema was established in Session 32.
 
-**Files changed:** 6 modified + 2 new
+**Session 3 TODO:** Scheduler guards, DALL-E HD quality per tier, admin billing panel, trial expiry notifications.
+
+**Files changed:** 6 modified + 1 new
 
 ---
 
