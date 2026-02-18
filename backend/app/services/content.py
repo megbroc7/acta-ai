@@ -491,6 +491,18 @@ def build_content_system_prompt(
     if seo:
         sections.append("## SEO Instructions\n" + "\n".join(seo))
 
+    # --- Entity Injection (always-on semantic SEO) ---
+    entity_injection = (
+        "## Entity Injection\n"
+        "Identify 3-5 real-world entities (people, organizations, places, concepts, "
+        "events, or technologies) that are closely related to the topic. Weave them "
+        "naturally into the article with brief context — do not just name-drop. "
+        "For example, reference a researcher and their finding, an organization and "
+        "its role, or a landmark event and its impact. This helps search engines "
+        "understand the semantic context of the content beyond keyword matching."
+    )
+    sections.append(entity_injection)
+
     # --- Writing Guardrails (always-on anti-robot) ---
     all_banned = list(BANNED_PHRASES)
     if template.phrases_to_avoid:
