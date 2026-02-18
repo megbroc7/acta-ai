@@ -201,7 +201,7 @@ export default function SiteForm() {
                     </Alert>
                   )}
 
-                  <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                     <Button variant="outlined" onClick={handleTest} disabled={testing || !canTest}>
                       {testing ? 'Testing...' : 'Test Connection'}
                     </Button>

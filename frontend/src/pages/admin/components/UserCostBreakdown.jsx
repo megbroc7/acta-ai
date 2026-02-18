@@ -5,6 +5,7 @@ import {
   Typography,
   Paper,
   Table,
+  TableContainer,
   TableHead,
   TableBody,
   TableRow,
@@ -101,6 +102,7 @@ export default function UserCostBreakdown({ days }) {
           </Typography>
         </Box>
       ) : (
+        <TableContainer sx={{ overflowX: 'auto' }}>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -161,6 +163,7 @@ export default function UserCostBreakdown({ days }) {
             </TableRow>
           </TableBody>
         </Table>
+        </TableContainer>
       )}
     </Paper>
   );

@@ -178,32 +178,32 @@ export default function ScheduleForm() {
               <Typography variant="h6" sx={{ mb: 2, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Schedule Timing</Typography>
               <Stack spacing={2}>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  <TextField select label="Frequency" required value={form.frequency} onChange={update('frequency')} sx={{ width: 200 }}>
+                  <TextField select label="Frequency" required value={form.frequency} onChange={update('frequency')} sx={{ width: { xs: '100%', sm: 200 } }}>
                     {FREQUENCIES.map(f => <MenuItem key={f} value={f}>{f.charAt(0).toUpperCase() + f.slice(1)}</MenuItem>)}
                   </TextField>
                   {form.frequency === 'weekly' && (
-                    <TextField select label="Day of Week" value={form.day_of_week} onChange={update('day_of_week')} sx={{ width: 200 }}>
+                    <TextField select label="Day of Week" value={form.day_of_week} onChange={update('day_of_week')} sx={{ width: { xs: '100%', sm: 200 } }}>
                       {DAYS_OF_WEEK.map((d, i) => <MenuItem key={i} value={i}>{d}</MenuItem>)}
                     </TextField>
                   )}
                   {form.frequency === 'monthly' && (
                     <TextField
                       label="Day of Month" type="number" value={form.day_of_month}
-                      onChange={update('day_of_month')} sx={{ width: 200 }}
+                      onChange={update('day_of_month')} sx={{ width: { xs: '100%', sm: 200 } }}
                       inputProps={{ min: 1, max: 28 }}
                     />
                   )}
                   {form.frequency === 'custom' && (
-                    <TextField label="Cron Expression" value={form.custom_cron} onChange={update('custom_cron')} sx={{ width: 200 }} placeholder="0 9 * * MON" />
+                    <TextField label="Cron Expression" value={form.custom_cron} onChange={update('custom_cron')} sx={{ width: { xs: '100%', sm: 200 } }} placeholder="0 9 * * MON" />
                   )}
                 </Box>
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <TextField
                     label="Time of Day" type="time" required value={form.time_of_day}
-                    onChange={update('time_of_day')} sx={{ width: 200 }}
+                    onChange={update('time_of_day')} sx={{ width: { xs: '100%', sm: 200 } }}
                     InputLabelProps={{ shrink: true }}
                   />
-                  <TextField select label="Timezone" value={form.timezone} onChange={update('timezone')} sx={{ width: 200 }}>
+                  <TextField select label="Timezone" value={form.timezone} onChange={update('timezone')} sx={{ width: { xs: '100%', sm: 200 } }}>
                     {TIMEZONES.map(tz => <MenuItem key={tz} value={tz}>{tz}</MenuItem>)}
                   </TextField>
                 </Box>
@@ -288,20 +288,20 @@ export default function ScheduleForm() {
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ mb: 2, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Options</Typography>
               <Stack spacing={2}>
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <TextField
                     label="Word Count Override" type="number" value={form.word_count}
-                    onChange={update('word_count')} sx={{ width: 200 }}
+                    onChange={update('word_count')} sx={{ width: { xs: '100%', sm: 200 } }}
                     helperText="Leave blank to use template default"
                   />
                   <TextField
-                    label="Tone Override" value={form.tone} onChange={update('tone')} sx={{ width: 200 }}
+                    label="Tone Override" value={form.tone} onChange={update('tone')} sx={{ width: { xs: '100%', sm: 200 } }}
                     helperText="Leave blank to use template default"
                   />
                 </Box>
                 <Divider />
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <TextField select label="Post Status" value={form.post_status} onChange={update('post_status')} sx={{ width: 200 }}
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <TextField select label="Post Status" value={form.post_status} onChange={update('post_status')} sx={{ width: { xs: '100%', sm: 200 } }}
                     helperText={
                       form.post_status === 'publish' ? 'Auto-publish to your site immediately' :
                       'Hold for editorial review before publishing'

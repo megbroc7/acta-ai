@@ -284,7 +284,7 @@ export default function ReviewQueue() {
               }}
             >
               <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                <Box sx={{ display: 'flex', alignItems: { xs: 'stretch', sm: 'flex-start' }, gap: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
                   <Checkbox
                     checked={isSelected}
                     onChange={() => toggleSelect(post.id)}
@@ -352,7 +352,7 @@ export default function ReviewQueue() {
                   </Box>
 
                   {/* Inline actions */}
-                  <Stack direction="row" spacing={1} sx={{ flexShrink: 0, ml: 1 }}>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ flexShrink: 0, ml: { xs: 0, sm: 1 }, mt: { xs: 1, sm: 0 } }}>
                     <Button
                       variant="outlined"
                       size="small"

@@ -274,7 +274,7 @@ export default function PostDetail() {
         {fromReview ? 'Back to Review Queue' : 'Back to Posts'}
       </Button>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography
             variant="h4"
@@ -328,7 +328,7 @@ export default function PostDetail() {
             )}
           </Box>
         </Box>
-        <Stack direction="row" spacing={1}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
           {post.published_url && (
             <Button
               variant="outlined" size="small" startIcon={<OpenInNew />}
@@ -405,7 +405,7 @@ export default function PostDetail() {
                   </Typography>
                 </Box>
               </Box>
-              <Stack direction="row" spacing={1}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ flexWrap: 'wrap' }}>
                 <Button
                   variant="outlined"
                   startIcon={<Edit />}

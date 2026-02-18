@@ -70,7 +70,7 @@ export default function PostsList() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Typography
           variant="h4"
           component="h1"
@@ -94,7 +94,7 @@ export default function PostsList() {
         <TextField
           select label="Filter by Status" value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
-          sx={{ width: 200 }} size="small"
+          sx={{ width: { xs: '100%', sm: 200 } }} size="small"
         >
           <MenuItem value="">All</MenuItem>
           <MenuItem value="draft">Draft</MenuItem>
@@ -120,14 +120,14 @@ export default function PostsList() {
         </Card>
       ) : (
         <Paper>
-          <TableContainer>
+          <TableContainer sx={{ overflowX: 'auto' }}>
             <Table>
               <TableHead>
                 <TableRow>
                   <TableCell>Title</TableCell>
-                  <TableCell>Site</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Site</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Created</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Created</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -143,7 +143,7 @@ export default function PostsList() {
                         {post.title}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                       <Typography variant="body2" color="text.secondary">
                         {post.site?.name || '—'}
                       </Typography>
@@ -155,7 +155,7 @@ export default function PostsList() {
                         size="small"
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                       <Typography variant="body2" color="text.secondary">
                         {new Date(post.created_at).toLocaleDateString()}
                       </Typography>

@@ -80,7 +80,7 @@ export default function ScheduleOversight() {
   return (
     <ChartCard title="Schedule Oversight" sx={{ gridColumn: '1 / -1' }}>
       {/* Controls */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <FormControlLabel
             control={
@@ -140,17 +140,17 @@ export default function ScheduleOversight() {
       )}
 
       {!isLoading && schedules.length > 0 && (
-        <TableContainer>
+        <TableContainer sx={{ overflowX: 'auto' }}>
           <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell sx={TH_SX}>Schedule</TableCell>
                 <TableCell sx={TH_SX}>Owner</TableCell>
                 <TableCell sx={TH_SX}>Site</TableCell>
-                <TableCell sx={TH_SX}>Template</TableCell>
+                <TableCell sx={{ ...TH_SX, display: { xs: 'none', md: 'table-cell' } }}>Template</TableCell>
                 <TableCell align="center" sx={TH_SX}>Frequency</TableCell>
-                <TableCell sx={TH_SX}>Next Run</TableCell>
-                <TableCell sx={TH_SX}>Last Run</TableCell>
+                <TableCell sx={{ ...TH_SX, display: { xs: 'none', sm: 'table-cell' } }}>Next Run</TableCell>
+                <TableCell sx={{ ...TH_SX, display: { xs: 'none', sm: 'table-cell' } }}>Last Run</TableCell>
                 <TableCell align="center" sx={TH_SX}>Status</TableCell>
               </TableRow>
             </TableHead>
@@ -184,7 +184,7 @@ export default function ScheduleOversight() {
                         />
                       </Box>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
                         {s.template_name}
                       </Typography>
@@ -201,7 +201,7 @@ export default function ScheduleOversight() {
                         sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700, textTransform: 'capitalize' }}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                       {s.next_run ? (
                         <Tooltip title={new Date(s.next_run).toLocaleString()}>
                           <Box>
@@ -225,7 +225,7 @@ export default function ScheduleOversight() {
                         <Typography variant="caption" color="text.secondary">--</Typography>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                       <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
                         {formatDateTime(s.last_run)}
                       </Typography>

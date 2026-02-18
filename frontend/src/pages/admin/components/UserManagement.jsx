@@ -284,7 +284,7 @@ export default function UserManagement({ data }) {
 
   return (
     <ChartCard title="User Management" sx={{ gridColumn: '1 / -1' }}>
-      <TableContainer>
+      <TableContainer sx={{ overflowX: 'auto' }}>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -292,9 +292,9 @@ export default function UserManagement({ data }) {
               <TableCell sx={TH_SX}>User</TableCell>
               <TableCell align="center" sx={TH_SX}>Status</TableCell>
               <TableCell align="center" sx={TH_SX}>Role</TableCell>
-              <TableCell align="center" sx={TH_SX}>Sites</TableCell>
-              <TableCell align="center" sx={TH_SX}>Templates</TableCell>
-              <TableCell align="center" sx={TH_SX}>Posts</TableCell>
+              <TableCell align="center" sx={{ ...TH_SX, display: { xs: 'none', sm: 'table-cell' } }}>Sites</TableCell>
+              <TableCell align="center" sx={{ ...TH_SX, display: { xs: 'none', sm: 'table-cell' } }}>Templates</TableCell>
+              <TableCell align="center" sx={{ ...TH_SX, display: { xs: 'none', sm: 'table-cell' } }}>Posts</TableCell>
               <TableCell align="center" sx={TH_SX}>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -380,9 +380,9 @@ export default function UserManagement({ data }) {
                     </TableCell>
 
                     {/* Counts */}
-                    <TableCell align="center">{u.sites}</TableCell>
-                    <TableCell align="center">{u.templates}</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700 }}>{u.posts}</TableCell>
+                    <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{u.sites}</TableCell>
+                    <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{u.templates}</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 700, display: { xs: 'none', sm: 'table-cell' } }}>{u.posts}</TableCell>
 
                     {/* Actions */}
                     <TableCell align="center">

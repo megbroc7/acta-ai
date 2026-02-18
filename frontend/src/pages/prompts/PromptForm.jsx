@@ -596,7 +596,7 @@ export default function PromptForm() {
                     label={<FieldLabel label="Headline Style" tooltip="Controls the type of headlines generated. A specific style produces 5 titles of that type. AI-Selected generates one of each type, and the scheduler picks using weighted random (Listicle 35%, How-To 25%, Experience 20%, Direct Benefit 15%, Contrarian 5%)." />}
                     value={form.content_type}
                     onChange={update('content_type')}
-                    sx={{ width: 300 }}
+                    sx={{ width: { xs: '100%', sm: 300 } }}
                     InputLabelProps={{ shrink: true }}
                     slotProps={{ select: { renderValue: (val) => HEADLINE_STYLES.find(s => s.value === val)?.label || val } }}
                   >
@@ -614,7 +614,7 @@ export default function PromptForm() {
                     label="Audience Level"
                     value={form.audience_level}
                     onChange={update('audience_level')}
-                    sx={{ width: 300 }}
+                    sx={{ width: { xs: '100%', sm: 300 } }}
                     slotProps={{ select: { renderValue: (val) => AUDIENCE_LEVELS.find(a => a.value === val)?.label || val || 'None' } }}
                   >
                     <MenuItem value="">None</MenuItem>
@@ -778,7 +778,7 @@ export default function PromptForm() {
                   <TextField
                     select
                     label={<FieldLabel label="Perspective" tooltip="The point of view the AI writes from. First person (I/We) feels personal, second person (You) speaks directly to readers, third person (They) is more formal and objective." />}
-                    value={form.perspective} onChange={update('perspective')} sx={{ width: 280 }}
+                    value={form.perspective} onChange={update('perspective')} sx={{ width: { xs: '100%', sm: 280 } }}
                     InputLabelProps={{ shrink: true }}
                   >
                     {PERSPECTIVES.map(p => <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>)}
@@ -786,7 +786,7 @@ export default function PromptForm() {
                   <TextField
                     select
                     label={<FieldLabel label="Tone" tooltip="The overall emotional feel and style of the writing. This shapes how the AI sounds — from strictly professional to lighthearted and casual." />}
-                    value={form.default_tone} onChange={update('default_tone')} sx={{ width: 240 }}
+                    value={form.default_tone} onChange={update('default_tone')} sx={{ width: { xs: '100%', sm: 240 } }}
                     InputLabelProps={{ shrink: true }}
                   >
                     {TONES.map(t => <MenuItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</MenuItem>)}
@@ -930,7 +930,7 @@ export default function PromptForm() {
                   <TextField
                     select
                     label={<FieldLabel label="Keyword Density" tooltip="How often keywords appear in the text. Low = natural and subtle. Medium = regular placement in headings and paragraphs. High = frequent use for competitive keywords." />}
-                    value={form.seo_keyword_density} onChange={update('seo_keyword_density')} sx={{ width: 300 }}
+                    value={form.seo_keyword_density} onChange={update('seo_keyword_density')} sx={{ width: { xs: '100%', sm: 300 } }}
                     InputLabelProps={{ shrink: true }}
                   >
                     {KEYWORD_DENSITIES.map(d => <MenuItem key={d.value} value={d.value}>{d.label}</MenuItem>)}
@@ -938,7 +938,7 @@ export default function PromptForm() {
                   <TextField
                     select
                     label={<FieldLabel label="Meta Description Style" tooltip="The style for the SEO meta description (the snippet shown in search results). Concise = straightforward summary. Question = hooks with a question. Benefit-driven = focuses on what readers gain." />}
-                    value={form.seo_meta_description_style} onChange={update('seo_meta_description_style')} sx={{ width: 300 }}
+                    value={form.seo_meta_description_style} onChange={update('seo_meta_description_style')} sx={{ width: { xs: '100%', sm: 300 } }}
                     InputLabelProps={{ shrink: true }}
                   >
                     {META_DESC_STYLES.map(s => <MenuItem key={s.value} value={s.value}>{s.label}</MenuItem>)}
@@ -964,7 +964,7 @@ export default function PromptForm() {
                   type="number"
                   value={form.default_word_count}
                   onChange={update('default_word_count')}
-                  sx={{ width: 240 }}
+                  sx={{ width: { xs: '100%', sm: 240 } }}
                   InputLabelProps={{ shrink: true }}
                 />
 
@@ -980,7 +980,7 @@ export default function PromptForm() {
                       label={<FieldLabel label="Image Source" tooltip="Automatically generate or find a featured image for each blog post. DALL-E creates unique AI images (~$0.04 each). Unsplash finds free stock photos." />}
                       value={form.image_source}
                       onChange={update('image_source')}
-                      sx={{ width: 300 }}
+                      sx={{ width: { xs: '100%', sm: 300 } }}
                       InputLabelProps={{ shrink: true }}
                       slotProps={{ select: { renderValue: (val) => IMAGE_SOURCES.find(s => s.value === val)?.label || val } }}
                     >
@@ -1048,7 +1048,7 @@ export default function PromptForm() {
                     <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, mb: 1.5 }}>
                       Step 1 — Generate Titles
                     </Typography>
-                    <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems="flex-start">
                       <TextField
                         label="Topic or Idea"
                         fullWidth
@@ -1069,7 +1069,7 @@ export default function PromptForm() {
                         onClick={handleTestTitle}
                         disabled={!testTopic.trim() || testingTitle}
                         startIcon={testingTitle ? <CircularProgress size={18} color="inherit" /> : <PlayArrow />}
-                        sx={{ minWidth: 180, whiteSpace: 'nowrap' }}
+                        sx={{ minWidth: { xs: '100%', sm: 180 }, whiteSpace: 'nowrap' }}
                       >
                         {testingTitle ? 'Generating...' : 'Generate Titles'}
                       </Button>
@@ -1177,12 +1177,12 @@ export default function PromptForm() {
 
                         {interviewQuestions.length === 0 && !interviewLoading && (
                           <>
-                            <Stack direction="row" spacing={1.5}>
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
                               <Button
                                 variant="outlined"
                                 onClick={handleGenerateInterview}
                                 startIcon={<RecordVoiceOver />}
-                                sx={{ minWidth: 200 }}
+                                sx={{ minWidth: { xs: '100%', sm: 200 } }}
                                 disabled={testingContent}
                               >
                                 Generate Questions
@@ -1192,7 +1192,7 @@ export default function PromptForm() {
                                 onClick={handleTestContent}
                                 disabled={testingContent}
                                 startIcon={testingContent ? <CircularProgress size={18} color="inherit" /> : <SkipNext />}
-                                sx={{ minWidth: 200 }}
+                                sx={{ minWidth: { xs: '100%', sm: 200 } }}
                               >
                                 {testingContent ? 'Generating...' : 'Skip to Article'}
                               </Button>
@@ -1249,13 +1249,13 @@ export default function PromptForm() {
                         <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, mb: 1.5 }}>
                           Step 3 — Generate Article
                         </Typography>
-                        <Stack direction="row" spacing={1.5}>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
                           <Button
                             variant="contained"
                             onClick={handleTestContent}
                             disabled={testingContent || interviewLoading}
                             startIcon={testingContent ? <CircularProgress size={18} color="inherit" /> : <Article />}
-                            sx={{ minWidth: 200 }}
+                            sx={{ minWidth: { xs: '100%', sm: 200 } }}
                           >
                             {testingContent ? 'Generating Article...' : 'Generate Article'}
                           </Button>

@@ -130,7 +130,7 @@ export default function NotificationCenter() {
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         PaperProps={{
           sx: {
-            width: 380,
+            width: { xs: '92vw', sm: 380 },
             maxHeight: 480,
             borderRadius: 0,
             border: '1px solid #E0DCD5',

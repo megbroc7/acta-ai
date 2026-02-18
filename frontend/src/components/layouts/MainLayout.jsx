@@ -37,6 +37,7 @@ import {
   RateReview as FeedbackIcon,
   AssignmentTurnedIn as ReviewIcon,
   CalendarMonth as CalendarIcon,
+  Settings as SettingsIcon,
   AdminPanelSettings as AdminIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
@@ -75,6 +76,7 @@ function buildNavItems(isAdmin) {
     { label: 'User Guide', icon: <GuideIcon />, path: '/guide' },
     { label: 'About Acta AI', icon: <AboutIcon />, path: '/about' },
     { label: 'Feedback', icon: <FeedbackIcon />, path: '/feedback' },
+    { label: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
   if (isAdmin) {
     items.push({ divider: true });
@@ -579,6 +581,15 @@ export default function MainLayout() {
               <Divider />
               <MenuItem
                 onClick={() => {
+                  navigate('/settings');
+                  setAnchorEl(null);
+                }}
+                sx={{ fontWeight: 500, py: 1.5, px: 2 }}
+              >
+                Settings
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
                   logout();
                   navigate('/login');
                   setAnchorEl(null);
@@ -640,7 +651,7 @@ export default function MainLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 4,
+          p: { xs: 2, sm: 3, md: 4 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           mt: '80px',
           minHeight: 'calc(100vh - 80px)',

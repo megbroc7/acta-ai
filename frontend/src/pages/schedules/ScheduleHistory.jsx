@@ -159,15 +159,15 @@ export default function ScheduleHistory() {
         />
       </Stack>
 
-      <TableContainer>
+      <TableContainer sx={{ overflowX: 'auto' }}>
         <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 700 }}>Time</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
+              <TableCell sx={{ fontWeight: 700, display: { xs: 'none', sm: 'table-cell' } }}>Type</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Duration</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Error Category</TableCell>
+              <TableCell sx={{ fontWeight: 700, display: { xs: 'none', sm: 'table-cell' } }}>Error Category</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Error Message</TableCell>
             </TableRow>
           </TableHead>
@@ -214,7 +214,7 @@ export default function ScheduleHistory() {
                       />
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                     <Chip
                       label={exec.execution_type}
                       size="small"
@@ -223,7 +223,7 @@ export default function ScheduleHistory() {
                     />
                   </TableCell>
                   <TableCell>{formatDuration(exec.duration_ms)}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                     {exec.error_category && (
                       <Chip
                         label={CATEGORY_TITLES[exec.error_category] || exec.error_category}

@@ -77,7 +77,7 @@ export default function ErrorLog() {
       }}
     >
       {/* Controls row */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <FormControl size="small">
             <Select
@@ -142,7 +142,7 @@ export default function ErrorLog() {
       )}
 
       {!isLoading && entries.length > 0 && (
-        <TableContainer>
+        <TableContainer sx={{ overflowX: 'auto' }}>
           <Table size="small">
             <TableHead>
               <TableRow>

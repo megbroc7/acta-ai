@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box, Typography, IconButton, Chip, Popover, Stack, Button, CircularProgress,
+  useMediaQuery, useTheme,
 } from '@mui/material';
 import { BlockOutlined, Restore as RestoreIcon } from '@mui/icons-material';
 import { keyframes } from '@mui/system';
@@ -162,6 +163,8 @@ function LaurelDivider() {
 export default function ContentCalendar() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down('sm'));
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [anchorEl, setAnchorEl] = useState(null);
@@ -307,10 +310,10 @@ export default function ContentCalendar() {
               fontWeight: 800,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              minWidth: 240,
+              minWidth: { xs: 160, sm: 240 },
               textAlign: 'center',
               color: '#fff',
-              fontSize: '1.1rem',
+              fontSize: { xs: '0.85rem', sm: '1.1rem' },
               textShadow: '0 1px 2px rgba(0,0,0,0.2)',
             }}
           >
@@ -332,7 +335,7 @@ export default function ContentCalendar() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {/* Mini stats */}
           {!isLoading && (totalScheduled > 0 || totalPosts > 0) && (
-            <Box sx={{ display: 'flex', gap: 2, mr: 1 }}>
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2, mr: 1 }}>
               {totalScheduled > 0 && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <ScheduleIcon sx={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }} />
@@ -407,7 +410,7 @@ export default function ContentCalendar() {
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.12em',
-                    fontSize: '0.65rem',
+                    fontSize: { xs: '0.55rem', sm: '0.65rem' },
                     color: '#8A857E',
                   }}
                 >
@@ -427,7 +430,7 @@ export default function ContentCalendar() {
                   <Box
                     key={key}
                     sx={{
-                      minHeight: 110,
+                      minHeight: { xs: 70, sm: 90, md: 110 },
                       borderRight: (idx % 7) < 6 ? '1px solid #E0DCD5' : 'none',
                       borderBottom: idx < (gridDays.length - 7) ? '1px solid #E0DCD5' : 'none',
                       bgcolor: 'rgba(0,0,0,0.015)',
@@ -439,7 +442,7 @@ export default function ContentCalendar() {
               const dayEvents = eventsByDay[key] || [];
               const isToday = isSameDay(day, today);
               const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-              const maxChips = 3;
+              const maxChips = isXs ? 2 : 3;
               const overflow = dayEvents.length - maxChips;
               const hasEvents = dayEvents.length > 0;
 
@@ -448,7 +451,7 @@ export default function ContentCalendar() {
                   key={key}
                   onClick={(e) => handleDayClick(e, key)}
                   sx={{
-                    minHeight: 110,
+                    minHeight: { xs: 70, sm: 90, md: 110 },
                     borderRight: (idx % 7) < 6 ? '1px solid #E0DCD5' : 'none',
                     borderBottom: idx < (gridDays.length - 7) ? '1px solid #E0DCD5' : 'none',
                     p: 0.75,
@@ -533,7 +536,7 @@ export default function ContentCalendar() {
                           sx={{
                             px: 0.6,
                             py: 0.25,
-                            fontSize: '0.62rem',
+                            fontSize: { xs: '0.52rem', sm: '0.62rem' },
                             fontWeight: 600,
                             lineHeight: 1.4,
                             overflow: 'hidden',
@@ -662,8 +665,8 @@ export default function ContentCalendar() {
               border: '1px solid #D0CCC5',
               borderTop: '3px solid #4A7C6F',
               p: 0,
-              minWidth: 300,
-              maxWidth: 380,
+              minWidth: { xs: '85vw', sm: 300 },
+              maxWidth: { xs: '90vw', sm: 380 },
               maxHeight: 420,
               overflow: 'auto',
               boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
