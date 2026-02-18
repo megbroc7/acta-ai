@@ -16,6 +16,55 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-18 (Session 31) — Match My Writing Style
+
+**What we did:**
+Added a "Match My Writing Style" feature to the Voice & Tone tab. Users can paste a writing sample, click "Analyze My Voice," and the AI detects their tone, personality level, perspective, brand voice description, and stylistic switches (contractions, anecdotes, rhetorical questions, humor). The two modes — AI-detected and manual — are mutually exclusive via a toggle. No changes to the content generation pipeline since the feature populates the same existing voice fields.
+
+**1. AI Voice Analysis** (`services/content.py`)
+- New `analyze_writing_voice()` function — sends writing sample to GPT-4o (temp 0.3) requesting structured JSON output
+- Truncates input to 5,000 words to keep costs reasonable (~$0.02-0.03 per analysis)
+- Validates and clamps all returned values against allowed lists (tone, perspective, personality 1-10)
+- Uses existing `_call_openai()` and `_strip_code_fences()` patterns
+- Returns confidence level ("low"/"medium"/"high") and plain-English summary
+
+**2. API Endpoint** (`api/templates.py`)
+- `POST /templates/{id}/analyze-voice` — accepts `VoiceAnalysisRequest` (writing_sample, min 50 chars, max 50k)
+- Returns `VoiceAnalysisResponse` with all detected voice fields + confidence + summary
+- Maintenance mode guard, template ownership check
+- `duplicate_template` updated to copy `writing_sample` and `voice_match_active`
+
+**3. Database: migration `m2n3o4p5q6r7`**
+- `writing_sample` (Text, nullable) — stores raw pasted text
+- `voice_match_active` (Boolean, nullable, server_default='false') — whether AI-detected voice mode is active
+
+**4. Frontend** (`PromptForm.jsx`)
+- Mode toggle box at top of Voice & Tone tab with `AutoFixHigh` icon — patina green border when active
+- Collapsible writing sample textarea (8 rows) with live word counter and 4 quality tiers:
+  - Under 500 words: amber "Short sample — basic detection"
+  - 500-1,499: green "Good sample length"
+  - 1,500-3,000: dark green "Great — accurate voice detection"
+  - 3,000+: dark green "Excellent — highly accurate detection"
+- "Analyze My Voice" button with loading spinner
+- Success alert showing confidence level + plain-English summary of detected style
+- All voice controls (tone, personality, perspective, brand voice, 4 switches) become `disabled` when active
+- Phrases to Avoid and Preferred Terms remain always editable (user vocabulary, not detectable from sample)
+- Toggle OFF: controls become editable, values persist for manual tweaking
+
+**Files changed:**
+- `backend/app/models/prompt_template.py` — 2 new columns (writing_sample, voice_match_active)
+- `backend/app/schemas/templates.py` — fields on Create/Update/Response + VoiceAnalysisRequest/Response schemas
+- `backend/app/services/content.py` — `analyze_writing_voice()` function + constants
+- `backend/app/api/templates.py` — analyze-voice endpoint + duplicate update + schema imports
+- `frontend/src/pages/prompts/PromptForm.jsx` — mode toggle, writing sample UI, analysis handler, read-only controls
+
+**Files created:**
+- `backend/migrations/versions/m2n3o4p5q6r7_add_voice_match_fields.py`
+
+**Open bugs:** None identified this session.
+
+---
+
 ### 2026-02-17 (Session 28) — Error Resilience & User Feedback
 
 **What we did:**
