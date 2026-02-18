@@ -51,6 +51,11 @@ GPT4O_INPUT_COST = 2.50 / 1_000_000    # $2.50 per 1M input tokens
 GPT4O_OUTPUT_COST = 10.00 / 1_000_000   # $10.00 per 1M output tokens
 DALLE3_COST = 0.04                       # per standard image
 DALLE3_HD_COST = 0.08                    # per HD image
+WEB_SEARCH_COST = 0.03                   # per Responses API web_search call (medium context)
+
+# Web research constants
+RESEARCH_TIMEOUT = 45
+RESEARCH_MAX_TOKENS = 2000
 
 # Hardcoded anti-robot banned phrases — always included in system prompt.
 # Organized by AI-tell category. ~70 phrases total (expanded in Session 15).
@@ -683,6 +688,132 @@ async def _call_openai(
             await asyncio.sleep(wait)
 
 
+# --- Web Research (Responses API with web_search tool) ---
+
+
+async def _call_openai_responses(
+    instructions: str,
+    user_input: str,
+    model: str = MODEL,
+    timeout: int = RESEARCH_TIMEOUT,
+    max_tokens: int = RESEARCH_MAX_TOKENS,
+    max_retries: int = MAX_RETRIES,
+    temperature: float = 0.4,
+) -> tuple[OpenAIResponse, list[dict]]:
+    """Call OpenAI Responses API with web_search tool.
+
+    Returns (OpenAIResponse, citations) where citations is a list of
+    {"url": str, "title": str} dicts, deduped by URL.
+    """
+    client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY, timeout=timeout)
+
+    for attempt in range(max_retries + 1):
+        try:
+            response = await client.responses.create(
+                model=model,
+                instructions=instructions,
+                input=user_input,
+                tools=[{"type": "web_search", "search_context_size": "medium"}],
+                max_output_tokens=max_tokens,
+                temperature=temperature,
+            )
+
+            # Extract text using the output_text convenience property
+            text = response.output_text or ""
+
+            # Extract citations from annotations (url_citation type), deduped by URL
+            seen_urls: set[str] = set()
+            citations: list[dict] = []
+            for item in response.output:
+                if hasattr(item, "content"):
+                    for content_block in item.content:
+                        if hasattr(content_block, "annotations"):
+                            for ann in content_block.annotations:
+                                if ann.type == "url_citation" and ann.url not in seen_urls:
+                                    seen_urls.add(ann.url)
+                                    citations.append({"url": ann.url, "title": ann.title or ""})
+
+            # Map Responses API usage fields to our OpenAIResponse dataclass
+            usage = response.usage
+            return OpenAIResponse(
+                text=text.strip(),
+                prompt_tokens=usage.input_tokens if usage else 0,
+                completion_tokens=usage.output_tokens if usage else 0,
+                total_tokens=usage.total_tokens if usage else 0,
+            ), citations
+
+        except (APIConnectionError, APITimeoutError, RateLimitError) as e:
+            if attempt == max_retries:
+                raise
+            wait = 2**attempt
+            logger.warning(
+                "OpenAI Responses API transient error (attempt %d/%d): %s. Retrying in %ds...",
+                attempt + 1, max_retries + 1, e, wait,
+            )
+            await asyncio.sleep(wait)
+
+
+async def _generate_web_research(
+    title: str,
+    industry: str | None = None,
+    tokens: TokenAccumulator | None = None,
+) -> tuple[str, list[dict]] | None:
+    """Search the web for 3-5 current statistics/facts relevant to the article topic.
+
+    Returns (research_text, citations) or None on failure (non-fatal).
+    """
+    industry_hint = f" in the {industry} industry" if industry else ""
+
+    instructions = (
+        "You are a research assistant. Your job is to find 3-5 current, "
+        "specific statistics, data points, or expert findings that would "
+        "strengthen a blog article. Focus on recent data (2024-2026). "
+        "For each finding, include the exact number/stat and a one-sentence "
+        "context. Do NOT fabricate or estimate numbers — only report what "
+        "you find from real sources."
+    )
+
+    user_input = (
+        f"Find 3-5 recent statistics, data points, or research findings relevant to "
+        f"an article titled: \"{title}\"{industry_hint}.\n\n"
+        "Return them as a numbered list. For each item:\n"
+        "- State the specific statistic or finding\n"
+        "- Include the source name and year\n"
+        "- Add one sentence of context on why it matters\n\n"
+        "Focus on: percentages, dollar amounts, growth rates, survey results, "
+        "or expert quotes. Prefer authoritative sources (industry reports, "
+        "government data, major publications)."
+    )
+
+    try:
+        resp, citations = await _call_openai_responses(
+            instructions=instructions,
+            user_input=user_input,
+        )
+        if tokens:
+            tokens.add(resp)
+        if not resp.text:
+            return None
+        return resp.text, citations
+    except Exception as e:
+        logger.warning("Web research failed (non-fatal): %s", e)
+        return None
+
+
+def _format_sources_section(citations: list[dict]) -> str:
+    """Format citations into a markdown Sources section."""
+    if not citations:
+        return ""
+    lines = ["## Sources\n"]
+    for cit in citations:
+        title = cit.get("title", "").strip()
+        url = cit.get("url", "").strip()
+        if url:
+            display = title if title else url
+            lines.append(f"- [{display}]({url})")
+    return "\n".join(lines)
+
+
 # --- Stage 1: Title generation (5 variants) ---
 
 
@@ -945,6 +1076,7 @@ async def _generate_outline(
     title: str,
     word_count: int,
     tokens: TokenAccumulator | None = None,
+    research_context: str | None = None,
 ) -> str:
     """Step 1 of article chain: generate a structured outline."""
     # Reserve ~250 words for intro + conclusion, split rest across sections
@@ -966,8 +1098,16 @@ async def _generate_outline(
         "would strengthen credibility\n"
         "6. **Transition hook** — one sentence showing how this section connects "
         "to the next (use conversational connectors, not 'Moreover' or 'Furthermore')\n\n"
-        "Return ONLY the outline in the format above."
     )
+    if research_context:
+        user_prompt += (
+            "<research>\n"
+            f"{research_context}\n"
+            "</research>\n\n"
+            "Incorporate the 2-3 most relevant findings from the research above "
+            "into the Data Marker slots of your outline. Cite specific numbers.\n\n"
+        )
+    user_prompt += "Return ONLY the outline in the format above."
     resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
@@ -1597,16 +1737,18 @@ async def generate_content(
     image_style_guidance: str | None = None,
     industry: str | None = None,
     dalle_quality: str = "standard",
+    web_research_enabled: bool = False,
 ) -> ContentResult:
-    """Pipeline: Outline → Draft → Charts → Review/Polish → Meta → [Image].
+    """Pipeline: [Research] → Outline → Draft → Charts → Review/Polish → Meta → [Image].
 
     Args:
-        progress_callback: Optional async callable(stage, step, total, message).
-            Called before each pipeline stage to report progress.
+        progress_callback: Optional async callable(stage, step, total, message,
+            **extra_fields). Called before each pipeline stage to report progress.
         image_source: "dalle", "unsplash", or None/"none" to skip.
         image_style_guidance: Optional style hint for DALL-E (ignored for Unsplash).
         industry: Template industry, used for image prompt context.
         dalle_quality: "standard" ($0.04) or "hd" ($0.08) — tier-dependent.
+        web_research_enabled: If True, run web research before outline.
     """
     system_prompt = build_content_system_prompt(template, experience_context)
 
@@ -1614,7 +1756,11 @@ async def generate_content(
     effective_tone = tone or template.default_tone
 
     has_image = image_source and image_source != "none"
-    total_steps = 6 if has_image else 5
+    has_research = web_research_enabled
+
+    # Dynamic step counting: 5 base + optional research + optional image
+    total_steps = 5 + (1 if has_research else 0) + (1 if has_image else 0)
+    step = 0  # running counter, incremented before each stage
 
     # Token accumulator for the entire content pipeline
     acc = TokenAccumulator()
@@ -1625,20 +1771,58 @@ async def generate_content(
         f"Tone: {effective_tone}"
     )
 
-    # Step 1: Outline
-    if progress_callback:
-        await progress_callback("outline", 1, total_steps, "Building article outline...")
-    outline = await _generate_outline(system_prompt, title, effective_word_count, tokens=acc)
+    # Optional Step: Web Research
+    research_text = None
+    research_citations: list[dict] = []
+    if has_research:
+        step += 1
+        if progress_callback:
+            await progress_callback(
+                "research", step, total_steps, "Researching current data...",
+                has_research=True, has_image=has_image,
+            )
+        result = await _generate_web_research(
+            title=title,
+            industry=industry or template.industry,
+            tokens=acc,
+        )
+        if result:
+            research_text, research_citations = result
+            logger.info("Web research found %d citations", len(research_citations))
 
-    # Step 2: Draft (content prompt + outline with word budgets)
+    # Step: Outline
+    step += 1
     if progress_callback:
-        await progress_callback("draft", 2, total_steps, "Writing first draft...")
+        await progress_callback(
+            "outline", step, total_steps, "Building article outline...",
+            has_research=has_research, has_image=has_image,
+        )
+    outline = await _generate_outline(
+        system_prompt, title, effective_word_count,
+        tokens=acc, research_context=research_text,
+    )
+
+    # Step: Draft (content prompt + outline with word budgets)
+    step += 1
+    if progress_callback:
+        await progress_callback(
+            "draft", step, total_steps, "Writing first draft...",
+            has_research=has_research, has_image=has_image,
+        )
     draft_prompt = (
         f"{content_prompt}\n\n"
         "Follow this outline strictly, including the word budget for EACH section. "
         f"Write at least {effective_word_count} words total.\n\n"
         f"{outline}"
     )
+    if research_text:
+        draft_prompt += (
+            "\n\n<research>\n"
+            f"{research_text}\n"
+            "</research>\n\n"
+            "Weave the most relevant research findings naturally into the article. "
+            "Cite specific numbers and name the source inline where appropriate."
+        )
     draft_resp = await _call_openai(
         system_prompt=system_prompt,
         user_prompt=draft_prompt,
@@ -1648,9 +1832,13 @@ async def generate_content(
     acc.add(draft_resp)
     draft = _strip_code_fences(draft_resp.text)
 
-    # Step 3: Charts — scan for chartable data and inject visualizations (non-fatal)
+    # Step: Charts — scan for chartable data and inject visualizations (non-fatal)
+    step += 1
     if progress_callback:
-        await progress_callback("charts", 3, total_steps, "Scanning for chartable data...")
+        await progress_callback(
+            "charts", step, total_steps, "Scanning for chartable data...",
+            has_research=has_research, has_image=has_image,
+        )
     try:
         chart_specs = await _extract_chart_data(
             draft=draft,
@@ -1668,9 +1856,13 @@ async def generate_content(
     except Exception as e:
         logger.warning("Chart step failed (non-fatal), continuing without charts: %s", e)
 
-    # Step 4: Review/Polish
+    # Step: Review/Polish
+    step += 1
     if progress_callback:
-        await progress_callback("review", 4, total_steps, "Reviewing and polishing...")
+        await progress_callback(
+            "review", step, total_steps, "Reviewing and polishing...",
+            has_research=has_research, has_image=has_image,
+        )
     polished = await _generate_review(
         system_prompt=system_prompt,
         draft=draft,
@@ -1685,12 +1877,22 @@ async def generate_content(
     )
     polished = _strip_code_fences(polished)
 
+    # Append Sources section if web research produced citations
+    if research_citations:
+        sources_md = _format_sources_section(research_citations)
+        if sources_md:
+            polished = polished.rstrip() + "\n\n" + sources_md
+
     html = markdown_to_html(polished)
     excerpt = extract_excerpt(html)
 
-    # Step 5: SEO metadata
+    # Step: SEO metadata
+    step += 1
     if progress_callback:
-        await progress_callback("meta", 5, total_steps, "Generating SEO metadata...")
+        await progress_callback(
+            "meta", step, total_steps, "Generating SEO metadata...",
+            has_research=has_research, has_image=has_image,
+        )
     seo_meta = await _generate_seo_meta(
         title=title,
         excerpt=excerpt,
@@ -1700,11 +1902,15 @@ async def generate_content(
         tokens=acc,
     )
 
-    # Step 6: Featured image (optional)
+    # Optional Step: Featured image
     featured_image_url = None
     if has_image:
+        step += 1
         if progress_callback:
-            await progress_callback("image", 6, total_steps, "Generating featured image...")
+            await progress_callback(
+                "image", step, total_steps, "Generating featured image...",
+                has_research=has_research, has_image=has_image,
+            )
         from app.services.images import generate_featured_image
         featured_image_url = await generate_featured_image(
             source=image_source,
@@ -1900,6 +2106,7 @@ async def generate_post(
         image_style_guidance=template.image_style_guidance,
         industry=template.industry,
         dalle_quality=dalle_quality,
+        web_research_enabled=bool(template.web_research_enabled),
     )
 
     return GenerationResult(

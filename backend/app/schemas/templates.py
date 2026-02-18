@@ -31,6 +31,7 @@ class TemplateCreate(BaseModel):
     preferred_terms: list[str] | None = None
     image_source: str | None = None
     image_style_guidance: str | None = None
+    web_research_enabled: bool = False
     experience_notes: str | None = None
     experience_qa: list[ExperienceQAItem] | None = None
     placeholders: dict = {}
@@ -77,6 +78,7 @@ class TemplateUpdate(BaseModel):
     preferred_terms: list[str] | None = None
     image_source: str | None = None
     image_style_guidance: str | None = None
+    web_research_enabled: bool | None = None
     experience_notes: str | None = None
     experience_qa: list[ExperienceQAItem] | None = None
     placeholders: dict | None = None
@@ -123,6 +125,7 @@ class TemplateResponse(BaseModel):
     preferred_terms: list[str] | None
     image_source: str | None
     image_style_guidance: str | None
+    web_research_enabled: bool | None
     experience_notes: str | None
     experience_qa: list[ExperienceQAItem] | None
     placeholders: dict

@@ -22,7 +22,7 @@ from app.models.blog_schedule import BlogSchedule
 from app.models.user import User
 from app.services import content as content_service
 from app.services import publishing as publishing_service
-from app.services.content import GPT4O_INPUT_COST, GPT4O_OUTPUT_COST, DALLE3_COST, DALLE3_HD_COST
+from app.services.content import GPT4O_INPUT_COST, GPT4O_OUTPUT_COST, DALLE3_COST, DALLE3_HD_COST, WEB_SEARCH_COST
 from app.services.error_classifier import classify_error
 from app.services.notifications import (
     create_deactivation_notification,
@@ -345,6 +345,8 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
             img_cost = DALLE3_HD_COST if user_dalle_quality == "hd" else DALLE3_COST
         else:
             img_cost = 0.0
+        if template.web_research_enabled:
+            est_cost += WEB_SEARCH_COST
         execution = ExecutionHistory(
             schedule_id=schedule.id,
             user_id=schedule.user_id,

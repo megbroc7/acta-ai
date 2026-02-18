@@ -25,6 +25,7 @@ TIER_LIMITS = {
         "wp_pending_review": False,
         "voice_match": False,
         "revise_with_ai": False,
+        "web_research": False,
         "dalle_quality": None,
     },
     "tribune": {
@@ -36,6 +37,7 @@ TIER_LIMITS = {
         "wp_pending_review": False,
         "voice_match": True,
         "revise_with_ai": True,
+        "web_research": True,
         "dalle_quality": "standard",
     },
     "imperator": {
@@ -47,6 +49,7 @@ TIER_LIMITS = {
         "wp_pending_review": True,
         "voice_match": True,
         "revise_with_ai": True,
+        "web_research": True,
         "dalle_quality": "hd",
     },
 }
@@ -204,6 +207,7 @@ def check_feature_access(user: User, feature: str):
             "wp_pending_review": "WordPress Pending Review status",
             "voice_match": "Match My Writing Style",
             "revise_with_ai": "Revise with AI",
+            "web_research": "Web Research",
         }
         label = feature_labels.get(feature, feature)
         raise HTTPException(

@@ -61,6 +61,7 @@ function TabPanel({ children, value, index }) {
   return value === index ? <Box sx={{ pt: 3 }}>{children}</Box> : null;
 }
 
+const RESEARCH_STAGE = { key: 'research', label: 'Research' };
 const BASE_PIPELINE_STAGES = [
   { key: 'outline', label: 'Outline' },
   { key: 'draft', label: 'Draft' },
@@ -72,9 +73,11 @@ const IMAGE_STAGE = { key: 'image', label: 'Image' };
 
 function ContentProgressBar({ progress }) {
   if (!progress) return null;
-  const stages = progress.total > 5
-    ? [...BASE_PIPELINE_STAGES, IMAGE_STAGE]
-    : BASE_PIPELINE_STAGES;
+  const stages = [
+    ...(progress.has_research ? [RESEARCH_STAGE] : []),
+    ...BASE_PIPELINE_STAGES,
+    ...(progress.has_image ? [IMAGE_STAGE] : []),
+  ];
   return (
     <Box sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider', backgroundColor: 'background.default' }}>
       <Stack direction="row" spacing={3} sx={{ mb: 1.5 }}>
@@ -215,6 +218,8 @@ export default function PromptForm() {
     // Featured Image
     image_source: 'none',
     image_style_guidance: '',
+    // Web Research
+    web_research_enabled: false,
     // Voice Matching
     writing_sample: '',
     voice_match_active: false,
@@ -294,6 +299,7 @@ export default function PromptForm() {
         call_to_action: template.call_to_action || '',
         image_source: template.image_source || 'none',
         image_style_guidance: template.image_style_guidance || '',
+        web_research_enabled: template.web_research_enabled ?? false,
         experience_notes: template.experience_notes || '',
         experience_qa: template.experience_qa || null,
         // Voice Matching
@@ -1163,6 +1169,31 @@ export default function PromptForm() {
                       />
                     )}
                   </Stack>
+                </Box>
+
+                <Divider />
+
+                <Box>
+                  <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, mb: 1.5 }}>
+                    Web Research
+                  </Typography>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={form.web_research_enabled}
+                        onChange={updateChecked('web_research_enabled')}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Tooltip title="When enabled, the AI searches the web for 3-5 current statistics and data points before writing. Sources are cited at the end of the article. Tribune plan or higher required." arrow>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Typography variant="body2">Ground articles with live web data</Typography>
+                          <HelpOutline sx={{ fontSize: 16, color: 'text.secondary' }} />
+                        </Box>
+                      </Tooltip>
+                    }
+                  />
                 </Box>
 
                 <Divider />

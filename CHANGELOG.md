@@ -16,6 +16,50 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-18 (Session 36) — Web Research Pipeline Step
+
+**What we did:**
+Added an optional web research step to the AI content pipeline. When enabled on a template, the system uses OpenAI's Responses API with the `web_search` tool to find 3-5 current statistics, data points, and research findings *before* writing begins. These findings are injected into both the outline and draft prompts, and cited in a Sources section at the end of each article.
+
+**1. OpenAI SDK Upgrade** (`requirements.txt`)
+- Bumped `openai` from `1.51.0` to `>=1.75.0,<2.0.0` (installed v1.109.1)
+- Required for the Responses API (`client.responses.create()`)
+
+**2. Database & Model** (migration `o4p5q6r7s8t9`, `prompt_template.py`, `templates.py`)
+- Added `web_research_enabled` (Boolean, nullable, default false) to `prompt_templates`
+- Added field to `TemplateCreate`, `TemplateUpdate`, `TemplateResponse` schemas
+
+**3. Content Pipeline** (`services/content.py`)
+- New constants: `WEB_SEARCH_COST = $0.03`, `RESEARCH_TIMEOUT = 45s`, `RESEARCH_MAX_TOKENS = 2000`
+- `_call_openai_responses()` — Responses API caller with `web_search` tool, retry logic, citation extraction from `url_citation` annotations, maps `input_tokens`/`output_tokens` to existing `OpenAIResponse` dataclass
+- `_generate_web_research()` — Finds 3-5 recent stats/facts for the article topic. Non-fatal (returns None on failure)
+- `_format_sources_section()` — Formats citations as markdown `## Sources` with linked titles
+- `_generate_outline()` — New `research_context` param; when provided, appends `<research>` block telling AI to incorporate findings into Data Marker slots
+- `generate_content()` — New `web_research_enabled` param. Dynamic step counting: `5 + research? + image?` (5/6/7 steps). Research runs as step 1, context injected into outline and draft prompts, citations appended after review step
+- `generate_post()` — Passes `web_research_enabled=bool(template.web_research_enabled)`
+
+**4. Tier Gating** (`services/tier_limits.py`)
+- Added `web_research: False` to Scriptor, `True` to Tribune and Imperator
+- Added "Web Research" label to `check_feature_access()`
+
+**5. API Endpoint** (`api/templates.py`)
+- SSE `test_content_stream`: tier check when research enabled, passes `web_research_enabled` to pipeline
+- Progress callback enriched with `has_research` and `has_image` kwargs so frontend can build stages dynamically
+
+**6. Scheduler** (`services/scheduler.py`)
+- Imported `WEB_SEARCH_COST`, added to cost estimation when `template.web_research_enabled`
+
+**7. Frontend** (`PromptForm.jsx`)
+- Web Research toggle on Defaults tab (Switch + tooltip) after Featured Image section
+- Form state + edit population for `web_research_enabled`
+- Dynamic progress bar: `RESEARCH_STAGE` prepended when `progress.has_research` is true, `IMAGE_STAGE` appended when `progress.has_image` is true (replaces old `total > 5` heuristic)
+
+**Migration:** `o4p5q6r7s8t9` — adds `web_research_enabled` to `prompt_templates`
+
+**Files changed:** 9 modified + 1 new (migration)
+
+---
+
 ### 2026-02-18 (Session 35) — Data Visualization in Blog Posts
 
 **What we did:**
