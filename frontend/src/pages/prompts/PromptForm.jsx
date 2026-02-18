@@ -10,7 +10,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
   Save, ArrowBack, AutoAwesome, HelpOutline, ExpandMore, TuneOutlined,
   PlayArrow, RestartAlt, Visibility, VisibilityOff, Article, RecordVoiceOver,
-  SkipNext, ContentCopy, QuestionAnswer, Image as ImageIcon, AutoFixHigh,
+  SkipNext, ContentCopy, QuestionAnswer, Image as ImageIcon, AutoFixHigh, Code,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
@@ -1472,17 +1472,30 @@ export default function PromptForm() {
                           <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
                             Article Preview
                           </Typography>
-                          <Tooltip title="Copy article as markdown">
-                            <IconButton
-                              size="small"
-                              onClick={() => {
-                                navigator.clipboard.writeText(testContent.content_markdown);
-                                enqueueSnackbar('Article copied to clipboard', { variant: 'success' });
-                              }}
-                            >
-                              <ContentCopy sx={{ fontSize: 18 }} />
-                            </IconButton>
-                          </Tooltip>
+                          <Box sx={{ display: 'flex', gap: 0.5 }}>
+                            <Tooltip title="Copy as Markdown">
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(testContent.content_markdown);
+                                  enqueueSnackbar('Markdown copied to clipboard', { variant: 'success' });
+                                }}
+                              >
+                                <ContentCopy sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Copy as HTML">
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(testContent.content_html);
+                                  enqueueSnackbar('HTML copied to clipboard', { variant: 'success' });
+                                }}
+                              >
+                                <Code sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
                         </Box>
                         {featuredImageUrl && (
                           <Box sx={{ mb: 2, border: '1px solid', borderColor: 'divider', position: 'relative' }}>
