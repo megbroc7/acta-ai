@@ -64,6 +64,7 @@ function TabPanel({ children, value, index }) {
 const BASE_PIPELINE_STAGES = [
   { key: 'outline', label: 'Outline' },
   { key: 'draft', label: 'Draft' },
+  { key: 'charts', label: 'Charts' },
   { key: 'review', label: 'Review' },
   { key: 'meta', label: 'SEO Meta' },
 ];
@@ -71,7 +72,7 @@ const IMAGE_STAGE = { key: 'image', label: 'Image' };
 
 function ContentProgressBar({ progress }) {
   if (!progress) return null;
-  const stages = progress.total > 4
+  const stages = progress.total > 5
     ? [...BASE_PIPELINE_STAGES, IMAGE_STAGE]
     : BASE_PIPELINE_STAGES;
   return (

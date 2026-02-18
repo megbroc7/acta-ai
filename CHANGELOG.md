@@ -16,6 +16,44 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-18 (Session 35) — Data Visualization in Blog Posts
+
+**What we did:**
+Added automatic chart and table generation to the content pipeline. The system now scans every draft for statistics, comparisons, and rankings, then renders them as pure inline-CSS HTML visualizations embedded directly in the post. Works everywhere — Acta AI preview, WordPress, Shopify, email.
+
+**1. Chart Extraction & Rendering** (`services/content.py`)
+- New `_extract_chart_data()` — one GPT-4o call (temp 0.3) scans the draft for chartable data, returns 0-2 structured JSON specs
+- `_render_bar_chart()` — horizontal or vertical bar charts with percentage-width bars scaled to max value
+- `_render_table()` — zebra-striped tables with optional highlight column
+- `_render_chart_html()` — dispatcher routing to the correct renderer by type
+- Design system colors: patina green `#4A7C6F` bars, bronze `#B08D57` value labels, warm stone `#FAF8F5` background, `#E0DCD5` borders, bronze left-border accent (carved stone tablet aesthetic)
+- Always-on, opportunistic — no per-template toggle. 0 charts is fine.
+- Two-phase architecture: AI extracts structured JSON spec → Python renders pixel-perfect HTML. AI never writes CSS.
+
+**2. Draft Injection** (`services/content.py`)
+- `_inject_charts_into_draft()` — finds H2 heading matching `insert_after_heading` (case-insensitive partial match), inserts HTML block after first paragraph under that heading
+- Processes in reverse document order to avoid index shifting
+- Fallback: appends at end if heading not found
+
+**3. Pipeline Wiring** (`services/content.py`)
+- New flow: Outline(1) → Draft(2) → **Charts(3)** → Review(4) → Meta(5) → [Image(6)]
+- `total_steps` updated: `6 if has_image else 5`
+- Chart step fully wrapped in try/except — non-fatal, draft continues unchanged on failure
+- Token tracking: passes `TokenAccumulator` to `_extract_chart_data()`
+
+**4. Review Rubric Update** (`services/content.py`)
+- Added Priority 1 item: "Preserve all `<div>` HTML blocks (charts/tables) exactly as-is — do NOT modify, rewrite, or remove them"
+
+**5. Frontend Progress Bar** (`PromptForm.jsx`)
+- Added `{ key: 'charts', label: 'Charts' }` to `BASE_PIPELINE_STAGES` after 'draft'
+- Updated image stage threshold: `progress.total > 4` → `progress.total > 5`
+
+**No migration. No schema changes. No new files. No new dependencies.**
+
+**Files changed:** 2 modified (`content.py`, `PromptForm.jsx`)
+
+---
+
 ### 2026-02-18 (Session 34) — Billing & Subscription Tiers (Session 3 of 3): Scheduler Guards, DALL-E HD, Admin Panel, Trial Notifications
 
 **What we did:**

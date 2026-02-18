@@ -8,6 +8,7 @@ the scheduler (generate_post) or individually via test endpoints.
 """
 
 import asyncio
+import json
 import logging
 import random
 import re
@@ -42,6 +43,8 @@ META_TIMEOUT = 20
 META_MAX_TOKENS = 500
 MAX_RETRIES = 2
 MARKDOWN_EXTENSIONS = ["extra", "codehilite", "toc", "nl2br"]
+CHART_TIMEOUT = 30
+CHART_MAX_TOKENS = 1500
 
 # --- Cost calculation (GPT-4o pricing as of 2026) ---
 GPT4O_INPUT_COST = 2.50 / 1_000_000    # $2.50 per 1M input tokens
@@ -1110,7 +1113,8 @@ async def _generate_review(
         "- [ ] Each H2 opens with a 40-60 word answer statement (inverted pyramid)\n"
         "- [ ] Per-section word budgets met (within ~15%)\n"
         "- [ ] Data markers present per outline\n"
-        "- [ ] Conclusion = one specific actionable next step, not a summary\n\n"
+        "- [ ] Conclusion = one specific actionable next step, not a summary\n"
+        "- [ ] Preserve all <div> HTML blocks (charts/tables) exactly as-is — do NOT modify, rewrite, or remove them\n\n"
         "### Priority 2 — Anti-Robot Quality (fix second)\n"
         "- [ ] Zero banned phrases remain\n"
         "- [ ] No two consecutive paragraphs start the same way\n"
@@ -1282,6 +1286,305 @@ async def _generate_seo_meta(
         )
 
 
+# --- Data Visualization (chart extraction + rendering) ---
+
+
+def _render_bar_chart(chart: dict) -> str:
+    """Render a horizontal or vertical bar chart as pure inline-CSS HTML."""
+    title = chart.get("title", "")
+    subtitle = chart.get("subtitle", "")
+    items = chart.get("items", [])
+    orientation = chart.get("orientation", "horizontal")
+
+    if not items:
+        return ""
+
+    # Find max value for percentage scaling
+    max_val = max(abs(float(item.get("value", 0))) for item in items)
+    if max_val == 0:
+        max_val = 1
+
+    title_html = f'<div style="font-family:Inter,sans-serif;font-size:16px;font-weight:700;color:#2D5E4A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">{title}</div>' if title else ""
+    subtitle_html = f'<div style="font-family:Inter,sans-serif;font-size:13px;color:#8A8478;margin-bottom:16px;">{subtitle}</div>' if subtitle else ""
+    source_text = chart.get("source_text", "")
+    source_html = f'<div style="font-family:Inter,sans-serif;font-size:11px;color:#8A8478;margin-top:12px;font-style:italic;">Source context: {source_text}</div>' if source_text else ""
+
+    if orientation == "vertical":
+        # Vertical bars — flex row of columns
+        bar_cols = []
+        for item in items:
+            val = float(item.get("value", 0))
+            unit = item.get("unit", "")
+            label = item.get("label", "")
+            pct = (abs(val) / max_val) * 100
+            height_pct = max(pct, 5)  # min 5% height for visibility
+            bar_cols.append(
+                f'<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:60px;">'
+                f'<div style="font-family:Inter,sans-serif;font-size:12px;font-weight:600;color:#B08D57;margin-bottom:4px;">{val}{unit}</div>'
+                f'<div style="width:70%;height:{height_pct}px;max-height:120px;min-height:8px;background-color:#4A7C6F;"></div>'
+                f'<div style="font-family:Inter,sans-serif;font-size:11px;color:#555;margin-top:6px;text-align:center;">{label}</div>'
+                f'</div>'
+            )
+        # Recalculate heights as pixel values proportional to max
+        bar_cols_px = []
+        for item in items:
+            val = float(item.get("value", 0))
+            unit = item.get("unit", "")
+            label = item.get("label", "")
+            pct = (abs(val) / max_val)
+            height_px = max(int(pct * 120), 8)
+            bar_cols_px.append(
+                f'<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:60px;justify-content:flex-end;">'
+                f'<div style="font-family:Inter,sans-serif;font-size:12px;font-weight:600;color:#B08D57;margin-bottom:4px;">{val}{unit}</div>'
+                f'<div style="width:70%;height:{height_px}px;background-color:#4A7C6F;"></div>'
+                f'<div style="font-family:Inter,sans-serif;font-size:11px;color:#555;margin-top:6px;text-align:center;">{label}</div>'
+                f'</div>'
+            )
+        bars_html = f'<div style="display:flex;align-items:flex-end;gap:8px;min-height:160px;">{"".join(bar_cols_px)}</div>'
+    else:
+        # Horizontal bars — stacked rows (default)
+        rows = []
+        for item in items:
+            val = float(item.get("value", 0))
+            unit = item.get("unit", "")
+            label = item.get("label", "")
+            pct = (abs(val) / max_val) * 100
+            width_pct = max(pct, 3)  # min 3% width for visibility
+            rows.append(
+                f'<div style="display:flex;align-items:center;margin-bottom:8px;">'
+                f'<div style="font-family:Inter,sans-serif;font-size:12px;color:#555;width:120px;flex-shrink:0;text-align:right;padding-right:12px;">{label}</div>'
+                f'<div style="flex:1;background-color:#E0DCD5;height:24px;position:relative;">'
+                f'<div style="background-color:#4A7C6F;height:100%;width:{width_pct:.1f}%;"></div>'
+                f'</div>'
+                f'<div style="font-family:Inter,sans-serif;font-size:12px;font-weight:600;color:#B08D57;width:70px;text-align:right;padding-left:8px;">{val}{unit}</div>'
+                f'</div>'
+            )
+        bars_html = "".join(rows)
+
+    return (
+        f'<div style="background-color:#FAF8F5;border:1px solid #E0DCD5;border-left:4px solid #B08D57;'
+        f'padding:20px;margin:24px 0;font-family:Inter,sans-serif;">'
+        f'{title_html}{subtitle_html}{bars_html}{source_html}'
+        f'</div>'
+    )
+
+
+def _render_table(chart: dict) -> str:
+    """Render a styled HTML table with zebra striping and optional highlight column."""
+    title = chart.get("title", "")
+    columns = chart.get("columns", [])
+    rows = chart.get("rows", [])
+    highlight_column = chart.get("highlight_column")
+
+    if not columns or not rows:
+        return ""
+
+    title_html = f'<div style="font-family:Inter,sans-serif;font-size:16px;font-weight:700;color:#2D5E4A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">{title}</div>' if title else ""
+    source_text = chart.get("source_text", "")
+    source_html = f'<div style="font-family:Inter,sans-serif;font-size:11px;color:#8A8478;margin-top:8px;font-style:italic;">Source context: {source_text}</div>' if source_text else ""
+
+    # Header row
+    header_cells = []
+    for col in columns:
+        is_highlight = (col == highlight_column)
+        bg = "background-color:#4A7C6F;color:#fff;" if is_highlight else "background-color:#2D5E4A;color:#fff;"
+        header_cells.append(
+            f'<th style="{bg}font-family:Inter,sans-serif;font-size:12px;font-weight:700;'
+            f'text-transform:uppercase;letter-spacing:0.5px;padding:10px 14px;text-align:left;">{col}</th>'
+        )
+    header_row = f'<tr>{"".join(header_cells)}</tr>'
+
+    # Data rows with zebra striping
+    data_rows = []
+    for i, row in enumerate(rows):
+        bg_color = "#FAF8F5" if i % 2 == 0 else "#F0EDE8"
+        cells = []
+        for j, col in enumerate(columns):
+            cell_val = row[j] if j < len(row) else ""
+            is_highlight = (col == highlight_column)
+            cell_bg = f"background-color:{'#E8F0EC' if i % 2 == 0 else '#DCE8E2'};" if is_highlight else f"background-color:{bg_color};"
+            font_weight = "font-weight:600;" if is_highlight else ""
+            cells.append(
+                f'<td style="{cell_bg}{font_weight}font-family:Inter,sans-serif;font-size:13px;'
+                f'color:#333;padding:9px 14px;border-bottom:1px solid #E0DCD5;">{cell_val}</td>'
+            )
+        data_rows.append(f'<tr>{"".join(cells)}</tr>')
+
+    table_html = (
+        f'<table style="width:100%;border-collapse:collapse;border:1px solid #E0DCD5;">'
+        f'<thead>{header_row}</thead>'
+        f'<tbody>{"".join(data_rows)}</tbody>'
+        f'</table>'
+    )
+
+    return (
+        f'<div style="background-color:#FAF8F5;border:1px solid #E0DCD5;border-left:4px solid #B08D57;'
+        f'padding:20px;margin:24px 0;font-family:Inter,sans-serif;overflow-x:auto;">'
+        f'{title_html}{table_html}{source_html}'
+        f'</div>'
+    )
+
+
+def _render_chart_html(chart: dict) -> str | None:
+    """Dispatch to the correct renderer based on chart type."""
+    chart_type = chart.get("type", "")
+    if chart_type == "bar_chart":
+        return _render_bar_chart(chart)
+    elif chart_type == "table":
+        return _render_table(chart)
+    return None
+
+
+async def _extract_chart_data(
+    draft: str,
+    industry: str | None = None,
+    tokens: TokenAccumulator | None = None,
+) -> list[dict] | None:
+    """Scan draft for chartable data and return 0-2 structured chart specs.
+
+    Returns None on any failure (non-fatal). AI never invents data —
+    it only extracts statistics already present in the article text.
+    """
+    system_prompt = (
+        "You are a data visualization analyst. Your job is to scan article drafts "
+        "and identify statistics, comparisons, rankings, or percentage breakdowns "
+        "that would benefit from a visual chart or table.\n\n"
+        "Rules:\n"
+        "- Return a JSON array with 0-2 chart specifications\n"
+        "- Only extract data that is ALREADY in the article — NEVER invent numbers\n"
+        "- Skip single isolated statistics (need at least 2 comparable data points)\n"
+        "- Prefer: comparisons, rankings, progressions, percentage breakdowns\n"
+        "- Return an empty array [] if nothing is worth visualizing\n"
+        "- Return ONLY valid JSON — no markdown fences, no commentary"
+    )
+
+    industry_hint = f"\nArticle industry: {industry}" if industry else ""
+
+    user_prompt = (
+        f"Scan this article draft for chartable data.{industry_hint}\n\n"
+        "For each chart, return one of these JSON schemas:\n\n"
+        "Bar chart:\n"
+        '{"type": "bar_chart", "orientation": "horizontal"|"vertical", '
+        '"title": "short chart title", "subtitle": "optional context line", '
+        '"items": [{"label": "item name", "value": number, "unit": "%"|"x"|"$"|""}], '
+        '"source_text": "sentence from the article this data came from", '
+        '"insert_after_heading": "H2 heading text where this chart belongs"}\n\n'
+        "Table:\n"
+        '{"type": "table", "title": "short table title", '
+        '"columns": ["Col1", "Col2", ...], '
+        '"rows": [["val1", "val2", ...], ...], '
+        '"highlight_column": "column name to emphasize" or null, '
+        '"source_text": "sentence from the article this data came from", '
+        '"insert_after_heading": "H2 heading text where this table belongs"}\n\n'
+        f"ARTICLE DRAFT:\n\n{draft}"
+    )
+
+    try:
+        resp = await _call_openai(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            timeout=CHART_TIMEOUT,
+            max_tokens=CHART_MAX_TOKENS,
+            temperature=0.3,
+        )
+        if tokens:
+            tokens.add(resp)
+
+        raw = _strip_code_fences(resp.text).strip()
+        charts = json.loads(raw)
+
+        if not isinstance(charts, list):
+            logger.warning("Chart extraction returned non-list: %s", type(charts))
+            return None
+
+        # Hard cap at 2 charts
+        charts = charts[:2]
+
+        # Validate each spec
+        valid = []
+        for chart in charts:
+            if not isinstance(chart, dict):
+                continue
+            ctype = chart.get("type", "")
+            if ctype == "bar_chart":
+                items = chart.get("items", [])
+                if isinstance(items, list) and len(items) >= 2:
+                    valid.append(chart)
+            elif ctype == "table":
+                rows = chart.get("rows", [])
+                cols = chart.get("columns", [])
+                if isinstance(rows, list) and len(rows) >= 2 and isinstance(cols, list) and len(cols) >= 2:
+                    valid.append(chart)
+
+        return valid if valid else None
+
+    except (json.JSONDecodeError, ValueError) as e:
+        logger.warning("Chart extraction JSON parse failed (non-fatal): %s", e)
+        return None
+    except Exception as e:
+        logger.warning("Chart extraction failed (non-fatal): %s", e)
+        return None
+
+
+def _inject_charts_into_draft(
+    draft_markdown: str,
+    charts: list[dict],
+    rendered_htmls: list[str],
+) -> str:
+    """Insert rendered chart HTML blocks into the markdown draft.
+
+    For each chart, finds the H2 heading matching `insert_after_heading`
+    (case-insensitive partial match) and inserts the HTML block after the
+    first paragraph under that heading. Processes in reverse document order
+    to avoid index shifting. Falls back to appending at end if heading not found.
+    """
+    lines = draft_markdown.split("\n")
+
+    # Build insertion plan: list of (line_index, html) — insert AFTER line_index
+    insertions: list[tuple[int, str]] = []
+
+    for chart, html in zip(charts, rendered_htmls):
+        target_heading = (chart.get("insert_after_heading") or "").lower().strip()
+        if not target_heading:
+            # No heading specified — append at end
+            insertions.append((len(lines) - 1, html))
+            continue
+
+        found = False
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            # Match H2 headings: "## Something"
+            if stripped.startswith("## "):
+                heading_text = stripped.lstrip("#").strip().lower()
+                if target_heading in heading_text or heading_text in target_heading:
+                    # Found the heading — find end of first paragraph after it
+                    # Skip blank lines after heading
+                    j = i + 1
+                    while j < len(lines) and not lines[j].strip():
+                        j += 1
+                    # Now find the end of the first paragraph (next blank line or next heading)
+                    while j < len(lines) and lines[j].strip() and not lines[j].strip().startswith("#"):
+                        j += 1
+                    # Insert after the paragraph (at position j)
+                    insertions.append((j, html))
+                    found = True
+                    break
+
+        if not found:
+            # Fallback: append at end
+            insertions.append((len(lines), html))
+
+    # Sort by position descending so inserts don't shift earlier indices
+    insertions.sort(key=lambda x: x[0], reverse=True)
+
+    for pos, html in insertions:
+        # Insert as a raw HTML block (blank-line delimited for markdown)
+        html_block = f"\n{html}\n"
+        lines.insert(pos, html_block)
+
+    return "\n".join(lines)
+
+
 async def generate_content(
     template: PromptTemplate,
     title: str,
@@ -1295,7 +1598,7 @@ async def generate_content(
     industry: str | None = None,
     dalle_quality: str = "standard",
 ) -> ContentResult:
-    """3-step article chain: Outline → Draft → Review/Polish, plus optional image.
+    """Pipeline: Outline → Draft → Charts → Review/Polish → Meta → [Image].
 
     Args:
         progress_callback: Optional async callable(stage, step, total, message).
@@ -1311,7 +1614,7 @@ async def generate_content(
     effective_tone = tone or template.default_tone
 
     has_image = image_source and image_source != "none"
-    total_steps = 5 if has_image else 4
+    total_steps = 6 if has_image else 5
 
     # Token accumulator for the entire content pipeline
     acc = TokenAccumulator()
@@ -1345,9 +1648,29 @@ async def generate_content(
     acc.add(draft_resp)
     draft = _strip_code_fences(draft_resp.text)
 
-    # Step 3: Review/Polish
+    # Step 3: Charts — scan for chartable data and inject visualizations (non-fatal)
     if progress_callback:
-        await progress_callback("review", 3, total_steps, "Reviewing and polishing...")
+        await progress_callback("charts", 3, total_steps, "Scanning for chartable data...")
+    try:
+        chart_specs = await _extract_chart_data(
+            draft=draft,
+            industry=industry or template.industry,
+            tokens=acc,
+        )
+        if chart_specs:
+            rendered = [_render_chart_html(c) for c in chart_specs]
+            # Filter out None (unknown chart types)
+            pairs = [(spec, html) for spec, html in zip(chart_specs, rendered) if html]
+            if pairs:
+                valid_specs, valid_htmls = zip(*pairs)
+                draft = _inject_charts_into_draft(draft, list(valid_specs), list(valid_htmls))
+                logger.info("Injected %d chart(s) into draft", len(valid_htmls))
+    except Exception as e:
+        logger.warning("Chart step failed (non-fatal), continuing without charts: %s", e)
+
+    # Step 4: Review/Polish
+    if progress_callback:
+        await progress_callback("review", 4, total_steps, "Reviewing and polishing...")
     polished = await _generate_review(
         system_prompt=system_prompt,
         draft=draft,
@@ -1365,9 +1688,9 @@ async def generate_content(
     html = markdown_to_html(polished)
     excerpt = extract_excerpt(html)
 
-    # Step 4: SEO metadata
+    # Step 5: SEO metadata
     if progress_callback:
-        await progress_callback("meta", 4, total_steps, "Generating SEO metadata...")
+        await progress_callback("meta", 5, total_steps, "Generating SEO metadata...")
     seo_meta = await _generate_seo_meta(
         title=title,
         excerpt=excerpt,
@@ -1377,11 +1700,11 @@ async def generate_content(
         tokens=acc,
     )
 
-    # Step 5: Featured image (optional)
+    # Step 6: Featured image (optional)
     featured_image_url = None
     if has_image:
         if progress_callback:
-            await progress_callback("image", 5, total_steps, "Generating featured image...")
+            await progress_callback("image", 6, total_steps, "Generating featured image...")
         from app.services.images import generate_featured_image
         featured_image_url = await generate_featured_image(
             source=image_source,
