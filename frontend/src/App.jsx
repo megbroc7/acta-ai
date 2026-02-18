@@ -44,6 +44,9 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminCosts from './pages/admin/AdminCosts';
 import AdminFeedback from './pages/admin/AdminFeedback';
 import ScheduleHistory from './pages/schedules/ScheduleHistory';
+import Settings from './pages/settings/Settings';
+import TermsOfService from './pages/legal/TermsOfService';
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -144,6 +147,7 @@ export default function App() {
                   <Route path="/guide" element={<UserGuide />} />
                   <Route path="/about" element={<AboutActaAI />} />
                   <Route path="/feedback" element={<Feedback />} />
+                  <Route path="/settings" element={<Settings />} />
 
                   <Route
                     path="/admin"
@@ -194,6 +198,10 @@ export default function App() {
                     }
                   />
                 </Route>
+
+                {/* Public legal pages (no auth required) */}
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
 
                 {/* Catch-all */}
                 <Route path="*" element={<Navigate to="/" replace />} />

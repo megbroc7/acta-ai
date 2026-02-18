@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router-dom';
-import { Box, Container, Paper, Typography } from '@mui/material';
+import { Outlet, Link } from 'react-router-dom';
+import { Box, Container, Paper, Typography, Link as MuiLink } from '@mui/material';
 
 export default function AuthLayout() {
   return (
@@ -38,6 +38,33 @@ export default function AuthLayout() {
           </Typography>
           <Outlet />
         </Paper>
+        <Box
+          sx={{
+            mt: 3,
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 3,
+          }}
+        >
+          <MuiLink
+            component={Link}
+            to="/terms"
+            variant="caption"
+            underline="hover"
+            sx={{ color: 'text.secondary' }}
+          >
+            Terms of Service
+          </MuiLink>
+          <MuiLink
+            component={Link}
+            to="/privacy"
+            variant="caption"
+            underline="hover"
+            sx={{ color: 'text.secondary' }}
+          >
+            Privacy Policy
+          </MuiLink>
+        </Box>
       </Container>
     </Box>
   );
