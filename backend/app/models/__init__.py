@@ -6,6 +6,7 @@ from app.models.blog_post import BlogPost, ExecutionHistory
 from app.models.feedback import Feedback
 from app.models.app_settings import AppSettings
 from app.models.notification import Notification
+from app.models.subscription import Subscription
 
 __all__ = [
     "User",
@@ -19,4 +20,5 @@ __all__ = [
     "Feedback",
     "AppSettings",
     "Notification",
+    "Subscription",
 ]

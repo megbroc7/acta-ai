@@ -126,6 +126,10 @@ async def create_site(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    from app.services.tier_limits import check_site_limit
+
+    await check_site_limit(db, current_user)
+
     site = Site(
         user_id=current_user.id,
         name=data.name,

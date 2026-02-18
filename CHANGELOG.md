@@ -16,6 +16,54 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-18 (Session 32) — Billing & Subscription Tiers (Session 1 of 3)
+
+**What we did:**
+Built the data foundation and backend enforcement for three subscription tiers: Scriptor ($29/mo), Tribune ($79/mo), and Imperator ($249/mo). This is Session 1 of 3 — establishes tier definitions, database models, resource limit enforcement, feature gates, trial logic, and a tier info API. Stripe integration (Session 2) and frontend UI (Sessions 2-3) come later.
+
+**1. Database: User model** (`models/user.py`)
+- Added `subscription_tier` (String(20), nullable) — "scriptor" / "tribune" / "imperator" / NULL
+- Added `trial_ends_at` (DateTime(timezone=True), nullable) — set to now + 14 days on registration
+- Added `stripe_customer_id` (String(255), nullable) — placeholder for Session 2
+
+**2. Database: Subscription model** (`models/subscription.py`) — NEW
+- One-per-user table for Stripe subscription data (customer ID, subscription ID, price ID, status, tier, period dates, cancel_at_period_end, trial dates, timestamps)
+- Stays empty until Session 2 (Stripe webhooks) — created now for clean migration
+
+**3. Migration `n3o4p5q6r7s8`**
+- Creates `subscriptions` table with indexes on stripe_customer_id and stripe_subscription_id
+- Adds 3 columns to `users`
+- Data migration: all existing users grandfathered as `imperator` (no trial, no expiry)
+
+**4. Tier Enforcement Service** (`services/tier_limits.py`) — NEW
+- `TIER_LIMITS` dict: resource caps (sites/templates/schedules), feature flags (review_workflow, voice_match, revise_with_ai, wp_pending_review), image sources, DALL-E quality
+- `get_effective_tier(user)` — subscription_tier → active trial ("tribune") → None (soft-locked)
+- `check_site_limit()`, `check_template_limit()`, `check_schedule_limit()` — count + enforce 403
+- `check_feature_access()` — boolean feature gates with descriptive upgrade messages
+- `check_image_source()` — validates DALL-E vs Unsplash per tier
+- `require_active_subscription()` — blocks expired trial + no subscription
+
+**5. Backend Enforcement Wiring**
+- `auth.py`: New users get `trial_ends_at = now + 14 days` (Tribune-level trial)
+- `sites.py`: `create_site()` → site limit check
+- `templates.py`: `create_template()` / `duplicate_template()` → template limit check; `create`/`update` → image source validation; `analyze_voice()` → voice_match feature gate; `test_content_stream()` → active subscription + image source check
+- `schedules.py`: `create_schedule()` → schedule limit check + review workflow gate on post_status; `update_schedule()` → review workflow gate; `activate_schedule()` → require_active_subscription
+- `posts.py`: `revise_stream()` → revise_with_ai feature gate
+
+**6. Billing API** (`api/billing.py`) — NEW
+- `GET /billing/tier-info` — returns effective tier, subscription tier, trial status, limits dict, and current usage counts (sites/templates/schedules)
+- `TierInfoResponse` / `TierLimitsResponse` / `UsageResponse` schemas
+
+**7. Auth Schema** (`schemas/auth.py`)
+- `UserResponse` now includes `subscription_tier`, `trial_ends_at`, and computed `trial_active` field
+
+**Files changed:** 10 modified + 4 new
+**Migration:** `n3o4p5q6r7s8`
+**Deferred to Session 2:** Stripe Checkout, webhooks, Customer Portal, frontend pricing page, frontend billing settings, TierGate component
+**Deferred to Session 3:** Scheduler tier guards, DALL-E HD quality, admin subscription panel, trial expiry notifications
+
+---
+
 ### 2026-02-18 (Session 31) — Match My Writing Style
 
 **What we did:**

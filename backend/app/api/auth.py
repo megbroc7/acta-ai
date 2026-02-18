@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -17,6 +18,8 @@ from app.models.user import User
 from app.schemas.auth import RefreshRequest, TokenResponse, UserCreate, UserResponse
 from app.api.deps import get_current_user
 
+TRIAL_DAYS = 14
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -34,6 +37,7 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
         email=data.email,
         hashed_password=hash_password(data.password),
         full_name=data.full_name,
+        trial_ends_at=datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS),
     )
     db.add(user)
     await db.commit()

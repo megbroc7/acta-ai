@@ -67,6 +67,11 @@ async def create_template(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    from app.services.tier_limits import check_image_source, check_template_limit
+
+    await check_template_limit(db, current_user)
+    check_image_source(current_user, data.image_source if hasattr(data, "image_source") else None)
+
     dump = data.model_dump()
     # Auto-format experience_qa → experience_notes
     if dump.get("experience_qa"):
@@ -168,6 +173,12 @@ async def update_template(
         raise HTTPException(status_code=404, detail="Template not found")
 
     update_data = data.model_dump(exclude_unset=True)
+
+    # Validate image source against tier
+    if "image_source" in update_data:
+        from app.services.tier_limits import check_image_source
+        check_image_source(current_user, update_data["image_source"])
+
     # Auto-format experience_qa → experience_notes
     if "experience_qa" in update_data and update_data["experience_qa"]:
         from app.services.content import format_experience_qa
@@ -208,6 +219,10 @@ async def duplicate_template(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    from app.services.tier_limits import check_template_limit
+
+    await check_template_limit(db, current_user)
+
     result = await db.execute(
         select(PromptTemplate).where(
             PromptTemplate.id == template_id,
@@ -314,6 +329,10 @@ async def analyze_voice(
     current_user: User = Depends(get_current_user),
 ):
     """Analyze a writing sample to detect voice/tone characteristics."""
+    from app.services.tier_limits import check_feature_access
+
+    check_feature_access(current_user, "voice_match")
+
     if await is_maintenance_mode(db):
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -508,6 +527,10 @@ async def test_content_stream(
     current_user: User = Depends(get_current_user),
 ):
     """SSE streaming endpoint for content generation with real-time progress."""
+    from app.services.tier_limits import check_image_source, require_active_subscription
+
+    await require_active_subscription(current_user)
+
     if await is_maintenance_mode(db):
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -528,6 +551,8 @@ async def test_content_stream(
     template = result.scalar_one_or_none()
     if not template:
         raise HTTPException(status_code=404, detail="Template not found")
+
+    check_image_source(current_user, template.image_source)
 
     # Build experience context (same logic as test_content)
     experience_parts = []

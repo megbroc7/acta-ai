@@ -308,6 +308,10 @@ async def revise_stream(
     current_user: User = Depends(get_current_user),
 ):
     """SSE streaming endpoint for AI-powered content revision."""
+    from app.services.tier_limits import check_feature_access
+
+    check_feature_access(current_user, "revise_with_ai")
+
     if await is_maintenance_mode(db):
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

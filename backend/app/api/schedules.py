@@ -60,6 +60,14 @@ async def create_schedule(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    from app.services.tier_limits import check_feature_access, check_schedule_limit
+
+    await check_schedule_limit(db, current_user)
+
+    # Review workflow gate: pending_review requires review_workflow feature
+    if data.post_status == "pending_review":
+        check_feature_access(current_user, "review_workflow")
+
     schedule = BlogSchedule(user_id=current_user.id, **data.model_dump())
     db.add(schedule)
     await db.commit()
@@ -410,6 +418,12 @@ async def update_schedule(
         raise HTTPException(status_code=404, detail="Schedule not found")
 
     update_data = data.model_dump(exclude_unset=True)
+
+    # Review workflow gate on update
+    if "post_status" in update_data and update_data["post_status"] == "pending_review":
+        from app.services.tier_limits import check_feature_access
+        check_feature_access(current_user, "review_workflow")
+
     for key, value in update_data.items():
         setattr(schedule, key, value)
 
@@ -476,6 +490,9 @@ async def activate_schedule(
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
 
+    from app.services.tier_limits import require_active_subscription
+
+    await require_active_subscription(current_user)
     await _validate_template_experience(db, schedule.prompt_template_id)
 
     schedule.is_active = True
