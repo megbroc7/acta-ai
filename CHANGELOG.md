@@ -16,6 +16,54 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-18 (Session 33) — Billing & Subscription Tiers (Session 2 of 3): Stripe Integration + Frontend
+
+**What we did:**
+Wired Stripe Checkout, Customer Portal, and Webhooks into the backend, and built the frontend Billing page. Users can now subscribe to a plan via Stripe Checkout, manage their subscription through the Stripe Customer Portal, and see their current plan/usage on the `/billing` page.
+
+**1. Stripe Package + Config**
+- Added `stripe>=11.0.0` to `requirements.txt` (installed v14.3.0)
+- Added 5 Stripe settings to `config.py`: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_SCRIPTOR`, `STRIPE_PRICE_TRIBUNE`, `STRIPE_PRICE_IMPERATOR`
+
+**2. Stripe Service** (`services/stripe_service.py`) — NEW
+- `get_or_create_customer(user, db)` — finds or creates Stripe customer, persists `stripe_customer_id`
+- `create_checkout_session(user, tier, success_url, cancel_url, db)` — maps tier → price ID, creates Stripe Checkout Session (mode=subscription)
+- `create_portal_session(user, return_url, db)` — creates Stripe Customer Portal session
+- `handle_webhook_event(payload, sig_header, db)` — verifies signature, dispatches to 4 handlers:
+  - `checkout.session.completed` → upserts Subscription row, sets `user.subscription_tier`, clears trial
+  - `customer.subscription.updated` → syncs status/tier/period/cancel_at_period_end
+  - `customer.subscription.deleted` → marks canceled, clears `user.subscription_tier`
+  - `invoice.payment_failed` → sets status to "past_due"
+- Uses async Stripe API variants (`create_async`, `retrieve_async`) to avoid blocking the event loop
+- Helper functions: `_price_to_tier()`, `_tier_to_price()`, `_from_unix()`
+
+**3. Billing Schemas** (`schemas/billing.py`)
+- Added `CheckoutSessionRequest`, `CheckoutSessionResponse`, `PortalSessionRequest`, `PortalSessionResponse`, `SubscriptionDetail`
+- Extended `TierInfoResponse` with optional `subscription` field (status, current_period_end, cancel_at_period_end)
+
+**4. Billing API Endpoints** (`api/billing.py`)
+- `POST /billing/create-checkout-session` — creates Stripe Checkout; if user already has subscription, redirects to portal instead
+- `POST /billing/create-portal-session` — creates Customer Portal session
+- `POST /billing/webhook` — no auth, raw body + Stripe signature verification, own DB session
+- Extended `GET /billing/tier-info` to include subscription details
+
+**5. Frontend Billing Page** (`pages/billing/Billing.jsx`) — NEW
+- Current Plan card with tier badge, trial countdown alert, usage bars (sites/templates/schedules via LinearProgress), "Manage Subscription" button → Stripe Portal
+- Plan comparison grid: 3 tier cards (Scriptor/Tribune/Imperator) with price, feature list, excluded features
+- Current tier highlighted with green border, Tribune marked "Most Popular"
+- Smart button labels: "Current Plan" (disabled) / "Subscribe" / "Upgrade" / "Manage Plan"
+- Success/cancel URL handling: reads query params, shows snackbar, cleans URL
+
+**6. Routing + Navigation**
+- Added `/billing` route in `App.jsx`
+- Added "Subscription" nav item with `WorkspacePremium` icon in `MainLayout.jsx` (before Settings)
+
+**No migration needed** — all DB schema was established in Session 32.
+
+**Files changed:** 6 modified + 2 new
+
+---
+
 ### 2026-02-18 (Session 32) — Billing & Subscription Tiers (Session 1 of 3)
 
 **What we did:**

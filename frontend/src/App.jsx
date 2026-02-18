@@ -45,6 +45,7 @@ import AdminCosts from './pages/admin/AdminCosts';
 import AdminFeedback from './pages/admin/AdminFeedback';
 import ScheduleHistory from './pages/schedules/ScheduleHistory';
 import Settings from './pages/settings/Settings';
+import Billing from './pages/billing/Billing';
 import TermsOfService from './pages/legal/TermsOfService';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
@@ -148,6 +149,7 @@ export default function App() {
                   <Route path="/about" element={<AboutActaAI />} />
                   <Route path="/feedback" element={<Feedback />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/billing" element={<Billing />} />
 
                   <Route
                     path="/admin"

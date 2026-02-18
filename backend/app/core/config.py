@@ -22,6 +22,13 @@ class Settings(BaseSettings):
     # Encryption (for WordPress credentials)
     ENCRYPTION_KEY: str = ""
 
+    # Stripe
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PRICE_SCRIPTOR: str = ""
+    STRIPE_PRICE_TRIBUNE: str = ""
+    STRIPE_PRICE_IMPERATOR: str = ""
+
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:5173"]
 
