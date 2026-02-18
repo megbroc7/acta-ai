@@ -16,6 +16,10 @@ class PostCreate(BaseModel):
     categories: list[int] = []
     tags: list[int] = []
     status: str = "draft"
+    prompt_template_id: uuid.UUID | None = None
+    system_prompt_used: str | None = None
+    topic_prompt_used: str | None = None
+    content_prompt_used: str | None = None
 
 
 class PostUpdate(BaseModel):
@@ -65,6 +69,10 @@ class PostResponse(BaseModel):
     updated_at: datetime | None = None
     site: PostSiteInfo | None = None
     model_config = {"from_attributes": True}
+
+
+class MarkPublishedRequest(BaseModel):
+    published_url: str | None = None
 
 
 class RejectRequest(BaseModel):

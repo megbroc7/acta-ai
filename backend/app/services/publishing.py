@@ -211,12 +211,21 @@ async def publish_to_wix(post: BlogPost, site: Site) -> PublishResult:
     raise PublishError("Wix publishing not yet implemented")
 
 
+async def publish_to_copy(post: BlogPost, site: Site) -> PublishResult:
+    """Copy & Paste platform — no actual publishing, just mark as published."""
+    return PublishResult(
+        platform_post_id=f"copy-{post.id}",
+        published_url=site.url,
+    )
+
+
 async def publish_post(post: BlogPost, site: Site) -> PublishResult:
     """Dispatch publishing to the correct platform handler."""
     dispatchers = {
         "wordpress": publish_to_wordpress,
         "shopify": publish_to_shopify,
         "wix": publish_to_wix,
+        "copy": publish_to_copy,
     }
     handler = dispatchers.get(site.platform)
     if not handler:

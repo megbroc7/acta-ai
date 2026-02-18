@@ -9,12 +9,13 @@ class Platform(StrEnum):
     wordpress = "wordpress"
     shopify = "shopify"
     wix = "wix"
+    copy = "copy"
 
 
 class SiteCreate(BaseModel):
     name: str = Field(min_length=1)
     url: str = Field(min_length=1)
-    api_url: str = Field(min_length=1)
+    api_url: str | None = None
     platform: Platform
     username: str | None = None
     app_password: str | None = None
@@ -23,6 +24,10 @@ class SiteCreate(BaseModel):
 
     @model_validator(mode="after")
     def check_platform_credentials(self):
+        if self.platform == Platform.copy:
+            return self
+        if not self.api_url:
+            raise ValueError(f"{self.platform.value.title()} sites require api_url")
         if self.platform == Platform.wordpress:
             if not self.username or not self.app_password:
                 raise ValueError("WordPress sites require username and app_password")
@@ -78,7 +83,7 @@ class SiteDetail(SiteResponse):
 
 class ConnectionTestRequest(BaseModel):
     platform: Platform
-    api_url: str
+    api_url: str | None = None
     username: str | None = None
     app_password: str | None = None
     api_key: str | None = None

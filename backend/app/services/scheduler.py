@@ -308,6 +308,14 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
         # 6/7. Set post status based on schedule.post_status
         target_status = (schedule.post_status or "draft").lower()
 
+        # Copy & Paste sites can't auto-publish — override to pending_review
+        if target_status == "publish" and site.platform == "copy":
+            target_status = "pending_review"
+            logger.info(
+                "Copy & Paste site — overriding auto-publish to pending_review for schedule '%s'",
+                schedule.name,
+            )
+
         if target_status == "publish":
             try:
                 pub_result = await publishing_service.publish_post(post, site)

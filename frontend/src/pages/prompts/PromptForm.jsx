@@ -5,12 +5,14 @@ import {
   Box, Typography, Card, CardContent, TextField, Button, Stack,
   MenuItem, Tabs, Tab, Slider, Switch, FormControlLabel, Chip,
   CircularProgress, LinearProgress, Tooltip, IconButton, Collapse, Alert, Divider,
+  Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
   Save, ArrowBack, AutoAwesome, HelpOutline, ExpandMore, TuneOutlined,
   PlayArrow, RestartAlt, Visibility, VisibilityOff, Article, RecordVoiceOver,
   SkipNext, ContentCopy, QuestionAnswer, Image as ImageIcon, AutoFixHigh, Code,
+  SaveAlt, LinkedIn, Refresh,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
@@ -275,10 +277,44 @@ export default function PromptForm() {
   const [suggestions, setSuggestions] = useState([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
 
+  // Save to Posts state
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveSiteId, setSaveSiteId] = useState('');
+
+  // LinkedIn test panel state
+  const [linkedinOpen, setLinkedinOpen] = useState(false);
+  const [linkedinLoading, setLinkedinLoading] = useState(false);
+  const [linkedinText, setLinkedinText] = useState('');
+  const [linkedinVoiceApplied, setLinkedinVoiceApplied] = useState(false);
+
   const { data: template } = useQuery({
     queryKey: ['template', id],
     queryFn: () => api.get(`/templates/${id}`).then(r => r.data),
     enabled: isEdit,
+  });
+
+  const { data: sites } = useQuery({
+    queryKey: ['sites'],
+    queryFn: () => api.get('/sites/').then(r => r.data),
+  });
+
+  const saveToPostsMutation = useMutation({
+    mutationFn: (data) => api.post('/posts/', data),
+    onSuccess: (res) => {
+      setSaveDialogOpen(false);
+      enqueueSnackbar('Post saved', {
+        variant: 'success',
+        action: () => (
+          <Button color="inherit" size="small" onClick={() => navigate(`/posts/${res.data.id}`)}>
+            View Post
+          </Button>
+        ),
+      });
+    },
+    onError: (err) => {
+      const detail = err.response?.data?.detail;
+      enqueueSnackbar(typeof detail === 'string' ? detail : 'Failed to save post', { variant: 'error' });
+    },
   });
 
   useEffect(() => {
@@ -574,6 +610,66 @@ export default function PromptForm() {
     setInterviewAnswers([]);
     setInterviewLoading(false);
     setContentProgress(null);
+    setLinkedinOpen(false);
+    setLinkedinText('');
+    setLinkedinVoiceApplied(false);
+  };
+
+  const handleSaveToPostsOpen = () => {
+    // Auto-select if user has exactly 1 site
+    if (sites?.length === 1) {
+      setSaveSiteId(sites[0].id);
+    } else {
+      setSaveSiteId('');
+    }
+    setSaveDialogOpen(true);
+  };
+
+  const handleSaveToPostsSubmit = () => {
+    if (!saveSiteId || !testContent) return;
+    const outlineAudit = testContent.outline_used
+      ? `--- OUTLINE ---\n${testContent.outline_used}\n\n--- CONTENT PROMPT ---\n${testContent.content_prompt_used || ''}`
+      : testContent.content_prompt_used || null;
+    saveToPostsMutation.mutate({
+      site_id: saveSiteId,
+      title: testTitle,
+      content: testContent.content_html,
+      excerpt: testContent.excerpt || null,
+      featured_image_url: featuredImageUrl || null,
+      meta_title: testContent.meta_title || null,
+      meta_description: testContent.meta_description || null,
+      image_alt_text: testContent.image_alt_text || null,
+      status: 'draft',
+      prompt_template_id: id || null,
+      system_prompt_used: testContent.system_prompt_used || null,
+      topic_prompt_used: testPrompts?.topic_prompt_used || null,
+      content_prompt_used: outlineAudit,
+    });
+  };
+
+  const generateLinkedinPost = async ({ closeOnError = true } = {}) => {
+    if (!id || !testContent) return;
+    setLinkedinLoading(true);
+    setLinkedinText('');
+    try {
+      const res = await api.post(`/templates/${id}/test/linkedin`, {
+        content_html: testContent.content_html,
+        title: testTitle,
+      });
+      setLinkedinText(res.data.linkedin_post);
+      setLinkedinVoiceApplied(res.data.voice_applied || false);
+    } catch (err) {
+      const detail = err.response?.data?.detail || 'Failed to generate LinkedIn post';
+      enqueueSnackbar(detail, { variant: 'error' });
+      if (closeOnError) setLinkedinOpen(false);
+    } finally {
+      setLinkedinLoading(false);
+    }
+  };
+
+  const handleLinkedinOpen = () => {
+    setLinkedinOpen(true);
+    generateLinkedinPost({ closeOnError: true });
   };
 
   return (
@@ -1495,6 +1591,27 @@ export default function PromptForm() {
                                 <Code sx={{ fontSize: 18 }} />
                               </IconButton>
                             </Tooltip>
+                            <Tooltip title="Save to Posts">
+                              <IconButton
+                                size="small"
+                                onClick={handleSaveToPostsOpen}
+                                disabled={saveToPostsMutation.isPending}
+                              >
+                                <SaveAlt sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Tooltip>
+                            {isEdit && (
+                              <Tooltip title="LinkedIn Post">
+                                <IconButton
+                                  size="small"
+                                  onClick={handleLinkedinOpen}
+                                  disabled={linkedinLoading}
+                                  sx={{ color: '#0A66C2' }}
+                                >
+                                  <LinkedIn sx={{ fontSize: 18 }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
                           </Box>
                         </Box>
                         {featuredImageUrl && (
@@ -1848,6 +1965,185 @@ export default function PromptForm() {
           </Button>
         </Box>
       </form>
+
+      {/* Save to Posts Dialog */}
+      <Dialog open={saveDialogOpen} onClose={() => setSaveDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <SaveAlt sx={{ color: '#4A7C6F' }} />
+          <span>Save to Posts</span>
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mb: 2 }} color="text.secondary">
+            Save this generated article as a tracked post. You can review, revise, and publish it later.
+          </Typography>
+          {sites?.length > 0 ? (
+            <TextField
+              select
+              fullWidth
+              label="Select Site"
+              value={saveSiteId}
+              onChange={(e) => setSaveSiteId(e.target.value)}
+              helperText="Choose which site this post belongs to"
+            >
+              {sites.map((s) => (
+                <MenuItem key={s.id} value={s.id}>
+                  {s.name} ({s.platform})
+                </MenuItem>
+              ))}
+            </TextField>
+          ) : (
+            <Alert severity="warning">
+              You need to add a site first before saving posts.{' '}
+              <Button size="small" onClick={() => navigate('/sites/new')}>Add Site</Button>
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveToPostsSubmit}
+            disabled={!saveSiteId || saveToPostsMutation.isPending}
+            startIcon={saveToPostsMutation.isPending ? <CircularProgress size={18} color="inherit" /> : <SaveAlt />}
+            sx={{ bgcolor: '#4A7C6F', '&:hover': { bgcolor: '#2D5E4A' } }}
+          >
+            {saveToPostsMutation.isPending ? 'Saving...' : 'Save Post'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* LinkedIn Post Dialog */}
+      <Dialog
+        open={linkedinOpen}
+        onClose={() => { if (!linkedinLoading) setLinkedinOpen(false); }}
+        maxWidth="sm"
+        fullWidth
+        disableEscapeKeyDown={linkedinLoading}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LinkedIn sx={{ color: '#0A66C2' }} />
+          <span>LinkedIn Post</span>
+          {linkedinVoiceApplied && !linkedinLoading && (
+            <Tooltip title="Your writing voice profile was used to shape this post">
+              <Chip
+                icon={<RecordVoiceOver sx={{ fontSize: 14 }} />}
+                label="Your Voice"
+                size="small"
+                sx={{
+                  ml: 'auto',
+                  height: 22,
+                  fontWeight: 600,
+                  fontSize: '0.65rem',
+                  bgcolor: 'rgba(74, 124, 111, 0.12)',
+                  color: '#4A7C6F',
+                  '& .MuiChip-icon': { color: '#4A7C6F' },
+                }}
+              />
+            </Tooltip>
+          )}
+        </DialogTitle>
+        <DialogContent>
+          {linkedinLoading ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4, gap: 2 }}>
+              <CircularProgress size={36} sx={{ color: '#0A66C2' }} />
+              <Typography variant="body2" color="text.secondary">
+                Generating your LinkedIn post...
+              </Typography>
+            </Box>
+          ) : linkedinText ? (() => {
+            const firstLine = linkedinText.split('\n')[0] || '';
+            const hookLen = firstLine.length;
+            const hookOk = hookLen <= 150;
+            return (
+              <>
+                <Box sx={{
+                  mb: 2, p: 1.5,
+                  border: '1px solid',
+                  borderColor: hookOk ? '#4A7C6F' : '#A0522D',
+                  bgcolor: hookOk ? 'rgba(74, 124, 111, 0.04)' : 'rgba(160, 82, 45, 0.04)',
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+                    <Typography variant="caption" sx={{
+                      fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
+                      color: hookOk ? '#4A7C6F' : '#A0522D',
+                    }}>
+                      Hook Preview
+                    </Typography>
+                    <Chip
+                      label={`${hookLen} / 150 chars`}
+                      size="small"
+                      sx={{
+                        height: 20, fontWeight: 600, fontSize: '0.65rem',
+                        bgcolor: hookOk ? 'rgba(74, 124, 111, 0.12)' : 'rgba(160, 82, 45, 0.15)',
+                        color: hookOk ? '#4A7C6F' : '#A0522D',
+                      }}
+                    />
+                  </Box>
+                  <Typography variant="body2" sx={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, lineHeight: 1.5 }}>
+                    {firstLine}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                    {hookOk
+                      ? 'This line appears before LinkedIn\'s "See more" button.'
+                      : 'This line exceeds 150 characters and will be truncated by LinkedIn.'}
+                  </Typography>
+                </Box>
+                <TextField
+                  fullWidth multiline minRows={8} maxRows={16}
+                  value={linkedinText}
+                  InputProps={{ readOnly: true }}
+                  sx={{ '& .MuiOutlinedInput-root': { fontFamily: 'Inter, sans-serif', fontSize: 14, lineHeight: 1.6 } }}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5 }}>
+                  <Chip
+                    label={`${linkedinText.length} characters`}
+                    size="small"
+                    sx={{
+                      fontWeight: 600, fontSize: '0.7rem',
+                      bgcolor: linkedinText.length <= 1500 ? 'rgba(74, 124, 111, 0.12)' : 'rgba(160, 82, 45, 0.15)',
+                      color: linkedinText.length <= 1500 ? '#4A7C6F' : '#A0522D',
+                    }}
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    LinkedIn recommends ~1300 characters
+                  </Typography>
+                </Box>
+              </>
+            );
+          })() : null}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLinkedinOpen(false)} disabled={linkedinLoading}>
+            Close
+          </Button>
+          {!linkedinLoading && linkedinText && (
+            <>
+              <Button
+                variant="outlined"
+                startIcon={<Refresh />}
+                onClick={() => generateLinkedinPost({ closeOnError: false })}
+                sx={{
+                  color: '#0A66C2', borderColor: '#0A66C2',
+                  '&:hover': { borderColor: '#004182', bgcolor: 'rgba(10, 102, 194, 0.06)' },
+                }}
+              >
+                Regenerate
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<ContentCopy />}
+                onClick={() => {
+                  navigator.clipboard.writeText(linkedinText);
+                  enqueueSnackbar('LinkedIn post copied to clipboard', { variant: 'success' });
+                }}
+                sx={{ bgcolor: '#0A66C2', '&:hover': { bgcolor: '#004182' } }}
+              >
+                Copy to Clipboard
+              </Button>
+            </>
+          )}
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

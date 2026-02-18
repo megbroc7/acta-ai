@@ -18,6 +18,7 @@ from app.models.user import User
 from app.schemas.posts import (
     BulkActionRequest,
     BulkRejectRequest,
+    MarkPublishedRequest,
     PostCountsResponse,
     PostCreate,
     PostResponse,
@@ -163,6 +164,41 @@ async def bulk_reject(
         results.append(result.scalar_one())
 
     return results
+
+
+@router.post("/{post_id}/mark-published", response_model=PostResponse)
+async def mark_published(
+    post_id: str,
+    data: MarkPublishedRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Mark a copy-platform post as published (user confirms they pasted it)."""
+    result = await db.execute(
+        select(BlogPost)
+        .where(BlogPost.id == post_id, BlogPost.user_id == current_user.id)
+        .options(selectinload(BlogPost.site))
+    )
+    post = result.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    if not post.site or post.site.platform != "copy":
+        raise HTTPException(status_code=400, detail="Mark as Published is only for Copy & Paste sites")
+    if post.status == "published":
+        raise HTTPException(status_code=400, detail="Post is already published")
+
+    post.status = "published"
+    post.published_at = datetime.now(timezone.utc)
+    post.platform_post_id = f"copy-{post.id}"
+    post.published_url = data.published_url or (post.site.url if post.site else None)
+    await db.commit()
+
+    result = await db.execute(
+        select(BlogPost)
+        .where(BlogPost.id == post_id)
+        .options(selectinload(BlogPost.site))
+    )
+    return result.scalar_one()
 
 
 @router.get("/{post_id}", response_model=PostResponse)
@@ -330,23 +366,42 @@ async def repurpose_linkedin(
     if not post.content:
         raise HTTPException(status_code=400, detail="Post has no content to repurpose")
 
-    # Load template to get industry for tone calibration
-    industry = None
+    # Load template for industry tone calibration + voice injection
+    template = None
     if post.prompt_template_id:
         tmpl_result = await db.execute(
             select(PromptTemplate).where(PromptTemplate.id == post.prompt_template_id)
         )
         template = tmpl_result.scalar_one_or_none()
-        if template:
-            industry = template.industry
 
     try:
-        linkedin_text = await repurpose_to_linkedin(post.content, post.title, industry)
+        linkedin_text = await repurpose_to_linkedin(
+            post.content,
+            post.title,
+            industry=template.industry if template else None,
+            template=template,
+        )
     except Exception as exc:
         logger.error(f"LinkedIn repurpose failed for post {post_id}: {exc}")
         raise HTTPException(status_code=502, detail="LinkedIn post generation failed")
 
-    return {"linkedin_post": linkedin_text}
+    # Tell the frontend whether voice profile was injected
+    has_voice = bool(
+        template
+        and (
+            template.brand_voice_description
+            or (template.personality_level is not None and template.personality_level != 5)
+            or template.perspective
+            or template.default_tone
+            or template.use_anecdotes
+            or template.use_rhetorical_questions
+            or template.use_humor
+            or template.use_contractions is False
+            or template.phrases_to_avoid
+            or template.preferred_terms
+        )
+    )
+    return {"linkedin_post": linkedin_text, "voice_applied": has_voice}
 
 
 @router.post("/{post_id}/revise-stream")

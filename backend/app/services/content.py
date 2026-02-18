@@ -100,9 +100,53 @@ BANNED_CLICHES = [
     "look no further", "whether you're a seasoned",
     "Imagine", "Picture this", "Have you ever wondered",
 ]
+BANNED_ACADEMIC_FILLER = [
+    "provide a valuable insight", "left an indelible mark", "a stark reminder",
+    "a nuanced understanding", "significant role in shaping",
+    "the complex interplay", "broad implication", "an unwavering commitment",
+    "endure a legacy", "underscore the importance", "play a pivotal role",
+    "a pivotal moment", "navigate the complex", "mark a turning point",
+    "continue to inspire", "gain a deeper understanding",
+    "the transformative power", "hold a significant", "play a crucial role",
+    "particularly a concern", "the relentless pursuit", "emphasize the need",
+    "target an intervention", "a multi-faceted approach", "a serf reminder",
+    "highlight the potential", "a significant milestone",
+    "implication to understand", "potential risk associated",
+    "leave a lasting", "add a layer", "offer a valuable",
+    "a profound implication", "case highlights the importance",
+    "finding a highlight of the importance", "pave the way for the future",
+    "a significant step forward", "face a significant",
+    "finding an important implication", "emphasize the importance",
+    "a significant implication", "delve deeper into", "reply in tone",
+    "raise an important question",
+    "make an informed decision in regard to", "far-reaching implications",
+    "a comprehensive framework", "importance to consider", "a unique blend",
+    "couldn't help but wonder", "underscore the need",
+    "framework for understanding", "highlight the need",
+    "a comprehensive understanding", "the journey begins",
+    "understanding the fundamental", "despite the face",
+    "a delicate balance", "the path ahead", "gain an insight",
+    "laid the groundwork", "understand the behavior", "renew a sense",
+    "aim to explore", "present a unique challenge", "provide a comprehensive",
+    "particularly with regard to", "address the root cause",
+    "loom large in", "the implication of the finding",
+    "approach ensures a", "an ongoing dialogue", "carry a weight",
+    "ability to navigate", "present a significant", "study shed light on",
+    "a diverse perspective", "face an adversity", "a comprehensive overview",
+    "potentially lead to", "a broad understanding",
+    "contribute to the understanding", "shape the public",
+    "particularly noteworthy", "the evidence base for decision making",
+    "identify an area of improvement",
+    "analysis of the data to analyze and use", "undergone a significant",
+    "need a robust", "voice will fill", "concern a potential",
+    "initiative aims to", "offering a unique", "a new avenue",
+    "despite the challenge", "ready to embrace", "the societal expectation",
+    "make accessible", "today at a fast pace", "stand in stark contrast",
+]
 BANNED_PHRASES = (
     BANNED_TRANSITIONS + BANNED_AI_ISMS + BANNED_HEDGING
     + BANNED_JOURNEY_POWER + BANNED_OVERUSED_ADJECTIVES + BANNED_CLICHES
+    + BANNED_ACADEMIC_FILLER
 )
 
 TITLE_TYPES = ["HOW-TO", "CONTRARIAN", "LISTICLE", "EXPERIENCE", "DIRECT BENEFIT"]
@@ -2215,14 +2259,83 @@ def _linkedin_tone_for_industry(industry: str | None) -> str:
     )
 
 
+def _build_linkedin_voice_section(template) -> str:
+    """Build a voice/style section for the LinkedIn prompt from template fields.
+
+    Mirrors the blog pipeline's Voice & Style logic but adapted for LinkedIn's
+    short-form format. Only emitted when the template has voice data.
+    """
+    voice: list[str] = []
+
+    # Perspective — override the default "first person" if template says otherwise
+    if template.perspective and template.perspective in PERSPECTIVE_MAP:
+        perspective_instruction = PERSPECTIVE_MAP[template.perspective]
+        voice.append(perspective_instruction)
+
+    # Brand voice description
+    if template.brand_voice_description:
+        voice.append(f"Brand voice: {template.brand_voice_description}")
+
+    # Personality / assertiveness level
+    pl = template.personality_level
+    if pl is not None:
+        if pl >= 7:
+            voice.append(
+                "Be opinionated and take strong stances. No hedging or "
+                "\"some might argue\" equivocation."
+            )
+        elif pl >= 4:
+            voice.append(
+                "Take a clear position. Avoid wishy-washy phrasing like "
+                "\"it depends\" or \"some might say.\""
+            )
+        # 1-3: neutral — no extra instruction (LinkedIn default is already
+        # professional-conversational, which works for neutral voices)
+
+    # Tone — override the hardcoded "professional but conversational"
+    if template.default_tone and template.default_tone.lower() != "informative":
+        voice.append(f"Tone: {template.default_tone}.")
+
+    # Stylistic switches
+    if template.use_anecdotes:
+        voice.append("Weave in a brief personal anecdote if the article provides one.")
+    if template.use_rhetorical_questions:
+        voice.append("Use a rhetorical question where it strengthens the narrative.")
+    if template.use_humor:
+        voice.append("Incorporate wit or dry humor where natural.")
+    if template.use_contractions is False:
+        voice.append(
+            "Do NOT use contractions (write \"do not\" instead of \"don't\", etc.)."
+        )
+
+    if not voice:
+        return ""
+
+    return "## Author Voice\n" + "\n".join(f"- {v}" for v in voice) + "\n\n"
+
+
+def _build_linkedin_banned_list(template) -> str:
+    """Merge hardcoded BANNED_PHRASES with the template's phrases_to_avoid."""
+    all_banned = list(BANNED_PHRASES)
+    if template and template.phrases_to_avoid:
+        hardcoded_lower = {p.lower() for p in BANNED_PHRASES}
+        for phrase in template.phrases_to_avoid:
+            if phrase.lower() not in hardcoded_lower:
+                all_banned.append(phrase)
+    return ", ".join(f'"{p}"' for p in all_banned)
+
+
 async def repurpose_to_linkedin(
-    content_html: str, title: str, industry: str | None = None
+    content_html: str,
+    title: str,
+    industry: str | None = None,
+    template=None,
 ) -> str:
     """Convert a blog post into a LinkedIn post (~1300 chars).
 
     Uses markdownify to strip HTML, then a single GPT call to rewrite
-    the key points as a LinkedIn-native post. Tone is calibrated based
-    on the template's industry (some industries penalize AI tone heavily).
+    the key points as a LinkedIn-native post. Voice is injected from the
+    template when available; tone is calibrated based on industry.
     """
     # Convert HTML → plain-ish text for the prompt
     plain_text = md(content_html, heading_style="ATX", strip=["img"])
@@ -2230,12 +2343,43 @@ async def repurpose_to_linkedin(
     if len(plain_text) > 6000:
         plain_text = plain_text[:6000] + "\n…[truncated]"
 
-    banned_list = ", ".join(f'"{p}"' for p in BANNED_PHRASES)
+    # Merge user's phrases_to_avoid with hardcoded BANNED_PHRASES
+    banned_list = _build_linkedin_banned_list(template)
 
     # Industry-aware tone calibration.
-    # Research shows AI-style text performs well in leadership/inspiration
-    # but is catastrophic in marketing, strategy, and healthcare.
     tone_section = _linkedin_tone_for_industry(industry)
+
+    # Voice/style from template's "Match My Writing Style" fields
+    voice_section = _build_linkedin_voice_section(template) if template else ""
+
+    # Preferred terms from template
+    preferred_line = ""
+    if template and template.preferred_terms:
+        terms = ", ".join(template.preferred_terms)
+        preferred_line = f"\n- ALWAYS use these preferred terms: {terms}\n"
+
+    # Determine perspective instruction for the base rules.
+    # If template specifies a non-first-person perspective, we skip the
+    # hardcoded "Write in first person" line and let the voice section handle it.
+    has_custom_perspective = (
+        template
+        and template.perspective
+        and template.perspective in PERSPECTIVE_MAP
+        and "first_person" not in template.perspective
+    )
+    perspective_line = (
+        "- Write in the perspective specified in the Author Voice section below.\n"
+        if has_custom_perspective
+        else "- Write in first person. Professional but conversational, not corporate.\n"
+    )
+
+    # Determine contraction instruction — skip if voice section overrides it
+    has_no_contractions = template and template.use_contractions is False
+    contraction_line = (
+        ""
+        if has_no_contractions
+        else "Use contractions (you're, it's, we've, don't). "
+    )
 
     system_prompt = (
         "You are a LinkedIn ghostwriter. Convert the blog article below into "
@@ -2252,21 +2396,23 @@ async def repurpose_to_linkedin(
         "  PAYOFF (ending): Resolve the tension from the hook, then close with "
         "a specific open-ended question that invites counter-perspectives or "
         "asks peers to share their approach. Never a yes/no question.\n"
-        "- Write in first person. Professional but conversational, not corporate.\n"
+        f"{perspective_line}"
         "- MOBILE FORMATTING: 1-3 sentences per paragraph max. Separate every "
         "paragraph with a blank line. Large text blocks cause immediate scroll-past "
         "on mobile. Most LinkedIn users read on phones.\n"
         "- SENTENCE DYNAMICS: Deliberately vary sentence length. Mix short punchy "
         "fragments (3-6 words) with longer descriptive sentences. Identical "
         "sentence lengths are the #1 marker of AI text.\n"
-        "- Use active voice exclusively. Use contractions (you're, it's, we've, "
-        "don't). Minimize adverbs. Replace them with stronger, specific verbs.\n"
+        f"- Use active voice exclusively. {contraction_line}"
+        "Minimize adverbs. Replace them with stronger, specific verbs.\n"
         "- Maximum 3 hashtags at the very end.\n"
         "- Do NOT summarize. Distill. Pick the most valuable takeaway and lead with it.\n"
         "- No emojis in the hook line. Sparing emojis elsewhere (0-3 total).\n"
         "- Never use em dashes. Use periods, commas, or colons instead.\n"
         "- Do NOT include any URLs or 'link in comments' references. External "
-        "links incur a 20-30% reach penalty on LinkedIn.\n\n"
+        "links incur a 20-30% reach penalty on LinkedIn.\n"
+        f"{preferred_line}\n"
+        f"{voice_section}"
         f"{tone_section}"
         "## Banned Phrases\n"
         "NEVER use any of the following words or phrases. They are immediate "

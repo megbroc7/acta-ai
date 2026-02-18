@@ -85,7 +85,12 @@ async def test_connection(
     data: ConnectionTestRequest,
     current_user: User = Depends(get_current_user),
 ):
-    if data.platform == Platform.wordpress:
+    if data.platform == Platform.copy:
+        return ConnectionTestResponse(
+            success=True,
+            message="Copy & Paste — no connection needed",
+        )
+    elif data.platform == Platform.wordpress:
         try:
             result = await _test_wp_connection(data.api_url, data.username, data.app_password)
             if result["success"]:
@@ -134,7 +139,7 @@ async def create_site(
         user_id=current_user.id,
         name=data.name,
         url=data.url,
-        api_url=data.api_url,
+        api_url=data.api_url or data.url,
         platform=data.platform,
         username=data.username,
         app_password=data.app_password,

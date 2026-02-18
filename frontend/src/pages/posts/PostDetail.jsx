@@ -8,7 +8,8 @@ import {
 } from '@mui/material';
 import {
   ArrowBack, Edit, Publish, ThumbDown, OpenInNew, Gavel, ImageOutlined,
-  AutoFixHigh, CheckCircle, ContentCopy, LinkedIn, Refresh,
+  AutoFixHigh, CheckCircle, ContentCopy, LinkedIn, Refresh, RecordVoiceOver,
+  CheckCircleOutline,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
@@ -153,6 +154,11 @@ export default function PostDetail() {
   const [linkedinOpen, setLinkedinOpen] = useState(false);
   const [linkedinLoading, setLinkedinLoading] = useState(false);
   const [linkedinText, setLinkedinText] = useState('');
+  const [linkedinVoiceApplied, setLinkedinVoiceApplied] = useState(false);
+
+  // Mark as Published state (copy platform)
+  const [markPublishedOpen, setMarkPublishedOpen] = useState(false);
+  const [markPublishedUrl, setMarkPublishedUrl] = useState('');
 
   const fromReview = location.state?.from === 'review';
 
@@ -204,6 +210,22 @@ export default function PostDetail() {
       setReviseFeedback('');
     },
     onError: () => enqueueSnackbar('Failed to save revision', { variant: 'error' }),
+  });
+
+  const markPublishedMutation = useMutation({
+    mutationFn: (url) => api.post(`/posts/${id}/mark-published`, { published_url: url || null }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['post', id] });
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['postCounts'] });
+      enqueueSnackbar('Post marked as published', { variant: 'success' });
+      setMarkPublishedOpen(false);
+      setMarkPublishedUrl('');
+      if (fromReview) {
+        setTimeout(() => navigate('/review'), 600);
+      }
+    },
+    onError: (err) => enqueueSnackbar(err.response?.data?.detail || 'Failed to mark as published', { variant: 'error' }),
   });
 
   const handleRevise = async () => {
@@ -270,6 +292,7 @@ export default function PostDetail() {
     try {
       const res = await api.post(`/posts/${id}/repurpose-linkedin`);
       setLinkedinText(res.data.linkedin_post);
+      setLinkedinVoiceApplied(res.data.voice_applied || false);
     } catch (err) {
       const detail = err.response?.data?.detail || 'Failed to generate LinkedIn post';
       enqueueSnackbar(detail, { variant: 'error' });
@@ -288,6 +311,7 @@ export default function PostDetail() {
   if (!post) return <Typography color="error">Post not found</Typography>;
 
   const canRevise = post.status === 'draft' || post.status === 'pending_review';
+  const isCopyPlatform = post?.site?.platform === 'copy';
 
   return (
     <Box>
@@ -393,13 +417,23 @@ export default function PostDetail() {
           </Button>
           {post.status !== 'published' && (
             <>
-              <Button
-                variant="contained" size="small" startIcon={<Publish />}
-                onClick={() => publishMutation.mutate()}
-                disabled={publishMutation.isPending}
-              >
-                Publish
-              </Button>
+              {isCopyPlatform ? (
+                <Button
+                  variant="contained" size="small" startIcon={<CheckCircleOutline />}
+                  onClick={() => setMarkPublishedOpen(true)}
+                  disabled={markPublishedMutation.isPending}
+                >
+                  Mark as Published
+                </Button>
+              ) : (
+                <Button
+                  variant="contained" size="small" startIcon={<Publish />}
+                  onClick={() => publishMutation.mutate()}
+                  disabled={publishMutation.isPending}
+                >
+                  Publish
+                </Button>
+              )}
               <Button
                 variant="outlined" size="small" color="error" startIcon={<ThumbDown />}
                 onClick={() => setRejectOpen(true)}
@@ -468,15 +502,27 @@ export default function PostDetail() {
                 >
                   Reject
                 </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<Publish />}
-                  onClick={() => publishMutation.mutate()}
-                  disabled={publishMutation.isPending}
-                  sx={{ bgcolor: '#4A7C6F', '&:hover': { bgcolor: '#2D5E4A' } }}
-                >
-                  Approve & Publish
-                </Button>
+                {isCopyPlatform ? (
+                  <Button
+                    variant="contained"
+                    startIcon={<CheckCircleOutline />}
+                    onClick={() => setMarkPublishedOpen(true)}
+                    disabled={markPublishedMutation.isPending}
+                    sx={{ bgcolor: '#4A7C6F', '&:hover': { bgcolor: '#2D5E4A' } }}
+                  >
+                    Approve & Mark Published
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    startIcon={<Publish />}
+                    onClick={() => publishMutation.mutate()}
+                    disabled={publishMutation.isPending}
+                    sx={{ bgcolor: '#4A7C6F', '&:hover': { bgcolor: '#2D5E4A' } }}
+                  >
+                    Approve & Publish
+                  </Button>
+                )}
               </Stack>
             </Box>
           </CardContent>
@@ -773,6 +819,46 @@ export default function PostDetail() {
         )}
       </Dialog>
 
+      {/* Mark as Published Dialog (Copy & Paste platform) */}
+      <Dialog
+        open={markPublishedOpen}
+        onClose={() => { if (!markPublishedMutation.isPending) setMarkPublishedOpen(false); }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CheckCircleOutline sx={{ color: '#4A7C6F' }} />
+          <span>Mark as Published</span>
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mb: 2 }} color="text.secondary">
+            Confirm that you've pasted this content on your site. Optionally provide the live URL so you can access it from Acta AI.
+          </Typography>
+          <TextField
+            fullWidth
+            label="Published URL (optional)"
+            value={markPublishedUrl}
+            onChange={(e) => setMarkPublishedUrl(e.target.value)}
+            placeholder={post?.site?.url || 'https://yourblog.com/my-post'}
+            helperText="The URL where this post is live. Leave blank to use your site URL."
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMarkPublishedOpen(false)} disabled={markPublishedMutation.isPending}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={markPublishedMutation.isPending ? <CircularProgress size={18} color="inherit" /> : <CheckCircleOutline />}
+            onClick={() => markPublishedMutation.mutate(markPublishedUrl)}
+            disabled={markPublishedMutation.isPending}
+            sx={{ bgcolor: '#4A7C6F', '&:hover': { bgcolor: '#2D5E4A' } }}
+          >
+            {markPublishedMutation.isPending ? 'Saving...' : 'Confirm Published'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* LinkedIn Repurpose Dialog */}
       <Dialog
         open={linkedinOpen}
@@ -784,6 +870,24 @@ export default function PostDetail() {
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <LinkedIn sx={{ color: '#0A66C2' }} />
           <span>LinkedIn Post</span>
+          {linkedinVoiceApplied && !linkedinLoading && (
+            <Tooltip title="Your writing voice profile from 'Match My Writing Style' was used to shape this post">
+              <Chip
+                icon={<RecordVoiceOver sx={{ fontSize: 14 }} />}
+                label="Your Voice"
+                size="small"
+                sx={{
+                  ml: 'auto',
+                  height: 22,
+                  fontWeight: 600,
+                  fontSize: '0.65rem',
+                  bgcolor: 'rgba(74, 124, 111, 0.12)',
+                  color: '#4A7C6F',
+                  '& .MuiChip-icon': { color: '#4A7C6F' },
+                }}
+              />
+            </Tooltip>
+          )}
         </DialogTitle>
         <DialogContent>
           {linkedinLoading ? (

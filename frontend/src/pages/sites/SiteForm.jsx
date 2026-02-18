@@ -4,12 +4,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Box, Typography, Card, CardContent, TextField, Button, Stack, Alert, MenuItem,
 } from '@mui/material';
-import { Save, ArrowBack, RocketLaunch } from '@mui/icons-material';
+import { Save, ArrowBack, RocketLaunch, ContentPasteGo } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api from '../../services/api';
 
 const PLATFORMS = [
   { value: 'wordpress', label: 'WordPress' },
+  { value: 'copy', label: 'Copy & Paste (Squarespace, Ghost, etc.)' },
   { value: 'shopify', label: 'Shopify (Coming Soon)' },
   { value: 'wix', label: 'Wix (Coming Soon)' },
 ];
@@ -43,7 +44,8 @@ export default function SiteForm() {
     if (site) {
       setForm({
         platform: site.platform || 'wordpress',
-        name: site.name, url: site.url, api_url: site.api_url,
+        name: site.name, url: site.url,
+        api_url: site.platform === 'copy' ? '' : (site.api_url || ''),
         username: site.username || '', app_password: '',
         api_key: '',
         default_blog_id: site.default_blog_id || '',
@@ -66,10 +68,10 @@ export default function SiteForm() {
     setTestResult(null);
     try {
       const payload = {
-        platform: 'wordpress',
-        api_url: form.api_url,
-        username: form.username,
-        app_password: form.app_password,
+        platform: form.platform,
+        api_url: form.api_url || null,
+        username: form.username || null,
+        app_password: form.app_password || null,
       };
       const res = await api.post('/sites/test-connection', payload);
       setTestResult(res.data);
@@ -83,8 +85,17 @@ export default function SiteForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = { ...form };
-    delete data.api_key;
-    delete data.default_blog_id;
+    if (data.platform === 'copy') {
+      // Copy sites only need name, url, platform
+      delete data.api_url;
+      delete data.username;
+      delete data.app_password;
+      delete data.api_key;
+      delete data.default_blog_id;
+    } else {
+      delete data.api_key;
+      delete data.default_blog_id;
+    }
     if (isEdit) {
       if (!data.app_password) delete data.app_password;
       delete data.platform;
@@ -95,9 +106,10 @@ export default function SiteForm() {
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
   const isComingSoon = COMING_SOON_PLATFORMS.includes(form.platform);
+  const isCopy = form.platform === 'copy';
   const isWP = form.platform === 'wordpress';
 
-  const canTest = !isComingSoon && form.api_url && isWP && form.username && form.app_password;
+  const canTest = !isComingSoon && !isCopy && form.api_url && isWP && form.username && form.app_password;
 
   return (
     <Box>
@@ -172,6 +184,28 @@ export default function SiteForm() {
                     Go to Templates
                   </Button>
                 </Box>
+              ) : isCopy ? (
+                <>
+                  <Alert
+                    severity="info"
+                    icon={<ContentPasteGo />}
+                    sx={{
+                      borderColor: '#4A7C6F',
+                      '& .MuiAlert-icon': { color: '#4A7C6F' },
+                    }}
+                  >
+                    <strong>Copy & Paste workflow:</strong> Generate content with Acta AI, then copy it to
+                    your site manually. Posts are saved and tracked here — you can mark them as published
+                    once they're live. No API credentials needed.
+                  </Alert>
+                  <TextField label="Site Name" required fullWidth value={form.name} onChange={update('name')} placeholder="My Squarespace Blog" />
+                  <TextField label="Blog URL" required fullWidth value={form.url} onChange={update('url')} placeholder="https://yourblog.com" helperText="The public URL of your blog (used for &quot;View Live&quot; links)" />
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    <Button type="submit" variant="contained" startIcon={<Save />} disabled={saveMutation.isPending}>
+                      {saveMutation.isPending ? 'Saving...' : isEdit ? 'Update Site' : 'Add Site'}
+                    </Button>
+                  </Box>
+                </>
               ) : (
                 <>
                   <TextField label="Site Name" required fullWidth value={form.name} onChange={update('name')} />
