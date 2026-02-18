@@ -16,6 +16,44 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-18 (Session 38) — Copy & Paste Platform, Save to Posts, Test Panel LinkedIn
+
+**What we did:**
+Added four interconnected features that close the gap for users on platforms without content APIs (Squarespace, Ghost, Webflow, etc.). No migration needed — Platform is validated at the Pydantic layer only.
+
+**1. Copy & Paste Platform** (`schemas/sites.py`, `api/sites.py`, `services/publishing.py`, `services/scheduler.py`)
+- New `Platform.copy` value — sites need only a name and blog URL, no credentials or API URL
+- `SiteCreate.api_url` made optional (copy sites skip it; validator ensures it's present for WP/Shopify/Wix)
+- Connection test returns instant success for copy sites
+- `publish_to_copy()` returns `PublishResult(platform_post_id=f"copy-{post.id}", published_url=site.url)`
+- Scheduler guard: auto-publish on copy sites overrides to `pending_review` (auto-publish is meaningless without an API)
+- Frontend: SiteForm shows only Name + Blog URL for copy platform, with info Alert explaining the workflow
+
+**2. Save to Posts** (`schemas/posts.py`, `pages/prompts/PromptForm.jsx`)
+- `PostCreate` schema expanded with optional audit fields: `prompt_template_id`, `system_prompt_used`, `topic_prompt_used`, `content_prompt_used`
+- New `SaveAlt` icon button in test panel Article Preview header bar
+- Dialog with site selector dropdown (auto-selects if user has 1 site)
+- Saves full content (HTML, excerpt, featured image, meta, audit trail, template link) as a draft BlogPost
+- Success snackbar with "View Post" action navigating to PostDetail
+
+**3. Mark as Published** (`schemas/posts.py`, `api/posts.py`, `pages/posts/PostDetail.jsx`)
+- New `MarkPublishedRequest` schema with optional `published_url`
+- New `POST /posts/{post_id}/mark-published` endpoint — validates copy platform, sets published status + URL
+- PostDetail: detects `isCopyPlatform` — shows "Mark as Published" button instead of "Publish"
+- Dialog with optional URL input field + "Confirm Published" button
+- Review Decision Bar updated: "Approve & Mark Published" for copy sites (instead of "Approve & Publish")
+- Existing "View Live" button reads `published_url` automatically
+
+**4. LinkedIn in Test Panel** (`api/templates.py`, `pages/prompts/PromptForm.jsx`)
+- New `POST /templates/{template_id}/test/linkedin` endpoint — tier-gated (Tribune+), maintenance guard, loads template for voice/industry
+- Blue LinkedIn icon button in Article Preview header bar (only shown for saved templates)
+- Full LinkedIn dialog: hook preview with char count, full post TextField, "Your Voice" chip, Regenerate + Copy to Clipboard
+- Same design as PostDetail LinkedIn dialog — consistent UX across both entry points
+
+**Files changed:** 11 (7 backend, 3 frontend + content.py pre-existing tweaks)
+
+---
+
 ### 2026-02-18 (Session 37) — LinkedIn Repurpose Feature
 
 **What we did:**
