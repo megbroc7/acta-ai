@@ -47,6 +47,10 @@ class PromptTemplate(Base):
     experience_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     experience_qa: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
+    # Voice Matching
+    writing_sample: Mapped[str | None] = mapped_column(Text, nullable=True)
+    voice_match_active: Mapped[bool | None] = mapped_column(Boolean, default=False)
+
     # Voice & Humanization
     perspective: Mapped[str | None] = mapped_column(String(20), nullable=True)
     brand_voice_description: Mapped[str | None] = mapped_column(Text, nullable=True)

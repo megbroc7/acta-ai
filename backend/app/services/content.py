@@ -825,6 +825,101 @@ async def generate_template_interview(
     return questions[:5] if questions else [resp.text.strip()]
 
 
+VOICE_ANALYSIS_TIMEOUT = 30
+VOICE_ANALYSIS_MAX_TOKENS = 1000
+
+ALLOWED_TONES = [
+    "informative", "conversational", "professional", "friendly",
+    "authoritative", "witty", "empathetic", "inspirational", "casual", "formal",
+]
+
+ALLOWED_PERSPECTIVES = ["first_person", "second_person", "third_person", ""]
+
+
+async def analyze_writing_voice(writing_sample: str) -> dict:
+    """Analyze a writing sample to detect voice/tone characteristics.
+
+    Returns a dict with detected voice fields matching PromptTemplate columns,
+    plus confidence and summary for user feedback.
+    """
+    import json as _json
+
+    # Truncate to ~5,000 words to keep costs reasonable
+    words = writing_sample.split()
+    if len(words) > 5000:
+        writing_sample = " ".join(words[:5000])
+
+    system_prompt = (
+        "You are a writing style analyst. Given a writing sample, analyze the author's "
+        "voice, tone, and stylistic patterns. Return your analysis as a JSON object — "
+        "no markdown fences, no commentary, just the JSON."
+    )
+
+    allowed_tones_str = ", ".join(ALLOWED_TONES)
+    user_prompt = (
+        f"Analyze this writing sample and return a JSON object with these exact fields:\n\n"
+        f'{{\n'
+        f'  "tone": one of [{allowed_tones_str}],\n'
+        f'  "personality_level": integer 1-10 (1=strictly factual, 5=balanced, 10=very opinionated),\n'
+        f'  "perspective": one of ["first_person", "second_person", "third_person", ""],\n'
+        f'  "brand_voice_description": 1-2 sentence description of their unique voice,\n'
+        f'  "use_anecdotes": boolean — does the author use personal stories or examples?,\n'
+        f'  "use_rhetorical_questions": boolean — does the author use rhetorical questions?,\n'
+        f'  "use_humor": boolean — does the author use humor or wit?,\n'
+        f'  "use_contractions": boolean — does the author use contractions (don\'t, it\'s, etc.)?,\n'
+        f'  "confidence": "low" if sample is very short or ambiguous, "medium" if decent sample, "high" if long + clear patterns,\n'
+        f'  "summary": plain-English 1-2 sentence summary of the detected writing style\n'
+        f'}}\n\n'
+        f"WRITING SAMPLE:\n\n{writing_sample}"
+    )
+
+    resp = await _call_openai(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        timeout=VOICE_ANALYSIS_TIMEOUT,
+        max_tokens=VOICE_ANALYSIS_MAX_TOKENS,
+        temperature=0.3,
+    )
+
+    # Parse and validate the response
+    raw = _strip_code_fences(resp.text)
+    try:
+        result = _json.loads(raw)
+    except _json.JSONDecodeError:
+        logger.error(f"Voice analysis returned invalid JSON: {raw[:200]}")
+        raise ValueError("AI returned invalid response — please try again")
+
+    # Validate and clamp all fields
+    tone = result.get("tone", "informative")
+    if tone not in ALLOWED_TONES:
+        tone = "informative"
+
+    personality = result.get("personality_level", 5)
+    if not isinstance(personality, int) or personality < 1 or personality > 10:
+        personality = 5
+
+    perspective = result.get("perspective", "")
+    if perspective not in ALLOWED_PERSPECTIVES:
+        perspective = ""
+
+    confidence = result.get("confidence", "medium")
+    if confidence not in ("low", "medium", "high"):
+        confidence = "medium"
+
+    return {
+        "tone": tone,
+        "personality_level": personality,
+        "perspective": perspective,
+        "brand_voice_description": str(result.get("brand_voice_description", ""))[:500],
+        "use_anecdotes": bool(result.get("use_anecdotes", False)),
+        "use_rhetorical_questions": bool(result.get("use_rhetorical_questions", False)),
+        "use_humor": bool(result.get("use_humor", False)),
+        "use_contractions": bool(result.get("use_contractions", True)),
+        "confidence": confidence,
+        "summary": str(result.get("summary", ""))[:300],
+    }
+
+
 def format_experience_qa(qa_pairs: list[dict]) -> str:
     """Format Q&A pairs into readable plain text for experience_notes.
 

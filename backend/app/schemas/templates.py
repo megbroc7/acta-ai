@@ -36,6 +36,9 @@ class TemplateCreate(BaseModel):
     placeholders: dict = {}
     variables: list = []
     is_default: bool = False
+    # Voice Matching
+    writing_sample: str | None = None
+    voice_match_active: bool = False
     # Voice & Humanization
     perspective: str | None = None
     brand_voice_description: str | None = None
@@ -78,6 +81,9 @@ class TemplateUpdate(BaseModel):
     experience_qa: list[ExperienceQAItem] | None = None
     placeholders: dict | None = None
     variables: list | None = None
+    # Voice Matching
+    writing_sample: str | None = None
+    voice_match_active: bool | None = None
     # Voice & Humanization
     perspective: str | None = None
     brand_voice_description: str | None = None
@@ -122,6 +128,9 @@ class TemplateResponse(BaseModel):
     placeholders: dict
     variables: list
     is_default: bool
+    # Voice Matching
+    writing_sample: str | None
+    voice_match_active: bool | None
     # Voice & Humanization
     perspective: str | None
     brand_voice_description: str | None
@@ -199,3 +208,20 @@ class TestContentResponse(BaseModel):
     system_prompt_used: str
     content_prompt_used: str
     outline_used: str
+
+
+class VoiceAnalysisRequest(BaseModel):
+    writing_sample: str = Field(min_length=50, max_length=50000)
+
+
+class VoiceAnalysisResponse(BaseModel):
+    tone: str
+    personality_level: int
+    perspective: str
+    brand_voice_description: str
+    use_anecdotes: bool
+    use_rhetorical_questions: bool
+    use_humor: bool
+    use_contractions: bool
+    confidence: str  # "low", "medium", "high"
+    summary: str  # plain-English description of detected voice

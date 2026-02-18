@@ -10,7 +10,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
   Save, ArrowBack, AutoAwesome, HelpOutline, ExpandMore, TuneOutlined,
   PlayArrow, RestartAlt, Visibility, VisibilityOff, Article, RecordVoiceOver,
-  SkipNext, ContentCopy, QuestionAnswer, Image as ImageIcon,
+  SkipNext, ContentCopy, QuestionAnswer, Image as ImageIcon, AutoFixHigh,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
@@ -214,6 +214,9 @@ export default function PromptForm() {
     // Featured Image
     image_source: 'none',
     image_style_guidance: '',
+    // Voice Matching
+    writing_sample: '',
+    voice_match_active: false,
     // Voice & Humanization
     perspective: '',
     brand_voice_description: '',
@@ -258,6 +261,10 @@ export default function PromptForm() {
   // Template-level experience interview
   const [experienceLoading, setExperienceLoading] = useState(false);
 
+  // Voice analysis
+  const [voiceAnalyzing, setVoiceAnalyzing] = useState(false);
+  const [voiceAnalysis, setVoiceAnalysis] = useState(null); // { confidence, summary }
+
   // AI keyword suggestions
   const [suggestions, setSuggestions] = useState([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
@@ -288,6 +295,9 @@ export default function PromptForm() {
         image_style_guidance: template.image_style_guidance || '',
         experience_notes: template.experience_notes || '',
         experience_qa: template.experience_qa || null,
+        // Voice Matching
+        writing_sample: template.writing_sample || '',
+        voice_match_active: template.voice_match_active ?? false,
         // Voice & Humanization
         perspective: template.perspective || '',
         brand_voice_description: template.brand_voice_description || '',
@@ -335,7 +345,7 @@ export default function PromptForm() {
       'brand_voice_description', 'seo_focus_keyword', 'seo_keyword_density',
       'seo_meta_description_style', 'seo_internal_linking_instructions',
       'experience_notes', 'target_reader', 'call_to_action',
-      'image_style_guidance',
+      'image_style_guidance', 'writing_sample',
     ];
     // Convert "none" to null for image_source
     if (data.image_source === 'none') data.image_source = null;
@@ -404,6 +414,35 @@ export default function PromptForm() {
       qa[idx] = { ...qa[idx], answer };
       return { ...prev, experience_qa: qa };
     });
+  };
+
+  const handleAnalyzeVoice = async () => {
+    setVoiceAnalyzing(true);
+    setVoiceAnalysis(null);
+    try {
+      const res = await api.post(`/templates/${id}/analyze-voice`, {
+        writing_sample: form.writing_sample,
+      });
+      const analysis = res.data;
+      // Apply detected values to form
+      setForm(prev => ({
+        ...prev,
+        default_tone: analysis.tone,
+        personality_level: analysis.personality_level,
+        perspective: analysis.perspective,
+        brand_voice_description: analysis.brand_voice_description,
+        use_anecdotes: analysis.use_anecdotes,
+        use_rhetorical_questions: analysis.use_rhetorical_questions,
+        use_humor: analysis.use_humor,
+        use_contractions: analysis.use_contractions,
+      }));
+      setVoiceAnalysis({ confidence: analysis.confidence, summary: analysis.summary });
+      enqueueSnackbar('Voice analysis complete', { variant: 'success' });
+    } catch (err) {
+      enqueueSnackbar(err.response?.data?.detail || 'Voice analysis failed', { variant: 'error' });
+    } finally {
+      setVoiceAnalyzing(false);
+    }
   };
 
   const handleGenerateInterview = async () => {
@@ -774,12 +813,127 @@ export default function PromptForm() {
             {/* TAB 2: Voice & Tone */}
             <TabPanel value={tab} index={2}>
               <Stack spacing={3}>
+                {/* Mode Toggle */}
+                <Box sx={{
+                  p: 2,
+                  border: '2px solid',
+                  borderColor: form.voice_match_active ? 'primary.main' : 'divider',
+                  transition: 'border-color 0.2s',
+                }}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={form.voice_match_active}
+                        onChange={(e) => {
+                          setForm(prev => ({ ...prev, voice_match_active: e.target.checked }));
+                          if (!e.target.checked) setVoiceAnalysis(null);
+                        }}
+                      />
+                    }
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <AutoFixHigh sx={{ fontSize: 20, color: form.voice_match_active ? 'primary.main' : 'text.secondary' }} />
+                        <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: '0.03em', fontWeight: 700 }}>
+                          Match My Writing Style
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                  <Typography variant="body2" color="text.secondary" sx={{ ml: 6.5, mt: -0.5 }}>
+                    {form.voice_match_active
+                      ? 'Paste a writing sample below and let AI detect your voice settings.'
+                      : 'Turn on to auto-detect voice settings from a writing sample. Turn off to configure manually.'}
+                  </Typography>
+                </Box>
+
+                {/* Writing Sample Area (when active) */}
+                <Collapse in={form.voice_match_active}>
+                  <Stack spacing={2}>
+                    <TextField
+                      label="Writing Sample"
+                      fullWidth
+                      multiline
+                      rows={8}
+                      value={form.writing_sample}
+                      onChange={update('writing_sample')}
+                      placeholder="Paste a sample of your writing here — a blog post, article, newsletter, or any content that represents your voice..."
+                      InputLabelProps={{ shrink: true }}
+                    />
+
+                    {/* Word Counter */}
+                    {(() => {
+                      const wordCount = form.writing_sample.trim() ? form.writing_sample.trim().split(/\s+/).length : 0;
+                      let tier, color;
+                      if (wordCount < 500) {
+                        tier = 'Short sample — basic detection';
+                        color = '#B08D57'; // bronze/amber
+                      } else if (wordCount < 1500) {
+                        tier = 'Good sample length';
+                        color = '#4A7C6F'; // patina green
+                      } else if (wordCount <= 3000) {
+                        tier = 'Great — accurate voice detection';
+                        color = '#2D5E4A'; // dark green
+                      } else {
+                        tier = 'Excellent — highly accurate detection';
+                        color = '#2D5E4A';
+                      }
+                      return (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Chip
+                            label={`${wordCount.toLocaleString()} words`}
+                            size="small"
+                            sx={{ fontWeight: 600, fontSize: '0.75rem', bgcolor: `${color}18`, color }}
+                          />
+                          <Typography variant="caption" sx={{ color, fontWeight: 500 }}>
+                            {tier}
+                          </Typography>
+                        </Box>
+                      );
+                    })()}
+
+                    {/* Analyze Button */}
+                    <Button
+                      variant="contained"
+                      onClick={handleAnalyzeVoice}
+                      disabled={voiceAnalyzing || !form.writing_sample.trim() || form.writing_sample.trim().split(/\s+/).length < 10 || !isEdit}
+                      startIcon={voiceAnalyzing ? <CircularProgress size={18} color="inherit" /> : <AutoFixHigh />}
+                      sx={{ alignSelf: 'flex-start' }}
+                    >
+                      {voiceAnalyzing ? 'Analyzing...' : 'Analyze My Voice'}
+                    </Button>
+
+                    {!isEdit && (
+                      <Alert severity="info" variant="outlined" sx={{ borderColor: 'divider' }}>
+                        Save the template first to analyze your writing sample.
+                      </Alert>
+                    )}
+
+                    {/* Analysis Result */}
+                    {voiceAnalysis && (
+                      <Alert
+                        severity="success"
+                        variant="outlined"
+                        sx={{ borderColor: 'primary.main' }}
+                      >
+                        <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                          Voice detected ({voiceAnalysis.confidence} confidence)
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {voiceAnalysis.summary}
+                        </Typography>
+                      </Alert>
+                    )}
+                  </Stack>
+                </Collapse>
+
+                {/* Voice Controls — read-only when voice_match_active */}
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <TextField
                     select
                     label={<FieldLabel label="Perspective" tooltip="The point of view the AI writes from. First person (I/We) feels personal, second person (You) speaks directly to readers, third person (They) is more formal and objective." />}
                     value={form.perspective} onChange={update('perspective')} sx={{ width: { xs: '100%', sm: 280 } }}
                     InputLabelProps={{ shrink: true }}
+                    disabled={form.voice_match_active}
                   >
                     {PERSPECTIVES.map(p => <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>)}
                   </TextField>
@@ -788,6 +942,7 @@ export default function PromptForm() {
                     label={<FieldLabel label="Tone" tooltip="The overall emotional feel and style of the writing. This shapes how the AI sounds — from strictly professional to lighthearted and casual." />}
                     value={form.default_tone} onChange={update('default_tone')} sx={{ width: { xs: '100%', sm: 240 } }}
                     InputLabelProps={{ shrink: true }}
+                    disabled={form.voice_match_active}
                   >
                     {TONES.map(t => <MenuItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</MenuItem>)}
                   </TextField>
@@ -804,6 +959,7 @@ export default function PromptForm() {
                       step={1}
                       marks={PERSONALITY_MARKS}
                       valueLabelDisplay="auto"
+                      disabled={form.voice_match_active}
                       sx={{
                         '& .MuiSlider-markLabel': { fontSize: '0.75rem' },
                       }}
@@ -817,8 +973,10 @@ export default function PromptForm() {
                   value={form.brand_voice_description} onChange={update('brand_voice_description')}
                   placeholder="E.g., 'Friendly expert who uses analogies from everyday life...'"
                   InputLabelProps={{ shrink: true }}
+                  disabled={form.voice_match_active}
                 />
 
+                {/* Always editable: Phrases to Avoid + Preferred Terms */}
                 <ChipInput
                   label="Phrases to Avoid"
                   value={form.phrases_to_avoid}
@@ -836,25 +994,25 @@ export default function PromptForm() {
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   <Tooltip title={"Use don't, it's, we're instead of do not, it is, we are. Makes writing sound more natural and less robotic."} arrow>
                     <FormControlLabel
-                      control={<Switch checked={form.use_contractions} onChange={updateChecked('use_contractions')} />}
+                      control={<Switch checked={form.use_contractions} onChange={updateChecked('use_contractions')} disabled={form.voice_match_active} />}
                       label="Use Contractions"
                     />
                   </Tooltip>
                   <Tooltip title="Include short personal stories or examples to illustrate points. Makes content feel more relatable and human." arrow>
                     <FormControlLabel
-                      control={<Switch checked={form.use_anecdotes} onChange={updateChecked('use_anecdotes')} />}
+                      control={<Switch checked={form.use_anecdotes} onChange={updateChecked('use_anecdotes')} disabled={form.voice_match_active} />}
                       label="Use Anecdotes"
                     />
                   </Tooltip>
                   <Tooltip title={'Allow questions like "But what does this really mean?" to engage readers and create a conversational flow.'} arrow>
                     <FormControlLabel
-                      control={<Switch checked={form.use_rhetorical_questions} onChange={updateChecked('use_rhetorical_questions')} />}
+                      control={<Switch checked={form.use_rhetorical_questions} onChange={updateChecked('use_rhetorical_questions')} disabled={form.voice_match_active} />}
                       label="Rhetorical Questions"
                     />
                   </Tooltip>
                   <Tooltip title="Let the AI use lighthearted jokes or witty remarks where appropriate. Best for casual or lifestyle content." arrow>
                     <FormControlLabel
-                      control={<Switch checked={form.use_humor} onChange={updateChecked('use_humor')} />}
+                      control={<Switch checked={form.use_humor} onChange={updateChecked('use_humor')} disabled={form.voice_match_active} />}
                       label="Use Humor"
                     />
                   </Tooltip>

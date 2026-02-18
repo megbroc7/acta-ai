@@ -26,6 +26,8 @@ from app.schemas.templates import (
     TestContentResponse,
     TestTopicRequest,
     TestTopicResponse,
+    VoiceAnalysisRequest,
+    VoiceAnalysisResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -240,6 +242,9 @@ async def duplicate_template(
         placeholders=template.placeholders,
         variables=template.variables,
         is_default=False,
+        # Voice Matching
+        writing_sample=template.writing_sample,
+        voice_match_active=template.voice_match_active,
         # Voice & Humanization
         perspective=template.perspective,
         brand_voice_description=template.brand_voice_description,
@@ -298,6 +303,53 @@ async def generate_experience_questions(
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="Failed to generate interview questions",
+        )
+
+
+@router.post("/{template_id}/analyze-voice", response_model=VoiceAnalysisResponse)
+async def analyze_voice(
+    template_id: str,
+    data: VoiceAnalysisRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Analyze a writing sample to detect voice/tone characteristics."""
+    if await is_maintenance_mode(db):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI generation is paused — maintenance mode is active",
+        )
+    if not settings.OPENAI_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="OpenAI API key not configured",
+        )
+
+    result = await db.execute(
+        select(PromptTemplate).where(
+            PromptTemplate.id == template_id,
+            PromptTemplate.user_id == current_user.id,
+        )
+    )
+    template = result.scalar_one_or_none()
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    from app.services.content import analyze_writing_voice
+
+    try:
+        analysis = await analyze_writing_voice(data.writing_sample)
+        return VoiceAnalysisResponse(**analysis)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(e),
+        )
+    except Exception as e:
+        logger.error(f"Voice analysis failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to analyze writing sample",
         )
 
 
