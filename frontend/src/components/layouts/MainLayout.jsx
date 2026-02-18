@@ -39,7 +39,6 @@ import {
   CalendarMonth as CalendarIcon,
   Settings as SettingsIcon,
   AdminPanelSettings as AdminIcon,
-  WorkspacePremium as BillingIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
   EventNote as OversightIcon,
@@ -77,7 +76,6 @@ function buildNavItems(isAdmin) {
     { label: 'User Guide', icon: <GuideIcon />, path: '/guide' },
     { label: 'About Acta AI', icon: <AboutIcon />, path: '/about' },
     { label: 'Feedback', icon: <FeedbackIcon />, path: '/feedback' },
-    { label: 'Subscription', icon: <BillingIcon />, path: '/billing' },
     { label: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
   if (isAdmin) {
