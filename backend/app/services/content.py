@@ -45,6 +45,8 @@ MAX_RETRIES = 2
 MARKDOWN_EXTENSIONS = ["extra", "codehilite", "toc", "nl2br"]
 CHART_TIMEOUT = 30
 CHART_MAX_TOKENS = 1500
+LINKEDIN_TIMEOUT = 30
+LINKEDIN_MAX_TOKENS = 500
 
 # --- Cost calculation (GPT-4o pricing as of 2026) ---
 GPT4O_INPUT_COST = 2.50 / 1_000_000    # $2.50 per 1M input tokens
@@ -549,7 +551,17 @@ def build_content_system_prompt(
         "Modular passages: Write in self-contained knowledge blocks — each "
         "section should make sense if extracted independently by an AI search engine.\n"
         "Scannable hierarchy: Use H2 for main sections, H3 for subsections, "
-        "and keep paragraphs to 2-4 sentences max."
+        "and keep paragraphs to 2-4 sentences max.\n"
+        "TL;DR block: Immediately after the opening paragraph, include a blockquote "
+        "starting with **TL;DR:** that summarizes the article's core answer in 2-3 "
+        "sentences. Be specific and direct — this is the snippet search engines and "
+        "AI models will extract as THE answer. Do not use vague teasers.\n"
+        "Key Takeaway blocks: Include 1-2 blockquote callouts in the article that "
+        "distill a critical insight into 1-2 punchy sentences. Format them as "
+        "markdown blockquotes starting with **Key Takeaway:** — e.g. "
+        '"> **Key Takeaway:** The most effective approach is X because Y." '
+        "Place them after the supporting evidence, not before. These concise "
+        "snippets are prime targets for featured snippets and AI answer extraction."
     )
     sections.append(structure)
 
@@ -2139,3 +2151,136 @@ async def generate_post(
         completion_tokens=title_result.completion_tokens + content_result.completion_tokens,
         total_tokens=title_result.total_tokens + content_result.total_tokens,
     )
+
+
+# ---------------------------------------------------------------------------
+# LinkedIn repurpose
+# ---------------------------------------------------------------------------
+
+# Industries where AI-style text is tolerated or even performs well.
+_LINKEDIN_AI_FRIENDLY = {
+    "leadership", "management", "coaching", "motivation", "inspiration",
+    "personal development", "self-help", "hr", "human resources",
+}
+
+# Industries where AI-style text gets heavily penalized by audiences.
+_LINKEDIN_AI_HOSTILE = {
+    "marketing", "branding", "advertising", "content marketing",
+    "strategy", "consulting", "innovation",
+    "healthcare", "medicine", "medical", "pharma", "pharmaceutical",
+    "legal", "law", "finance", "accounting",
+}
+
+
+def _linkedin_tone_for_industry(industry: str | None) -> str:
+    """Return an industry-calibrated tone section for the LinkedIn prompt."""
+    if not industry:
+        return ""
+
+    industry_lower = industry.lower().strip()
+
+    # Check AI-friendly industries
+    for keyword in _LINKEDIN_AI_FRIENDLY:
+        if keyword in industry_lower:
+            return (
+                "## Tone Calibration\n"
+                f"Industry: {industry}. This audience responds well to polished, "
+                "aspirational content. You may use a confident, motivational tone. "
+                "Keep it genuine, but an uplifting register is appropriate here.\n\n"
+            )
+
+    # Check AI-hostile industries
+    for keyword in _LINKEDIN_AI_HOSTILE:
+        if keyword in industry_lower:
+            return (
+                "## Tone Calibration\n"
+                f"Industry: {industry}. WARNING: This audience has extremely high "
+                "AI literacy and will immediately disengage from anything that reads "
+                "as generic or automated. You MUST:\n"
+                "- Pull specific numbers, names, or examples directly from the article. "
+                "Do not generalize.\n"
+                "- Write like a practitioner sharing a hard-won lesson, not a thought "
+                "leader broadcasting wisdom.\n"
+                "- Include at least one concrete detail (a metric, a tool name, a "
+                "real scenario) that could not have been written without reading "
+                "the original article.\n"
+                "- Prefer understated confidence over enthusiasm.\n\n"
+            )
+
+    # Default: moderate guidance
+    return (
+        "## Tone Calibration\n"
+        f"Industry: {industry}. Write with the authority of someone who works "
+        "in this field daily. Ground claims in specifics from the article.\n\n"
+    )
+
+
+async def repurpose_to_linkedin(
+    content_html: str, title: str, industry: str | None = None
+) -> str:
+    """Convert a blog post into a LinkedIn post (~1300 chars).
+
+    Uses markdownify to strip HTML, then a single GPT call to rewrite
+    the key points as a LinkedIn-native post. Tone is calibrated based
+    on the template's industry (some industries penalize AI tone heavily).
+    """
+    # Convert HTML → plain-ish text for the prompt
+    plain_text = md(content_html, heading_style="ATX", strip=["img"])
+    # Truncate if extremely long to stay within prompt budget
+    if len(plain_text) > 6000:
+        plain_text = plain_text[:6000] + "\n…[truncated]"
+
+    banned_list = ", ".join(f'"{p}"' for p in BANNED_PHRASES)
+
+    # Industry-aware tone calibration.
+    # Research shows AI-style text performs well in leadership/inspiration
+    # but is catastrophic in marketing, strategy, and healthcare.
+    tone_section = _linkedin_tone_for_industry(industry)
+
+    system_prompt = (
+        "You are a LinkedIn ghostwriter. Convert the blog article below into "
+        "a compelling LinkedIn post. Rules:\n"
+        "- ~1300 characters (hard max 1500). No markdown formatting.\n"
+        "- Structure - follow this exactly:\n"
+        "  HOOK (first line, under 150 characters): LinkedIn truncates text at "
+        "~150 chars with a 'See more' button. Your opening line's ONLY job is "
+        "to create enough tension, curiosity, or surprise to earn that click. "
+        "Use a contrarian take, an unexpected stat, or a specific pain point. "
+        "Never waste this line on a greeting or generic statement.\n"
+        "  STORY (body): Blend 2-3 key insights from the article with a clear "
+        "narrative thread. Use the Problem > Insight > Action arc.\n"
+        "  PAYOFF (ending): Resolve the tension from the hook, then close with "
+        "a specific open-ended question that invites counter-perspectives or "
+        "asks peers to share their approach. Never a yes/no question.\n"
+        "- Write in first person. Professional but conversational, not corporate.\n"
+        "- MOBILE FORMATTING: 1-3 sentences per paragraph max. Separate every "
+        "paragraph with a blank line. Large text blocks cause immediate scroll-past "
+        "on mobile. Most LinkedIn users read on phones.\n"
+        "- SENTENCE DYNAMICS: Deliberately vary sentence length. Mix short punchy "
+        "fragments (3-6 words) with longer descriptive sentences. Identical "
+        "sentence lengths are the #1 marker of AI text.\n"
+        "- Use active voice exclusively. Use contractions (you're, it's, we've, "
+        "don't). Minimize adverbs. Replace them with stronger, specific verbs.\n"
+        "- Maximum 3 hashtags at the very end.\n"
+        "- Do NOT summarize. Distill. Pick the most valuable takeaway and lead with it.\n"
+        "- No emojis in the hook line. Sparing emojis elsewhere (0-3 total).\n"
+        "- Never use em dashes. Use periods, commas, or colons instead.\n"
+        "- Do NOT include any URLs or 'link in comments' references. External "
+        "links incur a 20-30% reach penalty on LinkedIn.\n\n"
+        f"{tone_section}"
+        "## Banned Phrases\n"
+        "NEVER use any of the following words or phrases. They are immediate "
+        "markers of AI-generated content and will destroy reader trust:\n"
+        f"{banned_list}"
+    )
+
+    user_prompt = f"Blog title: {title}\n\nFull article:\n{plain_text}"
+
+    resp = await _call_openai(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        timeout=LINKEDIN_TIMEOUT,
+        max_tokens=LINKEDIN_MAX_TOKENS,
+        temperature=0.7,
+    )
+    return resp.text

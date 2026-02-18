@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import {
   ArrowBack, Edit, Publish, ThumbDown, OpenInNew, Gavel, ImageOutlined,
-  AutoFixHigh, CheckCircle, ContentCopy,
+  AutoFixHigh, CheckCircle, ContentCopy, LinkedIn, Refresh,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
@@ -149,6 +149,11 @@ export default function PostDetail() {
   const [revisionProgress, setRevisionProgress] = useState({ step: 0, total: 2, message: '' });
   const [revisionPreview, setRevisionPreview] = useState(null); // { content_html, excerpt }
 
+  // LinkedIn repurpose state
+  const [linkedinOpen, setLinkedinOpen] = useState(false);
+  const [linkedinLoading, setLinkedinLoading] = useState(false);
+  const [linkedinText, setLinkedinText] = useState('');
+
   const fromReview = location.state?.from === 'review';
 
   const { data: post, isLoading } = useQuery({
@@ -259,6 +264,26 @@ export default function PostDetail() {
     setRevisionProgress({ step: 0, total: 2, message: '' });
   };
 
+  const generateLinkedinPost = async ({ closeOnError = true } = {}) => {
+    setLinkedinLoading(true);
+    setLinkedinText('');
+    try {
+      const res = await api.post(`/posts/${id}/repurpose-linkedin`);
+      setLinkedinText(res.data.linkedin_post);
+    } catch (err) {
+      const detail = err.response?.data?.detail || 'Failed to generate LinkedIn post';
+      enqueueSnackbar(detail, { variant: 'error' });
+      if (closeOnError) setLinkedinOpen(false);
+    } finally {
+      setLinkedinLoading(false);
+    }
+  };
+
+  const handleLinkedinOpen = () => {
+    setLinkedinOpen(true);
+    generateLinkedinPost({ closeOnError: true });
+  };
+
   if (isLoading) return <Typography color="text.secondary">Loading...</Typography>;
   if (!post) return <Typography color="error">Post not found</Typography>;
 
@@ -355,6 +380,17 @@ export default function PostDetail() {
               Revise with AI
             </Button>
           )}
+          <Button
+            variant="outlined" size="small" startIcon={<LinkedIn />}
+            onClick={handleLinkedinOpen}
+            disabled={linkedinLoading}
+            sx={{
+              color: '#0A66C2', borderColor: '#0A66C2',
+              '&:hover': { borderColor: '#004182', bgcolor: 'rgba(10, 102, 194, 0.06)' },
+            }}
+          >
+            LinkedIn
+          </Button>
           {post.status !== 'published' && (
             <>
               <Button
@@ -570,7 +606,7 @@ export default function PostDetail() {
             <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ textTransform: 'uppercase', letterSpacing: '0.03em' }}>Content</Typography>
             <Divider sx={{ mb: 2 }} />
             <Box
-              sx={{ '& h1,& h2,& h3': { mt: 2, mb: 1 }, '& p': { mb: 1.5 }, lineHeight: 1.7 }}
+              sx={{ '& h1,& h2,& h3': { mt: 2, mb: 1 }, '& p': { mb: 1.5 }, lineHeight: 1.7, '& blockquote': { borderLeft: '4px solid', borderColor: 'primary.main', backgroundColor: 'rgba(74, 124, 111, 0.06)', pl: 2.5, pr: 2.5, py: 2, ml: 0, my: 2.5, fontStyle: 'normal', '& p': { mb: 0 } } }}
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </CardContent>
@@ -702,7 +738,7 @@ export default function PostDetail() {
               <Card variant="outlined" sx={{ maxHeight: 450, overflow: 'auto' }}>
                 <CardContent>
                   <Box
-                    sx={{ '& h1,& h2,& h3': { mt: 2, mb: 1 }, '& p': { mb: 1.5 }, lineHeight: 1.7 }}
+                    sx={{ '& h1,& h2,& h3': { mt: 2, mb: 1 }, '& p': { mb: 1.5 }, lineHeight: 1.7, '& blockquote': { borderLeft: '4px solid', borderColor: 'primary.main', backgroundColor: 'rgba(74, 124, 111, 0.06)', pl: 2.5, pr: 2.5, py: 2, ml: 0, my: 2.5, fontStyle: 'normal', '& p': { mb: 0 } } }}
                     dangerouslySetInnerHTML={{ __html: revisionPreview.content_html }}
                   />
                 </CardContent>
@@ -735,6 +771,136 @@ export default function PostDetail() {
             </DialogActions>
           </>
         )}
+      </Dialog>
+
+      {/* LinkedIn Repurpose Dialog */}
+      <Dialog
+        open={linkedinOpen}
+        onClose={() => { if (!linkedinLoading) setLinkedinOpen(false); }}
+        maxWidth="sm"
+        fullWidth
+        disableEscapeKeyDown={linkedinLoading}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LinkedIn sx={{ color: '#0A66C2' }} />
+          <span>LinkedIn Post</span>
+        </DialogTitle>
+        <DialogContent>
+          {linkedinLoading ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4, gap: 2 }}>
+              <CircularProgress size={36} sx={{ color: '#0A66C2' }} />
+              <Typography variant="body2" color="text.secondary">
+                Generating your LinkedIn post...
+              </Typography>
+            </Box>
+          ) : (() => {
+            const firstLine = linkedinText.split('\n')[0] || '';
+            const hookLen = firstLine.length;
+            const hookOk = hookLen <= 150;
+            return (
+              <>
+                {/* Hook preview */}
+                <Box sx={{
+                  mb: 2, p: 1.5,
+                  border: '1px solid',
+                  borderColor: hookOk ? '#4A7C6F' : '#A0522D',
+                  bgcolor: hookOk ? 'rgba(74, 124, 111, 0.04)' : 'rgba(160, 82, 45, 0.04)',
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+                    <Typography variant="caption" sx={{
+                      fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
+                      color: hookOk ? '#4A7C6F' : '#A0522D',
+                    }}>
+                      Hook Preview
+                    </Typography>
+                    <Chip
+                      label={`${hookLen} / 150 chars`}
+                      size="small"
+                      sx={{
+                        height: 20, fontWeight: 600, fontSize: '0.65rem',
+                        bgcolor: hookOk ? 'rgba(74, 124, 111, 0.12)' : 'rgba(160, 82, 45, 0.15)',
+                        color: hookOk ? '#4A7C6F' : '#A0522D',
+                      }}
+                    />
+                  </Box>
+                  <Typography variant="body2" sx={{
+                    fontFamily: 'Inter, sans-serif', fontWeight: 600, lineHeight: 1.5,
+                  }}>
+                    {firstLine}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                    {hookOk
+                      ? 'This line appears before LinkedIn\'s "See more" button.'
+                      : 'This line exceeds 150 characters and will be truncated by LinkedIn.'}
+                  </Typography>
+                </Box>
+
+                {/* Full post */}
+                <TextField
+                  fullWidth
+                  multiline
+                  minRows={8}
+                  maxRows={16}
+                  value={linkedinText}
+                  InputProps={{ readOnly: true }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                    },
+                  }}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5 }}>
+                  <Chip
+                    label={`${linkedinText.length} characters`}
+                    size="small"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.7rem',
+                      bgcolor: linkedinText.length <= 1500 ? 'rgba(74, 124, 111, 0.12)' : 'rgba(160, 82, 45, 0.15)',
+                      color: linkedinText.length <= 1500 ? '#4A7C6F' : '#A0522D',
+                    }}
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    LinkedIn recommends ~1300 characters
+                  </Typography>
+                </Box>
+              </>
+            );
+          })()}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLinkedinOpen(false)} disabled={linkedinLoading}>
+            Close
+          </Button>
+          {!linkedinLoading && linkedinText && (
+            <>
+              <Button
+                variant="outlined"
+                startIcon={<Refresh />}
+                onClick={() => generateLinkedinPost({ closeOnError: false })}
+                sx={{
+                  color: '#0A66C2', borderColor: '#0A66C2',
+                  '&:hover': { borderColor: '#004182', bgcolor: 'rgba(10, 102, 194, 0.06)' },
+                }}
+              >
+                Regenerate
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<ContentCopy />}
+                onClick={() => {
+                  navigator.clipboard.writeText(linkedinText);
+                  enqueueSnackbar('LinkedIn post copied to clipboard', { variant: 'success' });
+                }}
+                sx={{ bgcolor: '#0A66C2', '&:hover': { bgcolor: '#004182' } }}
+              >
+                Copy to Clipboard
+              </Button>
+            </>
+          )}
+        </DialogActions>
       </Dialog>
     </Box>
   );

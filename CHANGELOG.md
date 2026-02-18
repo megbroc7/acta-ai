@@ -16,6 +16,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-18 (Session 37) — LinkedIn Repurpose Feature
+
+**What we did:**
+Added on-demand LinkedIn post generation from PostDetail. Users can convert any blog post into a ~1300-character LinkedIn post optimized for the 2026 algorithm, copy it to clipboard, and paste it into LinkedIn. Tribune+ only (tier-gated). No new models, no migrations.
+
+**1. Content Service** (`services/content.py`)
+- `repurpose_to_linkedin(content_html, title, industry)` — converts HTML to plain text via `markdownify`, one GPT-4o call with LinkedIn-specific prompt
+- `_linkedin_tone_for_industry(industry)` — three-tier tone calibration: AI-friendly industries (leadership, coaching, HR) get polished tone; AI-hostile industries (marketing, strategy, healthcare, legal, finance) get aggressive anti-AI constraints requiring specific details from the article; default gets moderate guidance
+- Prompt enforces: Hook-Story-Payoff structure with 150-char hook awareness (LinkedIn truncation point), BANNED_PHRASES injection (all 83 phrases), sentence dynamics (vary length, active voice, contractions, minimize adverbs), mobile formatting (1-3 sentences per paragraph, blank lines), no em dashes, no external links (20-30% reach penalty), specific open-ended CTA (never yes/no), max 3 hashtags
+
+**2. Tier Gating** (`services/tier_limits.py`)
+- Added `repurpose_linkedin: False` to Scriptor, `True` to Tribune and Imperator
+- Added "Repurpose to LinkedIn" label in `check_feature_access()`
+
+**3. API Endpoint** (`api/posts.py`)
+- `POST /{post_id}/repurpose-linkedin` — tier gate, maintenance mode guard, loads template industry for tone calibration, returns `{ linkedin_post: str }`
+
+**4. Frontend** (`pages/posts/PostDetail.jsx`)
+- LinkedIn button (blue #0A66C2) in top action bar, visible for all posts
+- Dialog with: loading spinner, hook preview box (first line highlighted with X/150 char count, green/sienna indicator, context about "See more" truncation), full post in read-only TextField, total character count chip, Regenerate button, Copy to Clipboard button
+- Regenerate fires a new API call without closing the dialog
+
+**Files changed:** `content.py`, `tier_limits.py`, `posts.py`, `PostDetail.jsx`, `PromptForm.jsx` (blockquote styling fix)
+
+---
+
 ### 2026-02-18 (Session 36) — Web Research Pipeline Step
 
 **What we did:**

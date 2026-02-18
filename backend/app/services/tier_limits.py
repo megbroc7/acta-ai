@@ -26,6 +26,7 @@ TIER_LIMITS = {
         "voice_match": False,
         "revise_with_ai": False,
         "web_research": False,
+        "repurpose_linkedin": False,
         "dalle_quality": None,
     },
     "tribune": {
@@ -38,6 +39,7 @@ TIER_LIMITS = {
         "voice_match": True,
         "revise_with_ai": True,
         "web_research": True,
+        "repurpose_linkedin": True,
         "dalle_quality": "standard",
     },
     "imperator": {
@@ -50,6 +52,7 @@ TIER_LIMITS = {
         "voice_match": True,
         "revise_with_ai": True,
         "web_research": True,
+        "repurpose_linkedin": True,
         "dalle_quality": "hd",
     },
 }
@@ -208,6 +211,7 @@ def check_feature_access(user: User, feature: str):
             "voice_match": "Match My Writing Style",
             "revise_with_ai": "Revise with AI",
             "web_research": "Web Research",
+            "repurpose_linkedin": "Repurpose to LinkedIn",
         }
         label = feature_labels.get(feature, feature)
         raise HTTPException(

@@ -300,6 +300,55 @@ async def reject_post(
     return result.scalar_one()
 
 
+@router.post("/{post_id}/repurpose-linkedin")
+async def repurpose_linkedin(
+    post_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate a LinkedIn post from a blog article (Tribune+ only)."""
+    from app.services.tier_limits import check_feature_access
+    from app.services.content import repurpose_to_linkedin
+
+    check_feature_access(current_user, "repurpose_linkedin")
+
+    if await is_maintenance_mode(db):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI generation is paused — maintenance mode is active",
+        )
+
+    result = await db.execute(
+        select(BlogPost).where(
+            BlogPost.id == post_id, BlogPost.user_id == current_user.id
+        )
+    )
+    post = result.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if not post.content:
+        raise HTTPException(status_code=400, detail="Post has no content to repurpose")
+
+    # Load template to get industry for tone calibration
+    industry = None
+    if post.prompt_template_id:
+        tmpl_result = await db.execute(
+            select(PromptTemplate).where(PromptTemplate.id == post.prompt_template_id)
+        )
+        template = tmpl_result.scalar_one_or_none()
+        if template:
+            industry = template.industry
+
+    try:
+        linkedin_text = await repurpose_to_linkedin(post.content, post.title, industry)
+    except Exception as exc:
+        logger.error(f"LinkedIn repurpose failed for post {post_id}: {exc}")
+        raise HTTPException(status_code=502, detail="LinkedIn post generation failed")
+
+    return {"linkedin_post": linkedin_text}
+
+
 @router.post("/{post_id}/revise-stream")
 async def revise_stream(
     post_id: str,
