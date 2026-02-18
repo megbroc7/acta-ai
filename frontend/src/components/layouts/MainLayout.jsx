@@ -46,6 +46,7 @@ import {
   People as UsersIcon,
   AttachMoney as CostsIcon,
   Forum as AdminFeedbackIcon,
+  Payment as BillingIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
@@ -61,6 +62,7 @@ const ADMIN_CHILDREN = [
   { label: 'Users', icon: <UsersIcon fontSize="small" />, path: '/admin/users' },
   { label: 'Costs', icon: <CostsIcon fontSize="small" />, path: '/admin/costs' },
   { label: 'Feedback', icon: <AdminFeedbackIcon fontSize="small" />, path: '/admin/feedback' },
+  { label: 'Billing', icon: <BillingIcon fontSize="small" />, path: '/admin/billing' },
 ];
 
 function buildNavItems(isAdmin) {

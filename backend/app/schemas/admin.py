@@ -190,3 +190,19 @@ class AdminFeedbackEntry(BaseModel):
 class AdminFeedbackResponse(BaseModel):
     total: int
     entries: list[AdminFeedbackEntry]
+
+
+# --- Admin subscription/billing schemas ---
+
+class AdminSubscriptionEntry(BaseModel):
+    user_id: uuid.UUID
+    email: str
+    full_name: str
+    subscription_tier: str | None = None
+    trial_ends_at: datetime | None = None
+    trial_active: bool = False
+    effective_tier: str | None = None
+    subscription_status: str | None = None
+    current_period_end: datetime | None = None
+    cancel_at_period_end: bool = False
+    created_at: datetime | None = None

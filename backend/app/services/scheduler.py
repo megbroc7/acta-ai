@@ -19,16 +19,20 @@ from app.core.database import async_session
 from app.models.app_settings import AppSettings
 from app.models.blog_post import BlogPost, ExecutionHistory
 from app.models.blog_schedule import BlogSchedule
+from app.models.user import User
 from app.services import content as content_service
 from app.services import publishing as publishing_service
-from app.services.content import GPT4O_INPUT_COST, GPT4O_OUTPUT_COST, DALLE3_COST
+from app.services.content import GPT4O_INPUT_COST, GPT4O_OUTPUT_COST, DALLE3_COST, DALLE3_HD_COST
 from app.services.error_classifier import classify_error
 from app.services.notifications import (
     create_deactivation_notification,
     create_failure_notification,
     create_publish_failure_notification,
+    create_subscription_expired_notification,
+    create_trial_expiry_notification,
 )
 from app.services.publishing import PublishError
+from app.services.tier_limits import TIER_LIMITS, get_effective_tier
 
 logger = logging.getLogger(__name__)
 
@@ -137,6 +141,30 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
             logger.error("execute_schedule: schedule %s not found", schedule_id)
             return result
 
+        # 1.5. Subscription guard — block if user has no active tier
+        user_row = await db.execute(
+            select(User).where(User.id == schedule.user_id)
+        )
+        schedule_user = user_row.scalar_one_or_none()
+        user_dalle_quality = "standard"
+        if schedule_user:
+            tier = get_effective_tier(schedule_user)
+            if tier is None:
+                logger.warning(
+                    "Subscription expired for user %s — auto-deactivating schedule '%s'",
+                    schedule_user.email, schedule.name,
+                )
+                schedule.is_active = False
+                schedule.next_run = None
+                remove_schedule_job(schedule.id)
+                await create_subscription_expired_notification(db, schedule)
+                await db.commit()
+                result["error_message"] = "Subscription expired — schedule deactivated"
+                return result
+            # Look up tier-specific DALL-E quality
+            tier_limits = TIER_LIMITS.get(tier, {})
+            user_dalle_quality = tier_limits.get("dalle_quality") or "standard"
+
         # 2. Validate
         if not schedule.is_active:
             result["error_message"] = "Schedule is not active"
@@ -243,6 +271,7 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
                 replacements=schedule.prompt_replacements or {},
                 experience_context=experience_context,
                 existing_titles=existing_titles,
+                dalle_quality=user_dalle_quality,
             )
         except Exception as e:
             error_msg = f"Content generation failed: {e}"
@@ -312,7 +341,10 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
             gen.prompt_tokens * GPT4O_INPUT_COST
             + gen.completion_tokens * GPT4O_OUTPUT_COST
         )
-        img_cost = DALLE3_COST if template.image_source == "dalle" else 0.0
+        if template.image_source == "dalle":
+            img_cost = DALLE3_HD_COST if user_dalle_quality == "hd" else DALLE3_COST
+        else:
+            img_cost = 0.0
         execution = ExecutionHistory(
             schedule_id=schedule.id,
             user_id=schedule.user_id,
@@ -438,6 +470,66 @@ async def trigger_schedule_now(schedule_id: uuid.UUID) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Trial expiry checker
+# ---------------------------------------------------------------------------
+
+async def check_trial_expirations() -> None:
+    """Check for users approaching trial expiry and create notifications.
+
+    Runs daily — checks for 3 days, 1 day, and 0 days remaining.
+    Deduplicates by checking for existing notifications with the same title today.
+    """
+    from app.models.notification import Notification
+
+    async with async_session() as db:
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # Users on trial (no subscription_tier, trial_ends_at set)
+        result = await db.execute(
+            select(User).where(
+                User.trial_ends_at.isnot(None),
+                User.subscription_tier.is_(None),
+            )
+        )
+        trial_users = result.scalars().all()
+
+        created = 0
+        for user in trial_users:
+            days_remaining = (user.trial_ends_at - now).days
+
+            if days_remaining not in (3, 1, 0):
+                continue
+
+            # Build expected title for dedup check
+            if days_remaining == 3:
+                expected_title = "Your trial ends in 3 days"
+            elif days_remaining == 1:
+                expected_title = "Your trial ends tomorrow"
+            else:
+                expected_title = "Your free trial has ended"
+
+            # Check if we already sent this notification today
+            existing = await db.execute(
+                select(func.count(Notification.id)).where(
+                    Notification.user_id == user.id,
+                    Notification.category == "billing",
+                    Notification.title == expected_title,
+                    Notification.created_at >= today_start,
+                )
+            )
+            if (existing.scalar() or 0) > 0:
+                continue
+
+            await create_trial_expiry_notification(db, user, days_remaining)
+            created += 1
+
+        if created:
+            await db.commit()
+            logger.info("Created %d trial expiry notification(s)", created)
+
+
+# ---------------------------------------------------------------------------
 # Lifecycle
 # ---------------------------------------------------------------------------
 
@@ -459,9 +551,24 @@ async def start_scheduler() -> None:
 
         await db.commit()
 
+    # Run trial expiry check on startup
+    try:
+        await check_trial_expirations()
+    except Exception:
+        logger.exception("Trial expiry check failed on startup")
+
+    # Add daily trial expiry check job (runs at 09:00 UTC)
+    scheduler.add_job(
+        check_trial_expirations,
+        CronTrigger(hour=9, minute=0, timezone="UTC"),
+        id="trial_expiry_check",
+        name="Daily trial expiry check",
+        replace_existing=True,
+    )
+
     scheduler.start()
     job_count = len(scheduler.get_jobs())
-    logger.info("Scheduler started with %d active schedule(s)", job_count)
+    logger.info("Scheduler started with %d active job(s)", job_count)
 
 
 async def stop_scheduler() -> None:

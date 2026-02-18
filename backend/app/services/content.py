@@ -47,6 +47,7 @@ MARKDOWN_EXTENSIONS = ["extra", "codehilite", "toc", "nl2br"]
 GPT4O_INPUT_COST = 2.50 / 1_000_000    # $2.50 per 1M input tokens
 GPT4O_OUTPUT_COST = 10.00 / 1_000_000   # $10.00 per 1M output tokens
 DALLE3_COST = 0.04                       # per standard image
+DALLE3_HD_COST = 0.08                    # per HD image
 
 # Hardcoded anti-robot banned phrases — always included in system prompt.
 # Organized by AI-tell category. ~70 phrases total (expanded in Session 15).
@@ -1292,6 +1293,7 @@ async def generate_content(
     image_source: str | None = None,
     image_style_guidance: str | None = None,
     industry: str | None = None,
+    dalle_quality: str = "standard",
 ) -> ContentResult:
     """3-step article chain: Outline → Draft → Review/Polish, plus optional image.
 
@@ -1301,6 +1303,7 @@ async def generate_content(
         image_source: "dalle", "unsplash", or None/"none" to skip.
         image_style_guidance: Optional style hint for DALL-E (ignored for Unsplash).
         industry: Template industry, used for image prompt context.
+        dalle_quality: "standard" ($0.04) or "hd" ($0.08) — tier-dependent.
     """
     system_prompt = build_content_system_prompt(template, experience_context)
 
@@ -1385,6 +1388,7 @@ async def generate_content(
             title=title,
             industry=industry,
             style_guidance=image_style_guidance,
+            quality=dalle_quality,
         )
 
     return ContentResult(
@@ -1548,6 +1552,7 @@ async def generate_post(
     replacements: dict[str, str] | None = None,
     experience_context: str | None = None,
     existing_titles: list[str] | None = None,
+    dalle_quality: str = "standard",
 ) -> GenerationResult:
     """Full pipeline: generate 5 titles, pick by style weighting, then 3-step article chain."""
     title_result = await generate_titles(template, topic, replacements, existing_titles=existing_titles)
@@ -1571,6 +1576,7 @@ async def generate_post(
         image_source=template.image_source,
         image_style_guidance=template.image_style_guidance,
         industry=template.industry,
+        dalle_quality=dalle_quality,
     )
 
     return GenerationResult(

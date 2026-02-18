@@ -54,6 +54,66 @@ async def create_deactivation_notification(db, schedule):
     )
 
 
+async def create_subscription_expired_notification(db, schedule):
+    """Create a notification when a schedule is auto-paused due to expired subscription."""
+    notification = Notification(
+        user_id=schedule.user_id,
+        category="billing",
+        title=f"Schedule Paused — Subscription Required",
+        message=(
+            f"Schedule '{schedule.name}' was automatically paused because your "
+            "free trial has ended and no active subscription was found. "
+            "Subscribe to a plan to resume scheduled content generation."
+        ),
+        action_url="/settings",
+        action_label="View Plans",
+        schedule_id=schedule.id,
+    )
+    db.add(notification)
+    logger.warning(
+        "Created subscription-expired notification for schedule '%s'", schedule.name,
+    )
+
+
+async def create_trial_expiry_notification(db, user, days_remaining):
+    """Create a notification warning about trial expiration.
+
+    days_remaining: 3, 1, or 0 (expired).
+    """
+    if days_remaining == 3:
+        title = "Your trial ends in 3 days"
+        message = (
+            "Your free trial ends in 3 days. Subscribe now to keep your "
+            "schedules running and continue generating content."
+        )
+    elif days_remaining == 1:
+        title = "Your trial ends tomorrow"
+        message = (
+            "Your free trial ends tomorrow. Subscribe to avoid interruption — "
+            "active schedules will be paused when the trial expires."
+        )
+    else:
+        title = "Your free trial has ended"
+        message = (
+            "Your free trial has ended. Active schedules have been paused. "
+            "Subscribe to a plan to resume content generation."
+        )
+
+    notification = Notification(
+        user_id=user.id,
+        category="billing",
+        title=title,
+        message=message,
+        action_url="/settings",
+        action_label="View Plans",
+    )
+    db.add(notification)
+    logger.info(
+        "Created trial expiry notification for user '%s' (days_remaining=%d)",
+        user.email, days_remaining,
+    )
+
+
 async def create_publish_failure_notification(db, schedule, post, error_message):
     """Create a notification when publishing fails but the post was saved as draft."""
     short_title = post.title[:100] + ("..." if len(post.title) > 100 else "")

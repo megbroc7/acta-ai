@@ -16,9 +16,11 @@ from app.models.blog_schedule import BlogSchedule
 from app.models.blog_post import BlogPost, ExecutionHistory
 from app.models.app_settings import AppSettings
 from app.models.feedback import Feedback
+from app.models.subscription import Subscription
 from app.schemas.admin import (
     AdminDashboardResponse,
     AdminPasswordResetResponse,
+    AdminSubscriptionEntry,
     AdminUserDetail,
     AdminUserError,
     AdminUserPost,
@@ -300,6 +302,75 @@ async def get_user_costs(
         )
         for r in rows.all()
     ]
+
+
+# --- Subscriptions overview ---
+
+
+@router.get("/subscriptions", response_model=list[AdminSubscriptionEntry])
+async def get_all_subscriptions(
+    _admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """All users with subscription/trial/billing info for admin visibility."""
+    from app.services.tier_limits import get_effective_tier
+
+    now = datetime.now(timezone.utc)
+
+    rows = await db.execute(
+        select(
+            User.id,
+            User.email,
+            User.full_name,
+            User.subscription_tier,
+            User.trial_ends_at,
+            User.created_at,
+            Subscription.status.label("sub_status"),
+            Subscription.current_period_end,
+            Subscription.cancel_at_period_end,
+        )
+        .outerjoin(Subscription, User.id == Subscription.user_id)
+        .order_by(
+            # Active subscribers first, then trial, then expired
+            case(
+                (User.subscription_tier.isnot(None), 0),
+                (User.trial_ends_at > now, 1),
+                else_=2,
+            ).asc(),
+            User.created_at.desc(),
+        )
+    )
+
+    entries = []
+    for r in rows.all():
+        # Build a minimal User-like object for get_effective_tier
+        class _U:
+            pass
+        u = _U()
+        u.subscription_tier = r.subscription_tier
+        u.trial_ends_at = r.trial_ends_at
+
+        trial_active = (
+            r.trial_ends_at is not None
+            and r.trial_ends_at > now
+            and r.subscription_tier is None
+        )
+
+        entries.append(AdminSubscriptionEntry(
+            user_id=r.id,
+            email=r.email,
+            full_name=r.full_name,
+            subscription_tier=r.subscription_tier,
+            trial_ends_at=r.trial_ends_at,
+            trial_active=trial_active,
+            effective_tier=get_effective_tier(u),
+            subscription_status=r.sub_status,
+            current_period_end=r.current_period_end,
+            cancel_at_period_end=r.cancel_at_period_end or False,
+            created_at=r.created_at,
+        ))
+
+    return entries
 
 
 # --- Maintenance mode ---

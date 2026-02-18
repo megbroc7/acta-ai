@@ -16,6 +16,45 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-18 (Session 34) — Billing & Subscription Tiers (Session 3 of 3): Scheduler Guards, DALL-E HD, Admin Panel, Trial Notifications
+
+**What we did:**
+Completed the billing/subscription feature with 4 remaining pieces: scheduler-level subscription enforcement, tier-aware DALL-E image quality, admin billing visibility panel, and proactive trial expiry notifications.
+
+**1. Scheduler Subscription Guard** (`services/scheduler.py`)
+- After loading a schedule, loads the `User` and calls `get_effective_tier()`
+- If tier is `None` (expired trial + no subscription) → auto-deactivates the schedule, removes APScheduler job, creates a billing notification, returns early with no AI cost incurred
+- New `create_subscription_expired_notification()` helper in `notifications.py`
+
+**2. DALL-E HD Quality per Tier** (`images.py`, `content.py`, `scheduler.py`, `templates.py`)
+- `generate_featured_image()` and `_generate_dalle_image()` now accept a `quality` parameter ("standard" or "hd")
+- `generate_content()` and `generate_post()` gain a `dalle_quality` parameter, threaded to the image service
+- Scheduler looks up `TIER_LIMITS[tier]["dalle_quality"]` — Imperator gets HD ($0.08), Tribune gets standard ($0.04), Scriptor has no DALL-E access
+- `test_content_stream` SSE endpoint also looks up tier quality
+- Added `DALLE3_HD_COST = 0.08` constant; scheduler uses correct cost for execution history
+
+**3. Admin Billing Panel** (`api/admin.py`, `schemas/admin.py`, `AdminBilling.jsx`)
+- New `GET /admin/subscriptions` endpoint — LEFT JOINs users with subscriptions table
+- Returns: user info, subscription_tier, trial_ends_at, trial_active (computed), effective_tier (computed), subscription status, period end, cancel_at_period_end
+- Sorted: active subscribers first → trialing → expired
+- New `AdminBilling.jsx` page: tier badges (green/bronze/grey), status chips, period end, trial status, cancellation indicators
+- Route at `/admin/billing`, "Billing" with Payment icon in admin sidebar
+
+**4. Trial Expiry Notifications** (`scheduler.py`, `notifications.py`, `NotificationCenter.jsx`)
+- New `check_trial_expirations()` — queries trial users, checks days_remaining in {3, 1, 0}
+- Deduplicates: checks for existing notification with same title + category created today
+- 3 messages: "Your trial ends in 3 days", "Your trial ends tomorrow", "Your free trial has ended" — all link to `/settings`
+- Wired into `start_scheduler()`: runs once on startup + daily APScheduler cron job at 09:00 UTC
+- Added `billing` category with Payment icon in `NotificationCenter.jsx`
+
+**No migration needed** — all DB columns exist from Sessions 32-33.
+
+**Files changed:** 10 modified + 1 new
+
+**Billing feature is now COMPLETE (3/3 sessions).** All tiers fully enforced end-to-end: resource limits, feature gates, scheduler guards, image quality, Stripe checkout/portal/webhooks, admin visibility, trial notifications.
+
+---
+
 ### 2026-02-18 (Session 33) — Billing & Subscription Tiers (Session 2 of 3): Stripe Integration + Frontend
 
 **What we did:**

@@ -22,6 +22,7 @@ import {
   BrokenImage,
   Settings,
   HelpOutline,
+  Payment,
 } from '@mui/icons-material';
 import api from '../../services/api';
 
@@ -36,6 +37,7 @@ const CATEGORY_ICONS = {
   content_error: <Warning sx={{ fontSize: 20, color: '#B08D57' }} />,
   image_error: <BrokenImage sx={{ fontSize: 20, color: '#B08D57' }} />,
   config_error: <Settings sx={{ fontSize: 20, color: '#A0522D' }} />,
+  billing: <Payment sx={{ fontSize: 20, color: '#B08D57' }} />,
   unknown: <HelpOutline sx={{ fontSize: 20, color: '#B08D57' }} />,
 };
 

@@ -23,13 +23,14 @@ async def generate_featured_image(
     title: str,
     industry: str | None = None,
     style_guidance: str | None = None,
+    quality: str = "standard",
 ) -> str | None:
     """Dispatch to the correct image source. Returns image URL or None."""
     if not source or source == "none":
         return None
 
     if source == "dalle":
-        return await _generate_dalle_image(title, industry, style_guidance)
+        return await _generate_dalle_image(title, industry, style_guidance, quality=quality)
     if source == "unsplash":
         return await _search_unsplash_image(title, industry)
 
@@ -41,6 +42,7 @@ async def _generate_dalle_image(
     title: str,
     industry: str | None = None,
     style_guidance: str | None = None,
+    quality: str = "standard",
 ) -> str | None:
     """Generate a featured image with DALL-E 3."""
     if not settings.OPENAI_API_KEY:
@@ -64,7 +66,7 @@ async def _generate_dalle_image(
             model="dall-e-3",
             prompt=prompt,
             size="1792x1024",
-            quality="standard",
+            quality=quality,
             n=1,
         )
         url = response.data[0].url

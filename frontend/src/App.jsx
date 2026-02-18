@@ -43,6 +43,7 @@ import AdminErrors from './pages/admin/AdminErrors';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCosts from './pages/admin/AdminCosts';
 import AdminFeedback from './pages/admin/AdminFeedback';
+import AdminBilling from './pages/admin/AdminBilling';
 import ScheduleHistory from './pages/schedules/ScheduleHistory';
 import Settings from './pages/settings/Settings';
 import TermsOfService from './pages/legal/TermsOfService';
@@ -195,6 +196,14 @@ export default function App() {
                     element={
                       <AdminRoute>
                         <AdminFeedback />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/billing"
+                    element={
+                      <AdminRoute>
+                        <AdminBilling />
                       </AdminRoute>
                     }
                   />

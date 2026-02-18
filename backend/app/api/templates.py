@@ -527,7 +527,7 @@ async def test_content_stream(
     current_user: User = Depends(get_current_user),
 ):
     """SSE streaming endpoint for content generation with real-time progress."""
-    from app.services.tier_limits import check_image_source, require_active_subscription
+    from app.services.tier_limits import check_image_source, get_effective_tier, require_active_subscription, TIER_LIMITS
 
     await require_active_subscription(current_user)
 
@@ -553,6 +553,11 @@ async def test_content_stream(
         raise HTTPException(status_code=404, detail="Template not found")
 
     check_image_source(current_user, template.image_source)
+
+    # Look up tier-specific DALL-E quality
+    user_tier = get_effective_tier(current_user)
+    tier_limits = TIER_LIMITS.get(user_tier, {}) if user_tier else {}
+    user_dalle_quality = tier_limits.get("dalle_quality") or "standard"
 
     # Build experience context (same logic as test_content)
     experience_parts = []
@@ -581,6 +586,7 @@ async def test_content_stream(
                 image_source=template.image_source,
                 image_style_guidance=template.image_style_guidance,
                 industry=template.industry,
+                dalle_quality=user_dalle_quality,
             )
             await queue.put({
                 "event": "complete",
