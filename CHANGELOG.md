@@ -16,6 +16,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-19 (Session 46) — Carousel Left-Aligned Layout Overhaul
+
+**What we did:**
+Redesigned all carousel slide layouts from centered card-based designs to clean left-aligned text, inspired by Taplio-style carousels.
+
+**1. Hook Slide** — Left-aligned headline + body text. Removed centered divider bar.
+
+**2. Middle/Result Slides** — Replaced card containers, accent bars, bullet row cards, stat boxes, and watermark numbers with: filled accent-color number badge (circle) + left-aligned 74pt bold headline + left-aligned 34pt body text.
+
+**3. TL;DR Slide** — Replaced centered pill + numbered row cards with same badge + headline + body layout as middle slides.
+
+**4. CTA Slide** — Replaced centered headline + "YOUR TAKE?" pill with same badge + headline + body layout.
+
+**5. Footer** — Removed "Generated with Acta AI" branding text. Slide counter and "SWIPE >" remain.
+
+**Files modified:** `carousel.py`
+**No migration, no frontend changes, no new dependencies**
+
+---
+
 ### 2026-02-19 (Session 45) — Carousel Color Palette Grid + Background Patterns
 
 **What we did:**

@@ -993,252 +993,204 @@ _SAFE_BOTTOM = 100   # above footer
 
 
 def _render_hook_slide(img, slide, margin, cw, text_rgba, accent_rgb):
-    """Center-led hook — big headline, divider bar, body text."""
-    draw = ImageDraw.Draw(img)
+    """Left-aligned hook — big headline + body text, no divider bar."""
     hl_font = _get_font(bold=True, size=74)
     bd_font = _get_font(bold=False, size=34)
 
-    hl_lines = _wrap_text(slide.headline, hl_font, cw - 60)
-    bd_lines = _wrap_text(slide.body_text, bd_font, cw - 140)
+    hl_lines = _wrap_text(slide.headline, hl_font, cw)
+    bd_lines = _wrap_text(slide.body_text, bd_font, cw - 20)
 
     hl_lh, bd_lh = 88, 48
     hl_h = max(1, len(hl_lines)) * hl_lh
     bd_h = max(1, len(bd_lines)) * bd_lh
-    gap1, bar_h, gap2 = 44, 5, 36
-    total = hl_h + gap1 + bar_h + gap2 + bd_h
+    gap = 36
+    total = hl_h + gap + bd_h
 
     top = _SAFE_TOP + (SLIDE_HEIGHT - _SAFE_TOP - _SAFE_BOTTOM - total) // 2
 
     _draw_text(img, hl_lines, margin, top, hl_font, text_rgba,
-               align="center", line_height=hl_lh, max_lines=3, area_width=cw)
+               align="left", line_height=hl_lh, max_lines=3)
 
-    bar_y = top + hl_h + gap1
-    cx = SLIDE_WIDTH // 2
-    draw.rectangle((cx - 100, bar_y, cx + 100, bar_y + bar_h),
-                   fill=_rgba(accent_rgb, 1.0))
-
-    _draw_text(img, bd_lines, margin, bar_y + bar_h + gap2, bd_font, text_rgba,
-               align="center", line_height=bd_lh, max_lines=5, area_width=cw)
+    bd_y = top + hl_h + gap
+    _draw_text(img, bd_lines, margin, bd_y, bd_font, text_rgba,
+               align="left", line_height=bd_lh, max_lines=5)
 
 
 def _render_middle_slide(img, slide, margin, cw, text_rgba, accent_rgb):
-    """Content card with headline, accent bar, bullet rows, optional stat."""
-    hl_font = _get_font(bold=True, size=54)
+    """Left-aligned content slide — number badge, headline, body text."""
+    draw = ImageDraw.Draw(img)
+    hl_font = _get_font(bold=True, size=74)
+    bd_font = _get_font(bold=False, size=34)
 
-    card_x = margin - 10
-    card_w = cw + 20
+    hl_lines = _wrap_text(slide.headline, hl_font, cw)
+    bd_lines = _wrap_text(slide.body_text or "", bd_font, cw - 20)
 
-    hl_lines = _wrap_text(slide.headline, hl_font, card_w - 80)
-    hl_lh = 68
+    hl_lh, bd_lh = 88, 48
     hl_h = max(1, len(hl_lines)) * hl_lh
+    bd_h = max(1, len(bd_lines)) * bd_lh
+    badge_d = 70
+    gap_badge = 24
+    gap_body = 36
+    total = badge_d + gap_badge + hl_h + gap_body + bd_h
 
-    body_text = slide.body_text or ""
-    items = [ln.strip().lstrip("\u2022-\u2013 ").strip() for ln in body_text.splitlines() if ln.strip()][:5]
-    bullet_h = len(items) * 60 + 20
-    stat_h = 160 if slide.key_stat else 0
+    top = _SAFE_TOP + (SLIDE_HEIGHT - _SAFE_TOP - _SAFE_BOTTOM - total) // 2
 
-    pad_top, pad_bot = 50, 44
-    inner = hl_h + 24 + 5 + 30 + max(bullet_h, stat_h) + pad_bot
-    card_h = pad_top + inner
+    # Number badge — filled circle
+    badge_cx = margin + badge_d // 2
+    badge_cy = top + badge_d // 2
+    draw.ellipse(
+        (badge_cx - badge_d // 2, badge_cy - badge_d // 2,
+         badge_cx + badge_d // 2, badge_cy + badge_d // 2),
+        fill=_rgba(accent_rgb, 1.0),
+    )
+    nf = _get_font(bold=True, size=34)
+    num_text = str(slide.slide_number - 1)
+    ntw = _text_width(nf, num_text)
+    draw.text((badge_cx - ntw // 2, badge_cy - 17), num_text,
+              font=nf, fill=_contrast_text_rgba(accent_rgb))
 
-    card_top = _SAFE_TOP + (SLIDE_HEIGHT - _SAFE_TOP - _SAFE_BOTTOM - card_h) // 2
+    # Headline
+    hl_y = top + badge_d + gap_badge
+    _draw_text(img, hl_lines, margin, hl_y, hl_font, text_rgba,
+               align="left", line_height=hl_lh, max_lines=3)
 
-    # card with shadow
-    _draw_card(img, (card_x, card_top, card_x + card_w, card_top + card_h),
-               radius=14, fill=_rgba(accent_rgb, 0.09),
-               outline=_rgba(accent_rgb, 0.25), shadow=True)
-
-    # slide number watermark
-    num_font = _get_font(bold=True, size=110)
-    num_text = f"{slide.slide_number - 1:02d}"
-    draw = ImageDraw.Draw(img)
-    draw.text((card_x + card_w - 140, card_top + 14), num_text,
-              font=num_font, fill=_rgba(accent_rgb, 0.10))
-
-    # headline
-    hl_y = card_top + pad_top
-    _draw_text(img, hl_lines, card_x + 40, hl_y, hl_font, text_rgba,
-               line_height=hl_lh, max_lines=3)
-
-    # accent bar
-    bar_y = hl_y + hl_h + 12
-    draw = ImageDraw.Draw(img)
-    draw.rectangle((card_x + 40, bar_y, card_x + 140, bar_y + 4),
-                   fill=_rgba(accent_rgb, 1.0))
-
-    # bullets
-    bullet_y = bar_y + 34
-    bw = card_w - 80
-    if slide.key_stat:
-        bw -= 280
-    _draw_bullet_rows(img, items, card_x + 40, bullet_y, bw,
-                      text_rgba, accent_rgb, font_size=34)
-
-    # key stat box
-    if slide.key_stat:
-        sw, sh = 260, 150
-        sx = card_x + card_w - sw - 30
-        sy = bullet_y
-        _draw_card(img, (sx, sy, sx + sw, sy + sh), radius=14,
-                   fill=_rgba(accent_rgb, 0.12),
-                   outline=_rgba(accent_rgb, 0.45), shadow=False)
-        stat_sz = 58
-        sf = _get_font(bold=True, size=stat_sz)
-        stw = _text_width(sf, slide.key_stat)
-        while stw > sw - 30 and stat_sz > 24:
-            stat_sz -= 6
-            sf = _get_font(bold=True, size=stat_sz)
-            stw = _text_width(sf, slide.key_stat)
-        draw = ImageDraw.Draw(img)
-        draw.text((sx + (sw - stw) // 2, sy + (sh - stat_sz) // 2), slide.key_stat,
-                  font=sf, fill=_rgba(accent_rgb, 1.0))
+    # Body text
+    bd_y = hl_y + hl_h + gap_body
+    _draw_text(img, bd_lines, margin, bd_y, bd_font, text_rgba,
+               align="left", line_height=bd_lh, max_lines=8)
 
 
 def _render_result_slide(img, slide, margin, cw, text_rgba, accent_rgb):
-    """Result slide — content card wrapping stat number + proof bullets."""
-    cx = SLIDE_WIDTH // 2
-    card_x = margin - 10
-    card_w = cw + 20
-
-    hl_font = _get_font(bold=True, size=50)
-    hl_lines = _wrap_text(slide.headline, hl_font, cw - 40)
-    hl_lh = 62
-    hl_h = max(1, len(hl_lines)) * hl_lh
-
-    body_text = slide.body_text or ""
-    items = [ln.strip().lstrip("\u2022-\u2013 ").strip() for ln in body_text.splitlines() if ln.strip()][:4]
-
-    stat_value = slide.key_stat or "Outcome"
-    stat_w, stat_h = 600, 220
-    bullet_h = len(items) * 60 + 20
-
-    pad = 50
-    inner = hl_h + 28 + stat_h + 40 + bullet_h
-    card_h = inner + pad * 2
-
-    card_top = _SAFE_TOP + (SLIDE_HEIGHT - _SAFE_TOP - _SAFE_BOTTOM - card_h) // 2
-
-    _draw_card(img, (card_x, card_top, card_x + card_w, card_top + card_h),
-               radius=14, fill=_rgba(accent_rgb, 0.09),
-               outline=_rgba(accent_rgb, 0.25), shadow=True)
-
-    # headline
-    hl_y = card_top + pad
-    _draw_text(img, hl_lines, margin, hl_y, hl_font, text_rgba,
-               align="center", line_height=hl_lh, max_lines=2, area_width=cw)
-
-    # stat box
-    stat_x = cx - stat_w // 2
-    stat_y = hl_y + hl_h + 28
-    _draw_card(img, (stat_x, stat_y, stat_x + stat_w, stat_y + stat_h),
-               radius=18, fill=_rgba(accent_rgb, 0.20), shadow=False)
-    # Auto-scale font to fit within stat box
-    stat_font_size = 110 if len(stat_value) <= 6 else 84
-    sf = _get_font(bold=True, size=stat_font_size)
-    stw = _text_width(sf, stat_value)
-    while stw > stat_w - 40 and stat_font_size > 32:
-        stat_font_size -= 8
-        sf = _get_font(bold=True, size=stat_font_size)
-        stw = _text_width(sf, stat_value)
+    """Left-aligned result slide — number badge, headline, body text."""
     draw = ImageDraw.Draw(img)
-    draw.text((cx - stw // 2, stat_y + (stat_h - stat_font_size) // 2), stat_value,
-              font=sf, fill=_rgba(accent_rgb, 1.0))
+    hl_font = _get_font(bold=True, size=74)
+    bd_font = _get_font(bold=False, size=34)
 
-    # bullets below stat
-    bullet_y = stat_y + stat_h + 40
-    _draw_bullet_rows(img, items, card_x + 60, bullet_y, card_w - 120,
-                      text_rgba, accent_rgb, font_size=34)
+    hl_lines = _wrap_text(slide.headline, hl_font, cw)
+    bd_lines = _wrap_text(slide.body_text or "", bd_font, cw - 20)
+
+    hl_lh, bd_lh = 88, 48
+    hl_h = max(1, len(hl_lines)) * hl_lh
+    bd_h = max(1, len(bd_lines)) * bd_lh
+    badge_d = 70
+    gap_badge = 24
+    gap_body = 36
+    total = badge_d + gap_badge + hl_h + gap_body + bd_h
+
+    top = _SAFE_TOP + (SLIDE_HEIGHT - _SAFE_TOP - _SAFE_BOTTOM - total) // 2
+
+    # Number badge — filled circle
+    badge_cx = margin + badge_d // 2
+    badge_cy = top + badge_d // 2
+    draw.ellipse(
+        (badge_cx - badge_d // 2, badge_cy - badge_d // 2,
+         badge_cx + badge_d // 2, badge_cy + badge_d // 2),
+        fill=_rgba(accent_rgb, 1.0),
+    )
+    nf = _get_font(bold=True, size=34)
+    num_text = str(slide.slide_number - 1)
+    ntw = _text_width(nf, num_text)
+    draw.text((badge_cx - ntw // 2, badge_cy - 17), num_text,
+              font=nf, fill=_contrast_text_rgba(accent_rgb))
+
+    # Headline
+    hl_y = top + badge_d + gap_badge
+    _draw_text(img, hl_lines, margin, hl_y, hl_font, text_rgba,
+               align="left", line_height=hl_lh, max_lines=3)
+
+    # Body text
+    bd_y = hl_y + hl_h + gap_body
+    _draw_text(img, bd_lines, margin, bd_y, bd_font, text_rgba,
+               align="left", line_height=bd_lh, max_lines=8)
 
 
 def _render_tldr_slide(img, slide, margin, cw, text_rgba, accent_rgb):
-    """TL;DR — pill, headline, numbered row cards."""
-    cx = SLIDE_WIDTH // 2
-    card_x = margin - 10
-    card_w = cw + 20
-    item_font_size = 34
+    """Left-aligned TL;DR slide — number badge, headline, body text."""
+    draw = ImageDraw.Draw(img)
+    hl_font = _get_font(bold=True, size=74)
+    bd_font = _get_font(bold=False, size=34)
 
-    hl_font = _get_font(bold=True, size=46)
     hl_text = slide.headline if slide.headline and "tldr" not in slide.headline.lower() else "What Matters Most"
-    hl_lines = _wrap_text(hl_text, hl_font, cw - 80)
-    hl_lh = 58
+    hl_lines = _wrap_text(hl_text, hl_font, cw)
+    bd_lines = _wrap_text(slide.body_text or "", bd_font, cw - 20)
+
+    hl_lh, bd_lh = 88, 48
     hl_h = max(1, len(hl_lines)) * hl_lh
+    bd_h = max(1, len(bd_lines)) * bd_lh
+    badge_d = 70
+    gap_badge = 24
+    gap_body = 36
+    total = badge_d + gap_badge + hl_h + gap_body + bd_h
 
-    body_text = slide.body_text or ""
-    items = [ln.strip().lstrip("\u2022-\u2013 ").strip() for ln in body_text.splitlines() if ln.strip()][:6]
-    row_h = 72
-    items_h = len(items) * row_h + 40
-
-    pill_h = 54
-    total = pill_h + 34 + hl_h + 44 + items_h
     top = _SAFE_TOP + (SLIDE_HEIGHT - _SAFE_TOP - _SAFE_BOTTOM - total) // 2
 
-    # pill
-    pill_w = 280
-    _draw_card(img, (cx - pill_w // 2, top, cx + pill_w // 2, top + pill_h),
-               radius=14, fill=_rgba(accent_rgb, 1.0), shadow=False)
-    pf = _get_font(bold=True, size=30)
-    ptw = _text_width(pf, "TL;DR")
-    draw = ImageDraw.Draw(img)
-    draw.text((cx - ptw // 2, top + 12), "TL;DR",
-              font=pf, fill=_contrast_text_rgba(accent_rgb))
+    # Number badge — filled circle
+    badge_cx = margin + badge_d // 2
+    badge_cy = top + badge_d // 2
+    draw.ellipse(
+        (badge_cx - badge_d // 2, badge_cy - badge_d // 2,
+         badge_cx + badge_d // 2, badge_cy + badge_d // 2),
+        fill=_rgba(accent_rgb, 1.0),
+    )
+    nf = _get_font(bold=True, size=34)
+    num_text = str(slide.slide_number - 1)
+    ntw = _text_width(nf, num_text)
+    draw.text((badge_cx - ntw // 2, badge_cy - 17), num_text,
+              font=nf, fill=_contrast_text_rgba(accent_rgb))
 
-    # headline
-    hl_y = top + pill_h + 34
+    # Headline
+    hl_y = top + badge_d + gap_badge
     _draw_text(img, hl_lines, margin, hl_y, hl_font, text_rgba,
-               align="center", line_height=hl_lh, max_lines=2, area_width=cw)
+               align="left", line_height=hl_lh, max_lines=3)
 
-    # row cards
-    row_top = hl_y + hl_h + 44
-    item_font = _get_font(bold=False, size=item_font_size)
-    num_font = _get_font(bold=True, size=42)
-    for i, item in enumerate(items):
-        if not item:
-            continue
-        ry = row_top + i * row_h
-        _draw_card(img, (card_x, ry, card_x + card_w, ry + row_h - 8),
-                   radius=10, fill=_rgba(accent_rgb, 0.09), shadow=False)
-        draw = ImageDraw.Draw(img)
-        draw.text((card_x + 24, ry + 14), f"{i + 1}.",
-                  font=num_font, fill=_rgba(accent_rgb, 1.0))
-        il = _wrap_text(item, item_font, card_w - 120)
-        for li, line in enumerate(il[:2]):
-            draw.text((card_x + 80, ry + 16 + li * (item_font_size + 8)),
-                      line, font=item_font, fill=text_rgba)
+    # Body text
+    bd_y = hl_y + hl_h + gap_body
+    _draw_text(img, bd_lines, margin, bd_y, bd_font, text_rgba,
+               align="left", line_height=bd_lh, max_lines=8)
 
 
 def _render_cta_slide(img, slide, margin, cw, text_rgba, accent_rgb):
-    """CTA — headline, YOUR TAKE pill, question body."""
-    cx = SLIDE_WIDTH // 2
-    hl_font = _get_font(bold=True, size=64)
-    bd_font = _get_font(bold=False, size=36)
+    """Left-aligned CTA — number badge, headline, body text."""
+    draw = ImageDraw.Draw(img)
+    hl_font = _get_font(bold=True, size=74)
+    bd_font = _get_font(bold=False, size=34)
 
-    hl_lines = _wrap_text(slide.headline, hl_font, cw - 80)
-    bd_lines = _wrap_text(slide.body_text, bd_font, cw - 100)
+    hl_lines = _wrap_text(slide.headline, hl_font, cw)
+    bd_lines = _wrap_text(slide.body_text or "", bd_font, cw - 20)
 
-    hl_lh, bd_lh = 78, 48
+    hl_lh, bd_lh = 88, 48
     hl_h = max(1, len(hl_lines)) * hl_lh
     bd_h = max(1, len(bd_lines)) * bd_lh
-    pill_h = 46
-    total = hl_h + 56 + pill_h + 52 + bd_h
+    badge_d = 70
+    gap_badge = 24
+    gap_body = 36
+    total = badge_d + gap_badge + hl_h + gap_body + bd_h
+
     top = _SAFE_TOP + (SLIDE_HEIGHT - _SAFE_TOP - _SAFE_BOTTOM - total) // 2
 
-    _draw_text(img, hl_lines, margin, top, hl_font, text_rgba,
-               align="center", line_height=hl_lh, max_lines=3, area_width=cw)
+    # Number badge — filled circle
+    badge_cx = margin + badge_d // 2
+    badge_cy = top + badge_d // 2
+    draw.ellipse(
+        (badge_cx - badge_d // 2, badge_cy - badge_d // 2,
+         badge_cx + badge_d // 2, badge_cy + badge_d // 2),
+        fill=_rgba(accent_rgb, 1.0),
+    )
+    nf = _get_font(bold=True, size=34)
+    num_text = str(slide.slide_number - 1)
+    ntw = _text_width(nf, num_text)
+    draw.text((badge_cx - ntw // 2, badge_cy - 17), num_text,
+              font=nf, fill=_contrast_text_rgba(accent_rgb))
 
-    # pill
-    pill_y = top + hl_h + 56
-    pill_w = 400
-    _draw_card(img, (cx - pill_w // 2, pill_y, cx + pill_w // 2, pill_y + pill_h),
-               radius=12, fill=_rgba(accent_rgb, 1.0), shadow=False)
-    pf = _get_font(bold=True, size=24)
-    ptw = _text_width(pf, "YOUR TAKE?")
-    draw = ImageDraw.Draw(img)
-    draw.text((cx - ptw // 2, pill_y + 11), "YOUR TAKE?",
-              font=pf, fill=_contrast_text_rgba(accent_rgb))
+    # Headline
+    hl_y = top + badge_d + gap_badge
+    _draw_text(img, hl_lines, margin, hl_y, hl_font, text_rgba,
+               align="left", line_height=hl_lh, max_lines=3)
 
-    bd_y = pill_y + pill_h + 52
+    # Body text
+    bd_y = hl_y + hl_h + gap_body
     _draw_text(img, bd_lines, margin, bd_y, bd_font, text_rgba,
-               align="center", line_height=bd_lh, max_lines=5, area_width=cw)
+               align="left", line_height=bd_lh, max_lines=8)
 
 
 def _draw_footer(img, idx, total_slides, margin, text_rgba, accent_rgb):
@@ -1250,12 +1202,6 @@ def _draw_footer(img, idx, total_slides, margin, text_rgba, accent_rgb):
     pg_font = _get_font(bold=False, size=20)
     draw.text((margin, y_bottom), f"{idx + 1} / {total_slides}",
               font=pg_font, fill=_rgba(text_rgba[:3], 0.55))
-
-    br_font = _get_font(bold=False, size=14)
-    br_text = "Generated with Acta AI"
-    br_w = _text_width(br_font, br_text)
-    draw.text((SLIDE_WIDTH - margin - br_w, y_bottom - 28), br_text,
-              font=br_font, fill=_rgba(text_rgba[:3], 0.38))
 
     if not is_last:
         sw_font = _get_font(bold=True, size=22)
