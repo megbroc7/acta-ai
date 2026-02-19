@@ -24,16 +24,6 @@ const gradientBorder = keyframes`
   100% { background-position: 0% 50%; }
 `;
 
-const pulseGlow = keyframes`
-  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 124, 111, 0); }
-  50% { box-shadow: 0 0 20px 4px rgba(74, 124, 111, 0.15); }
-`;
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-`;
-
 const strikeAcross = keyframes`
   from { width: 0; }
   to { width: 100%; }

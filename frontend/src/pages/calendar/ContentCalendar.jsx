@@ -29,11 +29,6 @@ const float = keyframes`
   50% { transform: translateY(-6px); }
 `;
 
-const shimmer = keyframes`
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-`;
-
 const ELASTIC = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
 
 // --- Date helpers ---

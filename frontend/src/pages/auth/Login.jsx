@@ -10,7 +10,7 @@ import {
   Stack,
   CircularProgress,
 } from '@mui/material';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/useAuth';
 
 export default function Login() {
   const { login } = useAuth();

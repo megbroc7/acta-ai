@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -17,24 +17,19 @@ export default function PostEdit() {
 
   const fromReview = location.state?.from === 'review';
 
-  const [form, setForm] = useState({
-    title: '', content: '', excerpt: '',
-  });
+  const [draftForm, setDraftForm] = useState(null);
 
   const { data: post } = useQuery({
     queryKey: ['post', id],
     queryFn: () => api.get(`/posts/${id}`).then(r => r.data),
   });
 
-  useEffect(() => {
-    if (post) {
-      setForm({
-        title: post.title || '',
-        content: post.content || '',
-        excerpt: post.excerpt || '',
-      });
-    }
-  }, [post]);
+  const baseForm = {
+    title: post?.title || '',
+    content: post?.content || '',
+    excerpt: post?.excerpt || '',
+  };
+  const form = draftForm ?? baseForm;
 
   const saveMutation = useMutation({
     mutationFn: (data) => api.put(`/posts/${id}`, data),
@@ -57,7 +52,13 @@ export default function PostEdit() {
     saveMutation.mutate(data);
   };
 
-  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value });
+  const update = (field) => (e) => {
+    const value = e.target.value;
+    setDraftForm((prev) => ({
+      ...(prev ?? baseForm),
+      [field]: value,
+    }));
+  };
 
   const isPendingReview = post?.status === 'pending_review';
 

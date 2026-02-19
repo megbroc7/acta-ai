@@ -36,7 +36,7 @@ import {
   Check as CheckIcon,
   OpenInNew as ExternalIcon,
 } from '@mui/icons-material';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/useAuth';
 import api from '../../services/api';
 
 const TIMEZONES = [
@@ -256,8 +256,9 @@ export default function Settings() {
       a.click();
       URL.revokeObjectURL(url);
       enqueueSnackbar('Data exported successfully', { variant: 'success' });
-    } catch (err) {
-      enqueueSnackbar('Failed to export data', { variant: 'error' });
+    } catch (error) {
+      const detail = error?.response?.data?.detail;
+      enqueueSnackbar(detail || 'Failed to export data', { variant: 'error' });
     } finally {
       setExporting(false);
     }

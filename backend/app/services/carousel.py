@@ -1,13 +1,15 @@
 """LinkedIn carousel PDF generation service.
 
-Structures blog content into 5-7 branded slides via one GPT-4o call,
-then renders a downloadable PDF using ReportLab.
+Structures blog content into 5-7 branded slides via one GPT-4o call
+with stronger narrative constraints, then renders a downloadable PDF
+using varied layout patterns in ReportLab.
 """
 
 import io
 import json
 import logging
 import os
+import re
 from dataclasses import dataclass
 
 from reportlab.lib.colors import Color, HexColor
@@ -15,7 +17,13 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
-from app.services.content import _call_openai, OpenAIResponse
+from app.services.content import (
+    OpenAIResponse,
+    _build_linkedin_banned_list,
+    _build_linkedin_voice_section,
+    _call_openai,
+    _linkedin_tone_for_industry,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,11 +55,19 @@ def _register_fonts():
 # ---------------------------------------------------------------------------
 
 CAROUSEL_TIMEOUT = 60
-CAROUSEL_MAX_TOKENS = 3000
+CAROUSEL_MAX_TOKENS = 3200
 MODEL = "gpt-4o"
 
 SLIDE_WIDTH = 1080
 SLIDE_HEIGHT = 1350  # portrait — LinkedIn spec
+
+CAROUSEL_MIN_SLIDES = 5
+CAROUSEL_MAX_SLIDES = 7
+HEADLINE_CHAR_LIMIT = 64
+BODY_CHAR_LIMIT = 320
+KEY_STAT_CHAR_LIMIT = 24
+
+ALLOWED_SLIDE_TYPES = {"hook", "problem", "insight", "result", "tldr", "cta"}
 
 # ---------------------------------------------------------------------------
 # Presets
@@ -105,67 +121,324 @@ class CarouselResult:
 # AI: Structure blog into slides
 # ---------------------------------------------------------------------------
 
-SLIDE_SYSTEM_PROMPT = """You are a LinkedIn carousel content strategist. Your job is to distil a blog article into a compelling 5-7 slide carousel that stops the scroll, delivers value, and drives engagement.
+SLIDE_SYSTEM_PROMPT_BASE = """You are a LinkedIn carousel content strategist.
+Your job is to turn a blog article into a high-retention 5-7 slide carousel that feels written by a real operator, not a generic content bot.
 
-RULES:
-- Return ONLY a JSON array of slide objects — no markdown, no explanation.
-- Each slide object: {"slide_number": int, "type": str, "headline": str, "body_text": str, "key_stat": str|null}
-- Slide types in order: "hook" (slide 1), then "problem" or "insight" (middle slides), then "result" (second-to-last), "cta" (final slide).
-- Headlines: short, punchy, max 8 words. Use the hook headline to create curiosity or state a bold claim.
-- Body text: 1-3 short sentences per slide (max 180 chars). Conversational, not formal.
-- key_stat: a single striking number or percentage if the slide content warrants one (e.g. "73%", "3x faster", "$2.4M"). null if no stat.
-- The hook slide should tease the article's core insight without giving everything away.
-- The CTA slide should invite discussion or sharing — not be salesy.
-- Pull real data and examples from the article. Do NOT fabricate statistics.
-- Write for a professional audience scanning on mobile."""
+## Output Contract
+- Return ONLY a JSON array of slide objects (no markdown, no commentary).
+- Each slide object must be:
+  {"slide_number": int, "type": str, "headline": str, "body_text": str, "key_stat": str|null}
+- Slide type arc must be:
+  - Slide 1: "hook"
+  - Middle slides: "problem", "insight", and optionally one "result"
+  - Penultimate slide: "tldr"
+  - Final slide: "cta"
+
+## Creative Constraints
+- Think in the style of top LinkedIn carousel creators: clean, specific, easy to skim.
+- Choose ONE narrative frame and stay consistent:
+  - "Pain -> Mistake -> Fix -> Proof -> TLDR -> Outro"
+  - "Cost -> Cause -> Playbook -> Win -> TLDR -> Debate"
+  - "Belief -> Breakthrough -> Blueprint -> Outcome -> TLDR -> Question"
+- Headlines: max 9 words, high-contrast, specific, no fluff.
+- One core idea per slide.
+- Middle slides should be short bullet points, not paragraphs.
+- Keep each slide concise (roughly 35-55 words max, often less).
+- Every slide must create forward tension so the reader wants the next slide.
+- At least 2 slides must include concrete details from the source article (number, named tool, named scenario, or specific decision).
+- key_stat: only include when supported by the article. Keep it short (examples: "73%", "3x", "$2.4M", "12 days").
+- Do NOT fabricate facts or numbers.
+- body_text formatting:
+  - hook/cta slides: 1-2 short lines, no bullets.
+  - problem/insight/result/tldr slides: 2-4 bullets separated by newline and prefixed with "- ".
+
+## Anti-Generic Rules
+- Avoid empty claims like "optimize your strategy", "drive impact", "unlock growth."
+- Prefer sharp verbs and practitioner language over thought-leader slogans.
+- Include one debatable but professional opinion in a middle slide.
+- CTA must ask a specific open-ended question peers can answer from real experience.
+"""
+
+
+def _compact_text(value, char_limit: int, preserve_newlines: bool = False) -> str:
+    """Normalize whitespace and enforce a conservative character cap."""
+    if value is None:
+        return ""
+    raw = str(value).strip()
+    if preserve_newlines:
+        lines = [" ".join(line.split()) for line in raw.splitlines()]
+        text = "\n".join(line for line in lines if line).strip()
+    else:
+        text = " ".join(raw.replace("\n", " ").split()).strip()
+    if len(text) <= char_limit:
+        return text
+    return text[:char_limit].rstrip(" ,.;:-")
+
+
+def _normalize_slide_type(raw_slide_type: str | None) -> str:
+    """Normalize model-provided type values to the allowed set."""
+    if not raw_slide_type:
+        return "insight"
+    normalized = re.sub(r"[^a-z]", "", str(raw_slide_type).lower())
+    if normalized in ALLOWED_SLIDE_TYPES:
+        return normalized
+    if "hook" in normalized:
+        return "hook"
+    if "problem" in normalized or "pain" in normalized:
+        return "problem"
+    if "result" in normalized or "proof" in normalized or "outcome" in normalized:
+        return "result"
+    if "tldr" in normalized or "summary" in normalized or "recap" in normalized:
+        return "tldr"
+    if "cta" in normalized or "question" in normalized or "call" in normalized:
+        return "cta"
+    return "insight"
+
+
+def _build_carousel_system_prompt(template=None, industry: str | None = None) -> str:
+    """Build a richer system prompt with voice/tone calibration when available."""
+    voice_section = _build_linkedin_voice_section(template) if template else ""
+    tone_section = _linkedin_tone_for_industry(industry)
+    banned_list = _build_linkedin_banned_list(template)
+
+    return (
+        f"{SLIDE_SYSTEM_PROMPT_BASE}\n\n"
+        f"{voice_section}"
+        f"{tone_section}"
+        "## Banned Phrases\n"
+        "Never use these phrases in any slide headline or body text:\n"
+        f"{banned_list}\n"
+    )
+
+
+def _extract_slide_array(raw_text: str) -> list[dict]:
+    """Parse JSON from model output with a few defensive fallbacks."""
+    text = (raw_text or "").strip()
+
+    # Handle fenced JSON.
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines:
+            lines = lines[1:]  # drop opening fence
+        if lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]  # drop closing fence
+        text = "\n".join(lines).strip()
+
+    # 1) Try direct parse.
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        # 2) Extract likely JSON region.
+        start = text.find("[")
+        end = text.rfind("]")
+        if start != -1 and end != -1 and end > start:
+            payload = json.loads(text[start : end + 1])
+        else:
+            start = text.find("{")
+            end = text.rfind("}")
+            if start == -1 or end == -1 or end <= start:
+                raise
+            payload = json.loads(text[start : end + 1])
+
+    if isinstance(payload, dict):
+        slides = payload.get("slides")
+        if isinstance(slides, list):
+            return slides
+        raise ValueError("Carousel response JSON did not contain a slide array.")
+    if not isinstance(payload, list):
+        raise ValueError("Carousel response was not a JSON array.")
+    return payload
+
+
+def _fallback_slides(title: str) -> list[CarouselSlide]:
+    """Conservative fallback if model output is malformed."""
+    return [
+        CarouselSlide(
+            slide_number=1,
+            slide_type="hook",
+            headline=_compact_text(title or "What Most Teams Miss", HEADLINE_CHAR_LIMIT),
+            body_text="Most teams solve the visible symptom and miss the hidden constraint.",
+            key_stat=None,
+        ),
+        CarouselSlide(
+            slide_number=2,
+            slide_type="problem",
+            headline="The Cost Of Guesswork",
+            body_text="• Teams react to noise, not signal.\n• Priorities shift weekly.\n• Output looks busy, not effective.",
+            key_stat=None,
+        ),
+        CarouselSlide(
+            slide_number=3,
+            slide_type="insight",
+            headline="What Actually Changed",
+            body_text="• We defined one decision rule.\n• We aligned around one metric.\n• Work got faster and cleaner.",
+            key_stat=None,
+        ),
+        CarouselSlide(
+            slide_number=4,
+            slide_type="tldr",
+            headline="TL;DR",
+            body_text="• Fix the hidden bottleneck first.\n• One metric beats ten dashboards.\n• Speed follows clarity.",
+            key_stat=None,
+        ),
+        CarouselSlide(
+            slide_number=5,
+            slide_type="cta",
+            headline="Your Turn",
+            body_text="Which metric or workflow did your team stop using because it created noise?",
+            key_stat=None,
+        ),
+    ]
+
+
+def _split_sentences(text: str) -> list[str]:
+    """Split text into short sentence-like chunks."""
+    parts = re.split(r"(?<=[.!?])\s+", text)
+    cleaned = [p.strip(" -•\t\r\n") for p in parts if p.strip(" -•\t\r\n")]
+    return cleaned
+
+
+def _normalize_body_for_slide(body_text: str, slide_type: str) -> str:
+    """Normalize body style by slide type (bullet-heavy for middle slides)."""
+    text = _compact_text(body_text, BODY_CHAR_LIMIT, preserve_newlines=True)
+    if not text:
+        return ""
+
+    if slide_type in {"problem", "insight", "result", "tldr"}:
+        raw_points: list[str] = []
+        if "\n" in text:
+            raw_points = [ln.strip(" -•\t") for ln in text.splitlines() if ln.strip()]
+        else:
+            raw_points = re.split(r"\s*[|;]\s*|\s{2,}", text)
+            raw_points = [p.strip(" -•\t") for p in raw_points if p.strip(" -•\t")]
+            if len(raw_points) <= 1:
+                raw_points = _split_sentences(text)
+
+        points: list[str] = []
+        for point in raw_points:
+            compact = _compact_text(point, 85)
+            if compact:
+                points.append(compact)
+            if len(points) == 4:
+                break
+
+        if not points:
+            points = [_compact_text(text, 85)]
+        return "\n".join(f"• {point}" for point in points[:4] if point)
+
+    # Hook / CTA: keep concise line breaks.
+    lines = [ln.strip(" -•\t") for ln in text.splitlines() if ln.strip()]
+    if not lines:
+        lines = _split_sentences(text)
+    return "\n".join(lines[:2]) if lines else text
+
+
+def _normalize_slides(slides_data: list[dict], title: str) -> list[CarouselSlide]:
+    """Normalize model output into a usable 5-7 slide arc."""
+    normalized: list[CarouselSlide] = []
+
+    for raw in slides_data[:CAROUSEL_MAX_SLIDES]:
+        if not isinstance(raw, dict):
+            continue
+
+        headline = _compact_text(raw.get("headline"), HEADLINE_CHAR_LIMIT)
+        body_text = _compact_text(raw.get("body_text"), BODY_CHAR_LIMIT, preserve_newlines=True)
+        key_stat = _compact_text(raw.get("key_stat"), KEY_STAT_CHAR_LIMIT) or None
+        slide_type = _normalize_slide_type(raw.get("type"))
+
+        if not headline and not body_text:
+            continue
+        if not headline:
+            headline = _compact_text(title if not normalized else "Key Insight", HEADLINE_CHAR_LIMIT)
+        if not body_text:
+            body_text = headline
+
+        normalized.append(
+            CarouselSlide(
+                slide_number=len(normalized) + 1,
+                slide_type=slide_type,
+                headline=headline,
+                body_text=_normalize_body_for_slide(body_text, slide_type),
+                key_stat=key_stat,
+            )
+        )
+
+    if not normalized:
+        return _fallback_slides(title)
+
+    # Pad to minimum with concise insight slides if needed.
+    while len(normalized) < CAROUSEL_MIN_SLIDES:
+        normalized.append(
+            CarouselSlide(
+                slide_number=len(normalized) + 1,
+                slide_type="insight",
+                headline="A Practical Lesson",
+                body_text="• Keep one idea per slide.\n• Use specifics, not slogans.\n• Let each slide lead to the next.",
+                key_stat=None,
+            )
+        )
+
+    # Hard cap.
+    normalized = normalized[:CAROUSEL_MAX_SLIDES]
+
+    # Enforce the required narrative arc and sequential numbering.
+    total = len(normalized)
+    result_slot = total - 3 if total >= 6 else 2
+    for idx, slide in enumerate(normalized):
+        if idx == 0:
+            slide.slide_type = "hook"
+        elif idx == total - 1:
+            slide.slide_type = "cta"
+        elif idx == total - 2:
+            slide.slide_type = "tldr"
+            if not slide.headline:
+                slide.headline = "TL;DR"
+        elif idx == result_slot and slide.slide_type in {"problem", "insight", "result"}:
+            slide.slide_type = "result"
+        elif slide.slide_type not in {"problem", "insight", "result"}:
+            slide.slide_type = "insight"
+
+        slide.body_text = _normalize_body_for_slide(slide.body_text, slide.slide_type)
+        slide.slide_number = idx + 1
+
+    return normalized
 
 
 async def generate_carousel_slides(
     content_html: str,
     title: str,
+    template=None,
+    industry: str | None = None,
 ) -> tuple[list[CarouselSlide], OpenAIResponse]:
     """Call GPT-4o to structure blog content into carousel slides."""
     from markdownify import markdownify
 
     # Convert HTML to plain text for the AI
-    plain_text = markdownify(content_html, strip=["img", "script"])
+    plain_text = markdownify(content_html, strip=["img", "script"]).strip()
+    if len(plain_text) > 9000:
+        plain_text = plain_text[:9000] + "\n...[truncated]"
+
+    system_prompt = _build_carousel_system_prompt(template, industry=industry)
 
     user_prompt = f"""Article title: {title}
 
 Article content:
-{plain_text[:8000]}
+{plain_text}
 
-Structure this into a 5-7 slide LinkedIn carousel. Return ONLY a JSON array."""
+Structure this into a 5-7 slide LinkedIn carousel.
+Return ONLY a JSON array of slide objects."""
 
     response = await _call_openai(
-        system_prompt=SLIDE_SYSTEM_PROMPT,
+        system_prompt=system_prompt,
         user_prompt=user_prompt,
         model=MODEL,
         timeout=CAROUSEL_TIMEOUT,
         max_tokens=CAROUSEL_MAX_TOKENS,
-        temperature=0.5,
+        temperature=0.78,
     )
 
-    # Parse JSON from response (strip code fences if present)
-    text = response.text.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1] if "\n" in text else text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
-
-    slides_data = json.loads(text)
-
-    slides = []
-    for s in slides_data:
-        slides.append(CarouselSlide(
-            slide_number=s.get("slide_number", len(slides) + 1),
-            slide_type=s.get("type", "insight"),
-            headline=s.get("headline", ""),
-            body_text=s.get("body_text", ""),
-            key_stat=s.get("key_stat"),
-        ))
-
+    slides_data = _extract_slide_array(response.text)
+    slides = _normalize_slides(slides_data, title)
     return slides, response
 
 
@@ -232,25 +505,239 @@ def _draw_gradient(c, x, y, width, height, color_top, color_bottom, steps=80):
         c.rect(x, strip_y, width, strip_height + 0.5, fill=1, stroke=0)
 
 
+def _alpha(color: Color, alpha: float) -> Color:
+    """Apply alpha to an existing color."""
+    return Color(color.red, color.green, color.blue, alpha=alpha)
+
+
+def _contrast_text(color: Color) -> Color:
+    """Return black/white text color with better contrast on the given background."""
+    luminance = 0.2126 * color.red + 0.7152 * color.green + 0.0722 * color.blue
+    return HexColor("#111111") if luminance > 0.6 else HexColor("#FFFFFF")
+
+
+def _draw_background_texture(c, accent_color: Color, text_color: Color, idx: int, slide_type: str):
+    """Subtle geometric texture so each slide feels less flat."""
+    c.saveState()
+    c.setLineWidth(2)
+    c.setStrokeColor(_alpha(accent_color, 0.14))
+
+    # Rotating circles make the deck feel alive without visual noise.
+    c.circle(SLIDE_WIDTH - 170, SLIDE_HEIGHT - 200, 120 + (idx % 3) * 16, stroke=1, fill=0)
+    c.circle(145, 190, 82 + (idx % 2) * 12, stroke=1, fill=0)
+
+    c.setFillColor(_alpha(text_color, 0.06))
+    c.roundRect(45, 40, 270, 110, 18, fill=1, stroke=0)
+
+    c.setFillColor(_alpha(accent_color, 0.08))
+    if slide_type in {"hook", "cta", "tldr"}:
+        c.roundRect(70, 870, SLIDE_WIDTH - 140, 350, 32, fill=1, stroke=0)
+    else:
+        c.rect(0, 285, SLIDE_WIDTH, 5, fill=1, stroke=0)
+    c.restoreState()
+
+
 def _wrap_text(c, text, font_name, font_size, max_width):
     """Simple word-wrap that returns list of lines."""
-    words = text.split()
-    lines = []
-    current_line = ""
+    source = (text or "").strip()
+    if not source:
+        return []
 
-    for word in words:
-        test_line = f"{current_line} {word}".strip() if current_line else word
-        width = c.stringWidth(test_line, font_name, font_size)
-        if width <= max_width:
-            current_line = test_line
-        else:
-            if current_line:
-                lines.append(current_line)
-            current_line = word
-    if current_line:
-        lines.append(current_line)
+    lines: list[str] = []
+    paragraphs = source.split("\n")
+    for p_idx, paragraph in enumerate(paragraphs):
+        paragraph = paragraph.strip()
+        if not paragraph:
+            if lines and lines[-1] != "":
+                lines.append("")
+            continue
 
+        words = paragraph.split()
+        current_line = ""
+        for word in words:
+            test_line = f"{current_line} {word}".strip() if current_line else word
+            width = c.stringWidth(test_line, font_name, font_size)
+            if width <= max_width:
+                current_line = test_line
+            else:
+                if current_line:
+                    lines.append(current_line)
+                current_line = word
+        if current_line:
+            lines.append(current_line)
+
+        # Preserve explicit paragraph breaks for bullet lists.
+        if p_idx < len(paragraphs) - 1 and lines and lines[-1] != "":
+            lines.append("")
+
+    # Avoid trailing blank spacer.
+    while lines and lines[-1] == "":
+        lines.pop()
     return lines
+
+
+def _draw_lines(c, lines, x, start_y, line_height, max_lines, align="left", bullet_mode=False):
+    """Draw wrapped lines with optional center/right alignment."""
+    for line_idx, line in enumerate(lines[:max_lines]):
+        y = start_y - line_idx * line_height
+        stripped = line.strip()
+        if not stripped:
+            continue
+
+        if bullet_mode and align == "left" and stripped.startswith(("•", "-")):
+            body = stripped.lstrip("•- ").strip()
+            c.drawString(x, y, "•")
+            c.drawString(x + 26, y, body)
+            continue
+
+        if align == "center":
+            c.drawCentredString(x, y, line)
+        elif align == "right":
+            c.drawRightString(x, y, line)
+        else:
+            c.drawString(x, y, line)
+
+
+def _render_hook_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
+    """Center-led hook layout optimized for first-slide stoppage."""
+    center_x = SLIDE_WIDTH / 2
+
+    c.setFillColor(text_color)
+    c.setFont("Cinzel", 64)
+    headline_lines = _wrap_text(c, slide.headline, "Cinzel", 64, content_width - 80)
+    _draw_lines(c, headline_lines, center_x, SLIDE_HEIGHT - 360, 76, 3, align="center")
+
+    c.setFillColor(accent_color)
+    c.rect(center_x - 72, SLIDE_HEIGHT - 610, 144, 5, fill=1, stroke=0)
+
+    c.setFillColor(text_color)
+    c.setFont("Inter", 31)
+    body_lines = _wrap_text(c, slide.body_text, "Inter", 31, content_width - 160)
+    _draw_lines(c, body_lines, center_x, SLIDE_HEIGHT - 685, 43, 5, align="center")
+
+
+def _render_middle_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
+    """Problem/insight layout with optional stat card on the right."""
+    headline_font = 47
+    body_font = 29
+    headline_y = SLIDE_HEIGHT - 170
+    reserved_right = 300 if slide.key_stat else 0
+    text_width = content_width - reserved_right
+
+    c.setFillColor(text_color)
+    c.setFont("Cinzel", headline_font)
+    headline_lines = _wrap_text(c, slide.headline, "Cinzel", headline_font, text_width)
+    _draw_lines(c, headline_lines, margin, headline_y, headline_font + 12, 3)
+
+    accent_line_y = headline_y - len(headline_lines[:3]) * (headline_font + 12) - 12
+    c.setFillColor(accent_color)
+    c.rect(margin, accent_line_y, 110, 4, fill=1, stroke=0)
+
+    if slide.key_stat:
+        card_w = 245
+        card_h = 152
+        card_x = SLIDE_WIDTH - margin - card_w
+        card_y = SLIDE_HEIGHT - 390
+        c.setFillColor(_alpha(accent_color, 0.18))
+        c.roundRect(card_x, card_y, card_w, card_h, 16, fill=1, stroke=0)
+        c.setFillColor(accent_color)
+        c.setFont("Inter", 58)
+        c.drawCentredString(card_x + card_w / 2, card_y + 56, slide.key_stat)
+
+    c.setFillColor(text_color)
+    c.setFont("Inter", body_font)
+    body_lines = _wrap_text(c, slide.body_text, "Inter", body_font, text_width)
+    _draw_lines(c, body_lines, margin, accent_line_y - 52, body_font + 13, 10, bullet_mode=True)
+
+
+def _render_result_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
+    """Result slide: proof-heavy composition centered around the key number."""
+    center_x = SLIDE_WIDTH / 2
+
+    c.setFillColor(text_color)
+    c.setFont("Cinzel", 46)
+    headline_lines = _wrap_text(c, slide.headline, "Cinzel", 46, content_width - 40)
+    _draw_lines(c, headline_lines, center_x, SLIDE_HEIGHT - 220, 58, 2, align="center")
+
+    stat_value = slide.key_stat or "Outcome"
+    stat_w = 520
+    stat_h = 220
+    stat_x = center_x - stat_w / 2
+    stat_y = SLIDE_HEIGHT - 640
+    c.setFillColor(_alpha(accent_color, 0.2))
+    c.roundRect(stat_x, stat_y, stat_w, stat_h, 22, fill=1, stroke=0)
+    c.setFillColor(accent_color)
+    c.setFont("Inter", 94 if len(stat_value) <= 6 else 76)
+    c.drawCentredString(center_x, stat_y + 78, stat_value)
+
+    c.setFillColor(text_color)
+    c.setFont("Inter", 30)
+    body_lines = _wrap_text(c, slide.body_text, "Inter", 30, content_width - 120)
+    _draw_lines(c, body_lines, center_x, stat_y - 60, 42, 5, align="center")
+
+
+def _render_tldr_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
+    """TL;DR slide that summarizes key takeaways in bullets."""
+    center_x = SLIDE_WIDTH / 2
+
+    c.setFillColor(accent_color)
+    c.roundRect(center_x - 140, SLIDE_HEIGHT - 215, 280, 54, 14, fill=1, stroke=0)
+    c.setFillColor(_contrast_text(accent_color))
+    c.setFont("Inter", 30)
+    c.drawCentredString(center_x, SLIDE_HEIGHT - 198, "TL;DR")
+
+    c.setFillColor(text_color)
+    c.setFont("Cinzel", 44)
+    headline_text = slide.headline if slide.headline and "tldr" not in slide.headline.lower() else "What Matters Most"
+    headline_lines = _wrap_text(c, headline_text, "Cinzel", 44, content_width - 80)
+    _draw_lines(c, headline_lines, center_x, SLIDE_HEIGHT - 308, 56, 2, align="center")
+
+    c.setFillColor(_alpha(accent_color, 0.16))
+    c.roundRect(margin - 10, SLIDE_HEIGHT - 920, content_width + 20, 420, 22, fill=1, stroke=0)
+
+    c.setFillColor(text_color)
+    c.setFont("Inter", 31)
+    body_lines = _wrap_text(c, slide.body_text, "Inter", 31, content_width - 70)
+    _draw_lines(c, body_lines, margin + 24, SLIDE_HEIGHT - 565, 45, 8, bullet_mode=True)
+
+
+def _render_cta_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
+    """Final slide layout that invites specific discussion."""
+    center_x = SLIDE_WIDTH / 2
+
+    c.setFillColor(text_color)
+    c.setFont("Cinzel", 58)
+    headline_lines = _wrap_text(c, slide.headline, "Cinzel", 58, content_width - 80)
+    _draw_lines(c, headline_lines, center_x, SLIDE_HEIGHT - 300, 72, 3, align="center")
+
+    c.setFillColor(accent_color)
+    c.roundRect(center_x - 180, SLIDE_HEIGHT - 520, 360, 46, 12, fill=1, stroke=0)
+    c.setFillColor(_contrast_text(accent_color))
+    c.setFont("Inter", 24)
+    c.drawCentredString(center_x, SLIDE_HEIGHT - 506, "YOUR TAKE?")
+
+    c.setFillColor(text_color)
+    c.setFont("Inter", 32)
+    body_lines = _wrap_text(c, slide.body_text, "Inter", 32, content_width - 120)
+    _draw_lines(c, body_lines, center_x, SLIDE_HEIGHT - 610, 43, 5, align="center")
+
+
+def _draw_footer(c, idx: int, total_slides: int, margin: int, text_color: Color, accent_color: Color):
+    """Shared footer UI elements."""
+    is_last = idx == total_slides - 1
+
+    c.setFillColor(_alpha(text_color, 0.55))
+    c.setFont("Inter", 20)
+    c.drawString(margin, 50, f"{idx + 1} / {total_slides}")
+
+    c.setFillColor(_alpha(text_color, 0.38))
+    c.setFont("Inter", 14)
+    c.drawRightString(SLIDE_WIDTH - margin, 78, "Generated with Acta AI")
+
+    if not is_last:
+        c.setFillColor(accent_color)
+        c.setFont("Inter", 22)
+        c.drawRightString(SLIDE_WIDTH - margin, 50, "SWIPE >")
 
 
 def render_carousel_pdf(slides: list[CarouselSlide], branding: dict) -> bytes:
@@ -270,69 +757,29 @@ def render_carousel_pdf(slides: list[CarouselSlide], branding: dict) -> bytes:
     content_width = SLIDE_WIDTH - margin * 2
 
     for idx, slide in enumerate(slides):
-        is_first = idx == 0
         is_last = idx == total_slides - 1
 
         # --- Background gradient ---
         _draw_gradient(c, 0, 0, SLIDE_WIDTH, SLIDE_HEIGHT, color_top, color_bottom)
+        _draw_background_texture(c, accent_color, text_color, idx, slide.slide_type)
 
         # --- Top accent bar ---
         c.setFillColor(accent_color)
-        c.rect(0, SLIDE_HEIGHT - 8, SLIDE_WIDTH, 8, fill=1, stroke=0)
+        c.rect(0, SLIDE_HEIGHT - 10, SLIDE_WIDTH, 10, fill=1, stroke=0)
 
-        # --- Headline ---
-        headline_font_size = 52 if is_first else 44
-        headline_font = "Cinzel"
-        c.setFillColor(text_color)
-        c.setFont(headline_font, headline_font_size)
+        slide_type = _normalize_slide_type(slide.slide_type)
+        if slide_type == "hook":
+            _render_hook_slide(c, slide, margin, content_width, text_color, accent_color)
+        elif slide_type == "result":
+            _render_result_slide(c, slide, margin, content_width, text_color, accent_color)
+        elif slide_type == "tldr":
+            _render_tldr_slide(c, slide, margin, content_width, text_color, accent_color)
+        elif slide_type == "cta":
+            _render_cta_slide(c, slide, margin, content_width, text_color, accent_color)
+        else:
+            _render_middle_slide(c, slide, margin, content_width, text_color, accent_color)
 
-        headline_y = SLIDE_HEIGHT - 160 if is_first else SLIDE_HEIGHT - 140
-        headline_lines = _wrap_text(c, slide.headline.upper(), headline_font, headline_font_size, content_width)
-
-        for line_idx, line in enumerate(headline_lines[:3]):  # max 3 lines
-            y = headline_y - line_idx * (headline_font_size + 10)
-            c.drawString(margin, y, line)
-
-        # --- Accent line below headline ---
-        accent_line_y = headline_y - len(headline_lines[:3]) * (headline_font_size + 10) - 15
-        c.setFillColor(accent_color)
-        c.rect(margin, accent_line_y, 80, 4, fill=1, stroke=0)
-
-        # --- Key stat callout ---
-        body_start_y = accent_line_y - 50
-
-        if slide.key_stat:
-            c.setFillColor(accent_color)
-            stat_font_size = 64
-            c.setFont("Inter", stat_font_size)
-            c.drawString(margin, body_start_y, slide.key_stat)
-            body_start_y -= stat_font_size + 20
-
-        # --- Body text ---
-        body_font = "Inter"
-        body_font_size = 28
-        c.setFillColor(text_color)
-        c.setFont(body_font, body_font_size)
-
-        body_lines = _wrap_text(c, slide.body_text, body_font, body_font_size, content_width)
-        line_height = body_font_size + 12
-
-        for line_idx, line in enumerate(body_lines[:8]):  # max 8 lines
-            y = body_start_y - line_idx * line_height
-            c.drawString(margin, y, line)
-
-        # --- Slide counter (bottom-left) ---
-        c.setFillColor(Color(
-            text_color.red, text_color.green, text_color.blue, alpha=0.5
-        ))
-        c.setFont("Inter", 20)
-        c.drawString(margin, 50, f"{idx + 1} / {total_slides}")
-
-        # --- Swipe indicator (bottom-right, non-final slides) ---
-        if not is_last:
-            c.setFillColor(accent_color)
-            c.setFont("Inter", 22)
-            c.drawRightString(SLIDE_WIDTH - margin, 50, "SWIPE >")
+        _draw_footer(c, idx, total_slides, margin, text_color, accent_color)
 
         # --- New page (except after last slide) ---
         if not is_last:
@@ -354,7 +801,12 @@ async def generate_carousel(
     request_branding=None,
 ) -> CarouselResult:
     """Full pipeline: AI slides + resolve branding + render PDF."""
-    slides, ai_response = await generate_carousel_slides(content_html, title)
+    slides, ai_response = await generate_carousel_slides(
+        content_html,
+        title,
+        template=template,
+        industry=template.industry if template else None,
+    )
     branding = resolve_branding(template, request_branding)
     pdf_bytes = render_carousel_pdf(slides, branding)
 

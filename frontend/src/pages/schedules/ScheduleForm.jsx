@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -17,6 +17,40 @@ const TIMEZONES = [
   'Europe/London', 'Europe/Paris', 'Asia/Tokyo', 'Australia/Sydney',
 ];
 
+const EMPTY_FORM = {
+  name: '', site_id: '', prompt_template_id: '',
+  frequency: 'daily', custom_cron: '', day_of_week: 1, day_of_month: 1,
+  time_of_day: '09:00', timezone: 'UTC',
+  topics: [], // [{topic: string, experience: string}]
+  word_count: '', tone: '',
+  post_status: 'pending_review',
+};
+
+function normalizeScheduleToForm(schedule) {
+  const rawTopics = schedule.topics || [];
+  const normalizedTopics = rawTopics.map((t) =>
+    typeof t === 'string'
+      ? { topic: t, experience: '' }
+      : { topic: t.topic || '', experience: t.experience || '' }
+  );
+
+  return {
+    name: schedule.name || '',
+    site_id: schedule.site_id || '',
+    prompt_template_id: schedule.prompt_template_id || '',
+    frequency: schedule.frequency || 'daily',
+    custom_cron: schedule.custom_cron || '',
+    day_of_week: schedule.day_of_week ?? 1,
+    day_of_month: schedule.day_of_month ?? 1,
+    time_of_day: schedule.time_of_day || '09:00',
+    timezone: schedule.timezone || 'UTC',
+    topics: normalizedTopics,
+    word_count: schedule.word_count || '',
+    tone: schedule.tone || '',
+    post_status: schedule.post_status === 'draft' ? 'pending_review' : (schedule.post_status || 'pending_review'),
+  };
+}
+
 export default function ScheduleForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -24,14 +58,7 @@ export default function ScheduleForm() {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [form, setForm] = useState({
-    name: '', site_id: '', prompt_template_id: '',
-    frequency: 'daily', custom_cron: '', day_of_week: 1, day_of_month: 1,
-    time_of_day: '09:00', timezone: 'UTC',
-    topics: [], // [{topic: string, experience: string}]
-    word_count: '', tone: '',
-    post_status: 'pending_review',
-  });
+  const [draftForm, setDraftForm] = useState(null);
   const [topicInput, setTopicInput] = useState('');
   const [expandedTopic, setExpandedTopic] = useState(null);
 
@@ -51,30 +78,17 @@ export default function ScheduleForm() {
     enabled: isEdit,
   });
 
-  useEffect(() => {
-    if (schedule) {
-      // Normalize topics: support legacy string[] and new {topic, experience}[]
-      const rawTopics = schedule.topics || [];
-      const normalizedTopics = rawTopics.map(t =>
-        typeof t === 'string' ? { topic: t, experience: '' } : { topic: t.topic || '', experience: t.experience || '' }
-      );
-      setForm({
-        name: schedule.name || '',
-        site_id: schedule.site_id || '',
-        prompt_template_id: schedule.prompt_template_id || '',
-        frequency: schedule.frequency || 'daily',
-        custom_cron: schedule.custom_cron || '',
-        day_of_week: schedule.day_of_week ?? 1,
-        day_of_month: schedule.day_of_month ?? 1,
-        time_of_day: schedule.time_of_day || '09:00',
-        timezone: schedule.timezone || 'UTC',
-        topics: normalizedTopics,
-        word_count: schedule.word_count || '',
-        tone: schedule.tone || '',
-        post_status: schedule.post_status === 'draft' ? 'pending_review' : (schedule.post_status || 'pending_review'),
-      });
-    }
-  }, [schedule]);
+  const baseForm = isEdit
+    ? (schedule ? normalizeScheduleToForm(schedule) : EMPTY_FORM)
+    : EMPTY_FORM;
+  const form = draftForm ?? baseForm;
+
+  const updateForm = (updater) => {
+    setDraftForm((prev) => {
+      const current = prev ?? baseForm;
+      return typeof updater === 'function' ? updater(current) : updater;
+    });
+  };
 
   const saveMutation = useMutation({
     mutationFn: (data) => isEdit ? api.put(`/schedules/${id}`, data) : api.post('/schedules/', data),
@@ -101,27 +115,36 @@ export default function ScheduleForm() {
   const addTopic = () => {
     const text = topicInput.trim();
     if (text && !form.topics.some(t => t.topic === text)) {
-      setForm({ ...form, topics: [...form.topics, { topic: text, experience: '' }] });
+      updateForm((current) => ({
+        ...current,
+        topics: [...current.topics, { topic: text, experience: '' }],
+      }));
       setTopicInput('');
       setExpandedTopic(form.topics.length); // auto-expand the new one
     }
   };
 
   const removeTopic = (idx) => {
-    const updated = form.topics.filter((_, i) => i !== idx);
-    setForm({ ...form, topics: updated });
+    updateForm((current) => ({
+      ...current,
+      topics: current.topics.filter((_, i) => i !== idx),
+    }));
     if (expandedTopic === idx) setExpandedTopic(null);
     else if (expandedTopic > idx) setExpandedTopic(expandedTopic - 1);
   };
 
   const updateTopicExperience = (idx, value) => {
-    const updated = [...form.topics];
-    updated[idx] = { ...updated[idx], experience: value };
-    setForm({ ...form, topics: updated });
+    updateForm((current) => {
+      const updated = [...current.topics];
+      updated[idx] = { ...updated[idx], experience: value };
+      return { ...current, topics: updated };
+    });
   };
 
-  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value });
-  const updateChecked = (field) => (e) => setForm({ ...form, [field]: e.target.checked });
+  const update = (field) => (e) => {
+    const value = e.target.value;
+    updateForm((current) => ({ ...current, [field]: value }));
+  };
 
   return (
     <Box>

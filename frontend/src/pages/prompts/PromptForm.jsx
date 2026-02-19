@@ -15,7 +15,7 @@ import {
   SaveAlt, LinkedIn, Refresh,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/useAuth';
 import api, { fetchSSE } from '../../services/api';
 import { HEADLINE_STYLES, resolveHeadlineStyle } from '../../constants/headlineStyles';
 const AUDIENCE_LEVELS = [

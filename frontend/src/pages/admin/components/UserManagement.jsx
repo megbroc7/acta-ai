@@ -30,7 +30,7 @@ import {
   LockReset as ResetIcon,
 } from '@mui/icons-material';
 import api from '../../../services/api';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../../contexts/useAuth';
 import ChartCard from './ChartCard';
 
 const TH_SX = {

@@ -1,5 +1,5 @@
 import { Box, Container, Typography, Link as MuiLink } from '@mui/material';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const EFFECTIVE_DATE = 'February 18, 2026';
 
@@ -67,9 +67,6 @@ const sections = [
 ];
 
 export default function TermsOfService() {
-  const location = useLocation();
-  const isStandalone = !location.state?.fromApp;
-
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', py: 6 }}>
       <Container maxWidth="md">
