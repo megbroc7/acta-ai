@@ -32,6 +32,10 @@ from app.services.notifications import (
     create_trial_expiry_notification,
 )
 from app.services.publishing import PublishError
+from app.services.shopify_connections import (
+    ShopifyConnectionError,
+    resolve_site_access_token,
+)
 from app.services.tier_limits import TIER_LIMITS, get_effective_tier
 
 logger = logging.getLogger(__name__)
@@ -318,6 +322,18 @@ async def execute_schedule(schedule_id: uuid.UUID, execution_type: str = "schedu
 
         if target_status == "publish":
             try:
+                if site.platform == "shopify" and not site.api_key:
+                    try:
+                        token = await resolve_site_access_token(db, site=site)
+                    except ShopifyConnectionError as exc:
+                        raise PublishError(str(exc))
+                    if not token:
+                        raise PublishError(
+                            "Shopify site is not connected. Reconnect Shopify and try again."
+                        )
+                    # In-memory only, so the publishing service can use existing site shape.
+                    site.api_key = token
+
                 pub_result = await publishing_service.publish_post(post, site)
                 post.status = "published"
                 post.platform_post_id = pub_result.platform_post_id

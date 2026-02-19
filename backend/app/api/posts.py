@@ -28,10 +28,31 @@ from app.schemas.posts import (
     ReviseRequest,
 )
 from app.services.publishing import PublishError, publish_post as publish_to_platform
+from app.services.shopify_connections import (
+    ShopifyConnectionError,
+    resolve_site_access_token,
+)
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/posts", tags=["posts"])
+
+
+async def _ensure_shopify_publish_token(db: AsyncSession, post: BlogPost) -> None:
+    site = post.site
+    if not site or site.platform != "shopify" or site.api_key:
+        return
+
+    try:
+        token = await resolve_site_access_token(db, site=site)
+    except ShopifyConnectionError as exc:
+        raise PublishError(str(exc))
+
+    if not token:
+        raise PublishError("Shopify site is not connected. Reconnect Shopify and try again.")
+
+    # In-memory only, so the publishing service can use the existing interface.
+    site.api_key = token
 
 
 @router.post("/", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
@@ -123,6 +144,7 @@ async def bulk_publish(
         post = result.scalar_one()
 
         try:
+            await _ensure_shopify_publish_token(db, post)
             pub_result = await publish_to_platform(post, post.site)
             post.platform_post_id = pub_result.platform_post_id
             post.published_url = pub_result.published_url
@@ -296,6 +318,7 @@ async def publish_post(
     post = result.scalar_one()
 
     try:
+        await _ensure_shopify_publish_token(db, post)
         pub_result = await publish_to_platform(post, post.site)
     except PublishError as exc:
         raise HTTPException(status_code=502, detail=str(exc))

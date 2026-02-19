@@ -20,6 +20,12 @@ from app.schemas.sites import (
     SiteUpdate,
     TagResponse,
 )
+from app.services import shopify_oauth
+from app.services.shopify_connections import (
+    ShopifyConnectionError,
+    resolve_site_access_token,
+    upsert_site_connection,
+)
 
 router = APIRouter(prefix="/sites", tags=["sites"])
 
@@ -143,10 +149,28 @@ async def create_site(
         platform=data.platform,
         username=data.username,
         app_password=data.app_password,
-        api_key=data.api_key,
+        api_key=data.api_key if data.platform != Platform.shopify else None,
         default_blog_id=data.default_blog_id,
     )
     db.add(site)
+    await db.flush()
+
+    if data.platform == Platform.shopify and data.api_key:
+        try:
+            shop_domain = shopify_oauth.normalize_shop_domain(data.url)
+        except shopify_oauth.ShopifyOAuthError:
+            shop_domain = data.url
+
+        try:
+            await upsert_site_connection(
+                db,
+                site=site,
+                shop_domain=shop_domain,
+                access_token=data.api_key,
+            )
+        except ShopifyConnectionError as exc:
+            raise HTTPException(status_code=503, detail=str(exc))
+
     await db.commit()
     await db.refresh(site)
 
@@ -215,6 +239,23 @@ async def update_site(
     update_data = data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(site, key, value)
+
+    if site.platform == "shopify" and update_data.get("api_key"):
+        try:
+            shop_domain = shopify_oauth.normalize_shop_domain(site.url)
+        except shopify_oauth.ShopifyOAuthError:
+            shop_domain = site.url
+
+        try:
+            await upsert_site_connection(
+                db,
+                site=site,
+                shop_domain=shop_domain,
+                access_token=update_data["api_key"],
+            )
+        except ShopifyConnectionError as exc:
+            raise HTTPException(status_code=503, detail=str(exc))
+        site.api_key = None
 
     await db.commit()
     await db.refresh(site)
@@ -311,7 +352,14 @@ async def refresh_site(
             db.add(Tag(site_id=site.id, platform_id=str(t["id"]), name=t["name"]))
     elif site.platform == "shopify":
         # Shopify has no categories/tags to sync — just verify connection
-        result = await _test_shopify_connection(site.api_url, site.api_key)
+        try:
+            shopify_token = await resolve_site_access_token(db, site=site)
+        except ShopifyConnectionError as exc:
+            raise HTTPException(status_code=503, detail=str(exc))
+        if not shopify_token:
+            raise HTTPException(status_code=400, detail="Shopify site is not connected")
+
+        result = await _test_shopify_connection(site.api_url, shopify_token)
         if not result["success"]:
             raise HTTPException(status_code=400, detail=f"Shopify connection failed: {result['error']}")
     else:

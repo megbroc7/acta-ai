@@ -7,6 +7,7 @@ from app.models.feedback import Feedback
 from app.models.app_settings import AppSettings
 from app.models.notification import Notification
 from app.models.subscription import Subscription
+from app.models.shopify_connection import ShopifyConnection
 
 __all__ = [
     "User",
@@ -21,4 +22,5 @@ __all__ = [
     "AppSettings",
     "Notification",
     "Subscription",
+    "ShopifyConnection",
 ]

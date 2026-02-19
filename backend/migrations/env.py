@@ -13,6 +13,7 @@ from app.models import (  # noqa: F401
     User, Site, Category, Tag,
     PromptTemplate, BlogSchedule, BlogPost, ExecutionHistory,
     Feedback,
+    ShopifyConnection,
 )
 
 config = context.config

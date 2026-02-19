@@ -19,6 +19,11 @@ from app.schemas.shopify import (
     ShopifyInstallUrlResponse,
 )
 from app.services import shopify_oauth
+from app.services.shopify_connections import (
+    ShopifyConnectionError,
+    resolve_site_access_token,
+    upsert_site_connection,
+)
 
 router = APIRouter(prefix="/shopify", tags=["shopify"])
 
@@ -100,11 +105,16 @@ async def get_site_blogs(
     if not site:
         raise HTTPException(status_code=404, detail="Shopify site not found")
 
-    if not site.api_key:
+    try:
+        access_token = await resolve_site_access_token(db, site=site)
+    except ShopifyConnectionError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+
+    if not access_token:
         return ShopifyBlogsResponse(connected=False, blogs=[])
 
     try:
-        blogs = await shopify_oauth.fetch_blogs(site.api_url, site.api_key)
+        blogs = await shopify_oauth.fetch_blogs(site.api_url, access_token)
     except shopify_oauth.ShopifyOAuthError as exc:
         raise HTTPException(status_code=502, detail=str(exc))
 
@@ -174,13 +184,24 @@ async def oauth_callback(
     except shopify_oauth.ShopifyOAuthError as exc:
         return _frontend_callback_redirect(site_id=str(site.id), success=False, message=str(exc))
 
+    try:
+        await upsert_site_connection(
+            db,
+            site=site,
+            shop_domain=callback_shop,
+            access_token=token_data["access_token"],
+            scopes=token_data.get("scope"),
+        )
+    except ShopifyConnectionError as exc:
+        return _frontend_callback_redirect(site_id=str(site.id), success=False, message=str(exc))
+
     site.url = f"https://{callback_shop}"
     site.api_url = shopify_oauth.build_admin_api_url(callback_shop)
-    site.api_key = token_data["access_token"]
+    site.api_key = None  # keep OAuth token out of the legacy plaintext field
     site.last_health_check = datetime.now(timezone.utc)
 
     try:
-        blogs = await shopify_oauth.fetch_blogs(site.api_url, site.api_key)
+        blogs = await shopify_oauth.fetch_blogs(site.api_url, token_data["access_token"])
         if blogs and not site.default_blog_id:
             site.default_blog_id = blogs[0]["id"]
     except shopify_oauth.ShopifyOAuthError:

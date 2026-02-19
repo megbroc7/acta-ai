@@ -347,12 +347,12 @@ export default function SiteForm() {
                     <>
                       <TextField
                         label={isEdit ? 'Admin API Access Token (optional to replace existing)' : 'Admin API Access Token'}
-                        required={!isEdit}
+                        required={false}
                         fullWidth
                         type="password"
                         value={form.api_key}
                         onChange={update('api_key')}
-                        helperText="Use Connect Shopify for OAuth, or paste a token manually."
+                        helperText="Optional. Use Connect Shopify (recommended) or paste a token manually."
                       />
                       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                         <Button variant="outlined" onClick={handleConnectShopify}>
