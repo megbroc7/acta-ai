@@ -450,6 +450,7 @@ async def generate_carousel(
             title=post.title,
             template=template,
             request_branding=data.branding if data else None,
+            featured_image_url=post.featured_image_url,
         )
     except Exception as exc:
         logger.error(f"Carousel generation failed for post {post_id}: {exc}")

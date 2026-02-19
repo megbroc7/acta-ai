@@ -12,7 +12,10 @@ import os
 import re
 from dataclasses import dataclass
 
+import httpx
+from PIL import Image, ImageOps
 from reportlab.lib.colors import Color, HexColor
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -115,6 +118,7 @@ class CarouselResult:
     prompt_tokens: int
     completion_tokens: int
     total_tokens: int
+    image_cost_usd: float = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -485,6 +489,96 @@ def resolve_branding(template=None, request_branding=None) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Image sourcing for hero slides
+# ---------------------------------------------------------------------------
+
+DALLE3_COST = 0.04  # standard quality 1792x1024
+
+
+async def _download_image(url: str) -> bytes | None:
+    """Download an image URL and return raw bytes. Non-fatal."""
+    if not url:
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+            resp = await client.get(url)
+            resp.raise_for_status()
+            if len(resp.content) < 1000:
+                logger.warning("Carousel image download too small (%d bytes)", len(resp.content))
+                return None
+            return resp.content
+    except Exception as e:
+        logger.warning("Carousel image download failed: %s", e)
+        return None
+
+
+async def _get_carousel_image(
+    featured_image_url: str | None,
+    title: str,
+    industry: str | None = None,
+) -> tuple[bytes | None, float]:
+    """Try to get an image for hero slides with fallback chain.
+
+    Returns (image_bytes, cost) where cost is 0.0 if existing image used,
+    or DALLE3_COST if a new image was generated.
+    """
+    # Step 1: Try the post's existing featured image
+    if featured_image_url:
+        image_bytes = await _download_image(featured_image_url)
+        if image_bytes:
+            logger.info("Carousel using existing featured image")
+            return image_bytes, 0.0
+
+    # Step 2: Generate a new abstract DALL-E image as fallback
+    from app.services.images import generate_featured_image
+
+    dalle_url = await generate_featured_image(
+        source="dalle",
+        title=title,
+        industry=industry,
+        style_guidance="Abstract editorial background, cinematic lighting, no text overlay, moody atmosphere",
+    )
+    if dalle_url:
+        image_bytes = await _download_image(dalle_url)
+        if image_bytes:
+            logger.info("Carousel generated new DALL-E hero image")
+            return image_bytes, DALLE3_COST
+
+    # Step 3: Graceful degradation — no image, gradient-only
+    logger.info("Carousel falling back to gradient-only (no hero image)")
+    return None, 0.0
+
+
+def _prepare_slide_image(image_bytes: bytes) -> ImageReader | None:
+    """Load and cover-crop image to slide dimensions for ReportLab."""
+    try:
+        img = Image.open(io.BytesIO(image_bytes))
+        img = img.convert("RGB")
+        img = ImageOps.fit(img, (SLIDE_WIDTH, SLIDE_HEIGHT), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+        return ImageReader(buf)
+    except Exception as e:
+        logger.warning("Failed to prepare carousel slide image: %s", e)
+        return None
+
+
+def _draw_dark_overlay(c, alpha_top: float = 0.35, alpha_bottom: float = 0.82, steps: int = 60):
+    """Draw a dark gradient overlay for text readability on image backgrounds."""
+    strip_height = SLIDE_HEIGHT / steps
+    c.saveState()
+    c.setFillColor(Color(0, 0, 0))
+    for i in range(steps):
+        t = i / (steps - 1) if steps > 1 else 0
+        alpha = alpha_top + (alpha_bottom - alpha_top) * t
+        c.setFillAlpha(alpha)
+        strip_y = SLIDE_HEIGHT - (i + 1) * strip_height
+        c.rect(0, strip_y, SLIDE_WIDTH, strip_height + 0.5, fill=1, stroke=0)
+    c.restoreState()
+
+
+# ---------------------------------------------------------------------------
 # PDF rendering
 # ---------------------------------------------------------------------------
 
@@ -598,48 +692,76 @@ def _draw_lines(c, lines, x, start_y, line_height, max_lines, align="left", bull
             c.drawString(x, y, line)
 
 
-def _render_hook_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
+def _render_hook_slide(
+    c, slide: CarouselSlide, margin: int, content_width: int,
+    text_color: Color, accent_color: Color, image_reader: ImageReader | None = None,
+):
     """Center-led hook layout optimized for first-slide stoppage."""
     center_x = SLIDE_WIDTH / 2
 
-    c.setFillColor(text_color)
-    c.setFont("Cinzel", 64)
-    headline_lines = _wrap_text(c, slide.headline, "Cinzel", 64, content_width - 80)
-    _draw_lines(c, headline_lines, center_x, SLIDE_HEIGHT - 360, 76, 3, align="center")
+    if image_reader:
+        # Full-bleed image background with dark overlay
+        c.drawImage(image_reader, 0, 0, SLIDE_WIDTH, SLIDE_HEIGHT, preserveAspectRatio=False)
+        _draw_dark_overlay(c, alpha_top=0.35, alpha_bottom=0.82)
+        # Force white text for readability over image
+        effective_text = HexColor("#FFFFFF")
+        effective_accent = HexColor("#FFFFFF")
+    else:
+        effective_text = text_color
+        effective_accent = accent_color
 
-    c.setFillColor(accent_color)
-    c.rect(center_x - 72, SLIDE_HEIGHT - 610, 144, 5, fill=1, stroke=0)
+    c.setFillColor(effective_text)
+    c.setFont("Cinzel", 68)
+    headline_lines = _wrap_text(c, slide.headline, "Cinzel", 68, content_width - 60)
+    _draw_lines(c, headline_lines, center_x, SLIDE_HEIGHT - 400, 82, 3, align="center")
 
-    c.setFillColor(text_color)
+    c.setFillColor(effective_accent)
+    c.rect(center_x - 72, SLIDE_HEIGHT - 650, 144, 5, fill=1, stroke=0)
+
+    c.setFillColor(effective_text)
     c.setFont("Inter", 31)
     body_lines = _wrap_text(c, slide.body_text, "Inter", 31, content_width - 160)
-    _draw_lines(c, body_lines, center_x, SLIDE_HEIGHT - 685, 43, 5, align="center")
+    _draw_lines(c, body_lines, center_x, SLIDE_HEIGHT - 720, 43, 5, align="center")
 
 
 def _render_middle_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
-    """Problem/insight layout with optional stat card on the right."""
+    """Problem/insight layout with big numbered anchor and accent left border."""
     headline_font = 47
-    body_font = 29
+    body_font = 31
     headline_y = SLIDE_HEIGHT - 170
     reserved_right = 300 if slide.key_stat else 0
     text_width = content_width - reserved_right
+
+    # Big slide number watermark in top-right corner
+    c.saveState()
+    c.setFillColor(_alpha(accent_color, 0.10))
+    c.setFont("Inter", 120)
+    slide_num_label = f"{slide.slide_number - 1:02d}"  # "01", "02", etc. (skip hook)
+    c.drawRightString(SLIDE_WIDTH - margin + 10, SLIDE_HEIGHT - 155, slide_num_label)
+    c.restoreState()
 
     c.setFillColor(text_color)
     c.setFont("Cinzel", headline_font)
     headline_lines = _wrap_text(c, slide.headline, "Cinzel", headline_font, text_width)
     _draw_lines(c, headline_lines, margin, headline_y, headline_font + 12, 3)
 
-    accent_line_y = headline_y - len(headline_lines[:3]) * (headline_font + 12) - 12
+    # Accent left border bar for bullet section instead of short underline
+    bullet_top_y = headline_y - len(headline_lines[:3]) * (headline_font + 12) - 20
+    bar_height = 280  # approximate height of bullet section
     c.setFillColor(accent_color)
-    c.rect(margin, accent_line_y, 110, 4, fill=1, stroke=0)
+    c.rect(margin - 6, bullet_top_y - bar_height, 4, bar_height, fill=1, stroke=0)
 
     if slide.key_stat:
         card_w = 245
         card_h = 152
         card_x = SLIDE_WIDTH - margin - card_w
         card_y = SLIDE_HEIGHT - 390
-        c.setFillColor(_alpha(accent_color, 0.18))
+        # Bordered card instead of just fill
+        c.setFillColor(_alpha(accent_color, 0.12))
         c.roundRect(card_x, card_y, card_w, card_h, 16, fill=1, stroke=0)
+        c.setStrokeColor(_alpha(accent_color, 0.45))
+        c.setLineWidth(2)
+        c.roundRect(card_x, card_y, card_w, card_h, 16, fill=0, stroke=1)
         c.setFillColor(accent_color)
         c.setFont("Inter", 58)
         c.drawCentredString(card_x + card_w / 2, card_y + 56, slide.key_stat)
@@ -647,7 +769,7 @@ def _render_middle_slide(c, slide: CarouselSlide, margin: int, content_width: in
     c.setFillColor(text_color)
     c.setFont("Inter", body_font)
     body_lines = _wrap_text(c, slide.body_text, "Inter", body_font, text_width)
-    _draw_lines(c, body_lines, margin, accent_line_y - 52, body_font + 13, 10, bullet_mode=True)
+    _draw_lines(c, body_lines, margin + 14, bullet_top_y - 16, body_font + 14, 10, bullet_mode=True)
 
 
 def _render_result_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
@@ -677,7 +799,7 @@ def _render_result_slide(c, slide: CarouselSlide, margin: int, content_width: in
 
 
 def _render_tldr_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
-    """TL;DR slide that summarizes key takeaways in bullets."""
+    """TL;DR slide with numbered takeaways instead of plain bullets."""
     center_x = SLIDE_WIDTH / 2
 
     c.setFillColor(accent_color)
@@ -692,31 +814,76 @@ def _render_tldr_slide(c, slide: CarouselSlide, margin: int, content_width: int,
     headline_lines = _wrap_text(c, headline_text, "Cinzel", 44, content_width - 80)
     _draw_lines(c, headline_lines, center_x, SLIDE_HEIGHT - 308, 56, 2, align="center")
 
+    # Content card with more padding
+    card_x = margin - 10
+    card_y = SLIDE_HEIGHT - 940
+    card_w = content_width + 20
+    card_h = 450
     c.setFillColor(_alpha(accent_color, 0.16))
-    c.roundRect(margin - 10, SLIDE_HEIGHT - 920, content_width + 20, 420, 22, fill=1, stroke=0)
+    c.roundRect(card_x, card_y, card_w, card_h, 22, fill=1, stroke=0)
 
-    c.setFillColor(text_color)
-    c.setFont("Inter", 31)
-    body_lines = _wrap_text(c, slide.body_text, "Inter", 31, content_width - 70)
-    _draw_lines(c, body_lines, margin + 24, SLIDE_HEIGHT - 565, 45, 8, bullet_mode=True)
+    # Draw numbered takeaway items instead of plain bullets
+    body_text = slide.body_text or ""
+    items = [ln.strip().lstrip("•-– ").strip() for ln in body_text.splitlines() if ln.strip()]
+    item_y = SLIDE_HEIGHT - 560
+    item_font = 31
+    item_spacing = 50
+    inner_margin = margin + 30
+
+    for i, item in enumerate(items[:6]):
+        if not item:
+            continue
+        # Accent-colored number
+        c.setFillColor(accent_color)
+        c.setFont("Inter", 36)
+        c.drawString(inner_margin, item_y, f"{i + 1}.")
+        # Item text
+        c.setFillColor(text_color)
+        c.setFont("Inter", item_font)
+        item_lines = _wrap_text(c, item, "Inter", item_font, content_width - 100)
+        for line_idx, line in enumerate(item_lines[:2]):
+            c.drawString(inner_margin + 48, item_y - line_idx * (item_font + 10), line)
+        item_y -= item_spacing + (len(item_lines[:2]) - 1) * (item_font + 10)
 
 
-def _render_cta_slide(c, slide: CarouselSlide, margin: int, content_width: int, text_color: Color, accent_color: Color):
+def _render_cta_slide(
+    c, slide: CarouselSlide, margin: int, content_width: int,
+    text_color: Color, accent_color: Color, image_reader: ImageReader | None = None,
+):
     """Final slide layout that invites specific discussion."""
     center_x = SLIDE_WIDTH / 2
 
-    c.setFillColor(text_color)
+    if image_reader:
+        # Full-bleed image with heavier overlay (more subdued for discussion slide)
+        c.drawImage(image_reader, 0, 0, SLIDE_WIDTH, SLIDE_HEIGHT, preserveAspectRatio=False)
+        _draw_dark_overlay(c, alpha_top=0.50, alpha_bottom=0.88)
+        effective_text = HexColor("#FFFFFF")
+        effective_accent = HexColor("#FFFFFF")
+    else:
+        effective_text = text_color
+        effective_accent = accent_color
+
+    c.setFillColor(effective_text)
     c.setFont("Cinzel", 58)
     headline_lines = _wrap_text(c, slide.headline, "Cinzel", 58, content_width - 80)
     _draw_lines(c, headline_lines, center_x, SLIDE_HEIGHT - 300, 72, 3, align="center")
 
-    c.setFillColor(accent_color)
-    c.roundRect(center_x - 180, SLIDE_HEIGHT - 520, 360, 46, 12, fill=1, stroke=0)
-    c.setFillColor(_contrast_text(accent_color))
+    # "YOUR TAKE?" pill — use original accent if no image, semi-transparent white if image
+    if image_reader:
+        c.saveState()
+        c.setFillColor(Color(1, 1, 1))
+        c.setFillAlpha(0.20)
+        c.roundRect(center_x - 180, SLIDE_HEIGHT - 520, 360, 46, 12, fill=1, stroke=0)
+        c.restoreState()
+        c.setFillColor(HexColor("#FFFFFF"))
+    else:
+        c.setFillColor(accent_color)
+        c.roundRect(center_x - 180, SLIDE_HEIGHT - 520, 360, 46, 12, fill=1, stroke=0)
+        c.setFillColor(_contrast_text(accent_color))
     c.setFont("Inter", 24)
     c.drawCentredString(center_x, SLIDE_HEIGHT - 506, "YOUR TAKE?")
 
-    c.setFillColor(text_color)
+    c.setFillColor(effective_text)
     c.setFont("Inter", 32)
     body_lines = _wrap_text(c, slide.body_text, "Inter", 32, content_width - 120)
     _draw_lines(c, body_lines, center_x, SLIDE_HEIGHT - 610, 43, 5, align="center")
@@ -740,9 +907,14 @@ def _draw_footer(c, idx: int, total_slides: int, margin: int, text_color: Color,
         c.drawRightString(SLIDE_WIDTH - margin, 50, "SWIPE >")
 
 
-def render_carousel_pdf(slides: list[CarouselSlide], branding: dict) -> bytes:
+def render_carousel_pdf(
+    slides: list[CarouselSlide], branding: dict, image_bytes: bytes | None = None,
+) -> bytes:
     """Render slides to a branded PDF using ReportLab."""
     _register_fonts()
+
+    # Prepare hero image once (reused on hook + CTA slides)
+    image_reader = _prepare_slide_image(image_bytes) if image_bytes else None
 
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=(SLIDE_WIDTH, SLIDE_HEIGHT))
@@ -758,28 +930,35 @@ def render_carousel_pdf(slides: list[CarouselSlide], branding: dict) -> bytes:
 
     for idx, slide in enumerate(slides):
         is_last = idx == total_slides - 1
-
-        # --- Background gradient ---
-        _draw_gradient(c, 0, 0, SLIDE_WIDTH, SLIDE_HEIGHT, color_top, color_bottom)
-        _draw_background_texture(c, accent_color, text_color, idx, slide.slide_type)
-
-        # --- Top accent bar ---
-        c.setFillColor(accent_color)
-        c.rect(0, SLIDE_HEIGHT - 10, SLIDE_WIDTH, 10, fill=1, stroke=0)
-
         slide_type = _normalize_slide_type(slide.slide_type)
+        is_hero_slide = slide_type in {"hook", "cta"} and image_reader is not None
+
+        if not is_hero_slide:
+            # --- Standard background gradient + texture ---
+            _draw_gradient(c, 0, 0, SLIDE_WIDTH, SLIDE_HEIGHT, color_top, color_bottom)
+            _draw_background_texture(c, accent_color, text_color, idx, slide.slide_type)
+
+        # --- Top accent bar (skip on hero slides — image is the visual) ---
+        if not is_hero_slide:
+            c.setFillColor(accent_color)
+            c.rect(0, SLIDE_HEIGHT - 10, SLIDE_WIDTH, 10, fill=1, stroke=0)
+
         if slide_type == "hook":
-            _render_hook_slide(c, slide, margin, content_width, text_color, accent_color)
+            _render_hook_slide(c, slide, margin, content_width, text_color, accent_color, image_reader=image_reader)
         elif slide_type == "result":
             _render_result_slide(c, slide, margin, content_width, text_color, accent_color)
         elif slide_type == "tldr":
             _render_tldr_slide(c, slide, margin, content_width, text_color, accent_color)
         elif slide_type == "cta":
-            _render_cta_slide(c, slide, margin, content_width, text_color, accent_color)
+            _render_cta_slide(c, slide, margin, content_width, text_color, accent_color, image_reader=image_reader)
         else:
             _render_middle_slide(c, slide, margin, content_width, text_color, accent_color)
 
-        _draw_footer(c, idx, total_slides, margin, text_color, accent_color)
+        # Footer: force white on hero slides for readability
+        if is_hero_slide:
+            _draw_footer(c, idx, total_slides, margin, HexColor("#FFFFFF"), HexColor("#FFFFFF"))
+        else:
+            _draw_footer(c, idx, total_slides, margin, text_color, accent_color)
 
         # --- New page (except after last slide) ---
         if not is_last:
@@ -799,16 +978,25 @@ async def generate_carousel(
     title: str,
     template=None,
     request_branding=None,
+    featured_image_url: str | None = None,
 ) -> CarouselResult:
-    """Full pipeline: AI slides + resolve branding + render PDF."""
+    """Full pipeline: AI slides + hero image + resolve branding + render PDF."""
+    industry = template.industry if template else None
+
     slides, ai_response = await generate_carousel_slides(
         content_html,
         title,
         template=template,
-        industry=template.industry if template else None,
+        industry=industry,
     )
+
+    # Fetch hero image (existing featured image → DALL-E fallback → None)
+    image_bytes, image_cost = await _get_carousel_image(
+        featured_image_url, title, industry=industry,
+    )
+
     branding = resolve_branding(template, request_branding)
-    pdf_bytes = render_carousel_pdf(slides, branding)
+    pdf_bytes = render_carousel_pdf(slides, branding, image_bytes=image_bytes)
 
     return CarouselResult(
         pdf_bytes=pdf_bytes,
@@ -816,4 +1004,5 @@ async def generate_carousel(
         prompt_tokens=ai_response.prompt_tokens,
         completion_tokens=ai_response.completion_tokens,
         total_tokens=ai_response.total_tokens,
+        image_cost_usd=image_cost,
     )
