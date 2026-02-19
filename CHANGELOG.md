@@ -9,12 +9,53 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Next up
+- **LinkedIn Carousel PDF Generation** — ReportLab-based branded slide deck from blog posts (5-7 slides, Roman bronze patina design, one GPT call for slide structuring). Research complete, ready to build.
 - Shopify/Wix publishing (currently "Coming Soon")
-- Content pipeline P1-P6 all complete
 
 ---
 
 ## Session Log
+
+### 2026-02-19 (Session 40) — GEO Optimization, LinkedIn Platform Intelligence, Web Research Default-On
+
+**What we did:**
+Deep GEO (Generative Engine Optimization) audit and prompt upgrades across the content pipeline, plus LinkedIn algorithm intelligence and a web research UX improvement.
+
+**1. GEO Prompt Optimizations** (`services/content.py` — prompt-only, no migration, no cost increase)
+- **Entity injection upgraded**: Taxonomic relationship declarations ("X is a type of Y"), entity hierarchy (primary vs. supporting entities), knowledge-graph triple sentences
+- **Quotable definition sentences**: Crisp definitional statements near first mention of each concept for AI citation
+- **Comparison table nudge**: Markdown tables for 3+ alternatives instead of prose (highly extractable by AI engines)
+- **Q&A heading reinforcement**: H2s must be natural search questions in both outline prompt and content structure
+- **Freshness signals**: 1-2 temporal references ("As of 2026") with safeguard against fabricating dates
+- **Inline citation format**: `(Source: Org, Year)` immediately after each research-backed claim
+- **People Also Ask H3 seeding**: Outline now requires 2+ H3 subheadings phrased as follow-up questions
+
+**2. LinkedIn Platform Intelligence** (`services/content.py`)
+- New `LINKEDIN_PLATFORM_INTELLIGENCE` constant (~4,000 chars) — 6 sections of algorithm rules:
+  - Dwell time optimization (open loops, pattern interrupts, insight placement at 60-70%)
+  - Comment velocity architecture (debatable opinions mid-post, specific peer questions)
+  - Text post format signals (1,200-1,500 chars, 8-12 line breaks, mobile-first density)
+  - Content categorization & topical routing (topical signal in first 2 lines, category-matching hashtags)
+  - Native expertise signals (first-person "I" opener, professional context references, no blog references)
+  - Reach killers (edit timing, self-commenting penalty, cross-platform duplicate detection)
+- Restructured `repurpose_to_linkedin()` system prompt to integrate platform intelligence; removed redundant rules now covered by the constant
+
+**3. Web Research Default-On for Tribune+** (`api/templates.py`, `PromptForm.jsx`)
+- Backend: `create_template` auto-sets `web_research_enabled=True` for Tribune/Imperator users
+- Backend: Auto-created default templates also respect user tier
+- Frontend: Toggle defaults to ON for Tribune+, disabled with bronze upgrade nudge for Scriptor users
+- Imported `useAuth` in PromptForm to compute tier-aware defaults
+
+**4. LinkedIn Carousel Research** (no code — planning for Session 41)
+- Canva API ruled out: Enterprise-only ($30/user/month), rigid templates, requires user OAuth
+- ReportLab selected as implementation path: pure Python, zero system deps, native gradients/fonts/transparency
+- LinkedIn carousel specs documented: 1080x1080 or 1080x1350, PDF, 5-10 slides, <3MB
+- Architecture designed: GPT-4o structures slides (1 call, ~$0.01) → ReportLab renders branded PDF → download
+
+**Files changed:** `content.py`, `templates.py`, `PromptForm.jsx`
+**Migration:** None
+**New dependencies:** None
+**Commit:** `981645b`
 
 ### 2026-02-18 (Session 39) — FAQ Schema Auto-Generation, Unlisted Posts, Post Copy Buttons
 
