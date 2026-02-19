@@ -16,6 +16,39 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-20 (Session 50) — Shopify OAuth Whitelist Resolution + E2E Blog Publish Validation
+
+**What we did:**
+Completed Shopify integration recovery and verified the blog publish flow end-to-end against `acta-blog-dev.myshopify.com`.
+
+**1. Shopify app config alignment** (`shopify.app.toml`)
+- Pulled live Shopify app config from CLI and aligned OAuth-related settings to match Acta backend requests.
+- Ensured redirect URL allowlist includes both:
+  - `http://127.0.0.1:8000/api/v1/shopify/callback`
+  - `http://localhost:8000/api/v1/shopify/callback`
+- Confirmed access scopes as `read_content,write_content`.
+- Removed deprecated `include_config_on_deploy` from build config (CLI migration).
+- Deployed config and released new app version in Shopify.
+
+**2. Resolved persistent whitelist failure**
+- Identified stale Shopify dev preview config as a source of conflicting redirect validation.
+- Ran `shopify app dev clean --store acta-blog-dev.myshopify.com` to restore active app version behavior.
+- Re-tested install URL generation from Acta backend and confirmed accepted authorize flow.
+
+**3. End-to-end blog flow validation**
+- Queried Shopify blogs via Admin GraphQL (`blogs`).
+- Created test article via Admin GraphQL `articleCreate`.
+- Confirmed article appears in follow-up blog article query and produced admin/storefront URLs.
+
+**4. Backend publish hardening** (`publishing.py`)
+- Fixed Shopify publish payload to include `author` in `ArticleCreateInput`:
+  - `\"author\": {\"name\": \"Acta AI\"}`
+- This addresses runtime GraphQL validation errors (`author` required) seen during live publish test.
+
+**Files modified:** `shopify-app/acta-blog-publisher/shopify.app.toml`, `backend/app/services/publishing.py`
+
+---
+
 ### 2026-02-19 (Session 49) — PostDetail UX Polish
 
 **What we did:**

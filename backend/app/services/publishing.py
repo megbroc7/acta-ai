@@ -195,6 +195,8 @@ async def publish_to_shopify(post: BlogPost, site: Site) -> PublishResult:
         "title": post.title,
         "body": post.content,
         "isPublished": True,
+        # Shopify currently requires author for articleCreate on some stores/API versions.
+        "author": {"name": "Acta AI"},
     }
 
     excerpt = post.meta_description or post.excerpt
