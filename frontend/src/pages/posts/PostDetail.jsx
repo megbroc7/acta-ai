@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Box, Typography, Card, CardContent, Button, Stack, Chip, Divider, Collapse,
+  Box, Typography, Card, CardContent, Button, Stack, Chip, Divider, Collapse, Grid,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  LinearProgress, CircularProgress, Tooltip, IconButton,
+  LinearProgress, CircularProgress, Tooltip, IconButton, Skeleton,
 } from '@mui/material';
 import {
   ArrowBack, Edit, Publish, ThumbDown, OpenInNew, Gavel, ImageOutlined,
@@ -377,7 +377,40 @@ export default function PostDetail() {
     }
   };
 
-  if (isLoading) return <Typography color="text.secondary">Loading...</Typography>;
+  if (isLoading) return (
+    <Box>
+      <Skeleton variant="text" width={180} height={32} animation="wave" sx={{ mb: 2 }} />
+      <Skeleton variant="text" width="70%" height={40} animation="wave" sx={{ mb: 1 }} />
+      <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
+        <Skeleton variant="rounded" width={90} height={24} animation="wave" sx={{ borderRadius: '12px' }} />
+        <Skeleton variant="rounded" width={80} height={24} animation="wave" sx={{ borderRadius: '12px' }} />
+        <Skeleton variant="text" width={120} height={20} animation="wave" />
+      </Box>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Box sx={{ border: '1px solid #E0DCD5', p: 3 }}>
+            <Skeleton variant="text" width="90%" height={24} animation="wave" />
+            <Skeleton variant="text" width="100%" height={18} animation="wave" sx={{ mt: 1 }} />
+            <Skeleton variant="text" width="95%" height={18} animation="wave" />
+            <Skeleton variant="text" width="80%" height={18} animation="wave" />
+            <Skeleton variant="rectangular" width="100%" height={160} animation="wave" sx={{ mt: 2 }} />
+            <Skeleton variant="text" width="100%" height={18} animation="wave" sx={{ mt: 2 }} />
+            <Skeleton variant="text" width="85%" height={18} animation="wave" />
+            <Skeleton variant="text" width="70%" height={18} animation="wave" />
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Box sx={{ border: '1px solid #E0DCD5', p: 2.5 }}>
+            <Skeleton variant="text" width="60%" height={20} animation="wave" sx={{ mb: 1.5 }} />
+            <Skeleton variant="text" width="100%" height={16} animation="wave" />
+            <Skeleton variant="text" width="80%" height={16} animation="wave" />
+            <Skeleton variant="text" width="90%" height={16} animation="wave" sx={{ mt: 1.5 }} />
+            <Skeleton variant="text" width="70%" height={16} animation="wave" />
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
+  );
   if (!post) return <Typography color="error">Post not found</Typography>;
 
   const canRevise = post.status === 'draft' || post.status === 'pending_review';

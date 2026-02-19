@@ -11,6 +11,7 @@ import {
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api from '../../services/api';
+import ListSkeleton from '../../components/common/ListSkeleton';
 
 export default function SitesList() {
   const navigate = useNavigate();
@@ -71,7 +72,7 @@ export default function SitesList() {
       </Box>
 
       {isLoading ? (
-        <Typography color="text.secondary">Loading...</Typography>
+        <ListSkeleton variant="cards" />
       ) : sites.length === 0 ? (
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 6 }}>

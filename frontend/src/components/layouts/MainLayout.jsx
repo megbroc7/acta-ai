@@ -48,9 +48,15 @@ import {
   Forum as AdminFeedbackIcon,
   Payment as BillingIcon,
 } from '@mui/icons-material';
-import { useAuth } from '../../contexts/AuthContext';
+import { keyframes } from '@mui/system';
+import { useAuth } from '../../contexts/useAuth';
 import api from '../../services/api';
 import NotificationCenter from '../common/NotificationCenter';
+
+const fadeSlideIn = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
 
 const DRAWER_WIDTH = 260;
 const DRAWER_WIDTH_COLLAPSED = 72;
@@ -661,7 +667,7 @@ export default function MainLayout() {
           transition,
         }}
       >
-        {isMaintenanceMode && (
+        <Collapse in={isMaintenanceMode} timeout={300}>
           <Alert
             severity="warning"
             sx={{
@@ -675,8 +681,10 @@ export default function MainLayout() {
           >
             AI generation is temporarily paused for maintenance. Scheduled runs, content testing, and revisions are disabled.
           </Alert>
-        )}
-        <Outlet />
+        </Collapse>
+        <Box key={location.pathname} sx={{ animation: `${fadeSlideIn} 0.22s ease-out` }}>
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );

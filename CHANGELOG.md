@@ -16,6 +16,38 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-19 (Session 42) — UI Polish: Auth Loading, Route Transitions, Loading Skeletons
+
+**What we did:**
+Unified the loading experience across the entire app. The Dashboard was beautifully polished (countUp animations, shimmer effects), but every other page appeared instantly with no entrance animation, auth resolution showed a blank white screen, and loading states were fragmented "Loading..." text. This session makes everything feel consistently smooth.
+
+**1. Auth Loading Screen** (`components/common/AuthLoadingScreen.jsx` — new)
+- Full-viewport branded screen with `favicon.png` breathing pulse animation + "ACTA AI" logotype + bronze shimmer bar
+- Replaces `return null` (blank white flash) in all 3 route guards (`ProtectedRoute`, `AdminRoute`, `PublicRoute`) in `App.jsx`
+
+**2. Route Transition Animations** (`components/layouts/MainLayout.jsx`)
+- `fadeSlideIn` keyframe: opacity 0→1, translateY 8→0, 0.22s ease-out
+- `<Outlet />` wrapped in `<Box key={location.pathname}>` — route change triggers remount and animation
+- Maintenance Alert wrapped in `<Collapse>` for smooth slide-in/out instead of abrupt appear/disappear
+
+**3. Dashboard Loading Skeletons** (`pages/dashboard/Dashboard.jsx`)
+- Destructured `isLoading` from all 4 main queries, computed `statsLoading`
+- Hero subtitle shows `Skeleton` placeholder while loading
+- Stats strip shows 4 skeleton stat boxes; when data arrives, real `StatNumber` components mount fresh so `countUp` animations fire with real values (not zeros)
+
+**4. List Page & PostDetail Skeletons** (`components/common/ListSkeleton.jsx` — new)
+- Reusable `ListSkeleton` component with `table` variant (Paper + header bar + row skeletons) and `cards` variant (Grid of skeleton cards with bronze top border)
+- `PostsList` → `<ListSkeleton variant="table" rows={5} />`
+- `PromptsList`, `SitesList`, `SchedulesList` → `<ListSkeleton variant="cards" />`
+- `PostDetail` → inline skeleton layout matching actual page structure (back button, title, chips, two-column content/metadata grid)
+
+**Files created:** `AuthLoadingScreen.jsx`, `ListSkeleton.jsx`
+**Files modified:** `App.jsx`, `MainLayout.jsx`, `Dashboard.jsx`, `PostsList.jsx`, `PromptsList.jsx`, `SitesList.jsx`, `SchedulesList.jsx`, `PostDetail.jsx`
+**No new dependencies** — all MUI built-ins (`Skeleton`, `Collapse`, `keyframes`)
+**No migration needed**
+
+---
+
 ### 2026-02-19 (Session 41) — LinkedIn Carousel PDF Generation
 
 **What we did:**

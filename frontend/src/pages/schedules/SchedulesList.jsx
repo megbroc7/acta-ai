@@ -13,6 +13,7 @@ import {
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api from '../../services/api';
+import ListSkeleton from '../../components/common/ListSkeleton';
 
 const FREQ_LABELS = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', custom: 'Custom' };
 
@@ -95,15 +96,18 @@ export default function SchedulesList() {
   });
 
   useEffect(() => {
-    if (triggerMutation.isPending) {
-      setScribeMsg(0);
-      scribeInterval.current = setInterval(() => {
-        setScribeMsg(prev => (prev + 1) % SCRIBE_MESSAGES.length);
-      }, 4000);
-    } else {
+    if (!triggerMutation.isPending) {
       clearInterval(scribeInterval.current);
+      return undefined;
     }
-    return () => clearInterval(scribeInterval.current);
+
+    scribeInterval.current = setInterval(() => {
+      setScribeMsg(prev => (prev + 1) % SCRIBE_MESSAGES.length);
+    }, 4000);
+
+    return () => {
+      clearInterval(scribeInterval.current);
+    };
   }, [triggerMutation.isPending]);
 
   const formatExecTime = (iso) => {
@@ -140,7 +144,7 @@ export default function SchedulesList() {
       </Box>
 
       {isLoading ? (
-        <Typography color="text.secondary">Loading...</Typography>
+        <ListSkeleton variant="cards" />
       ) : schedules.length === 0 ? (
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 6 }}>
@@ -395,7 +399,10 @@ export default function SchedulesList() {
               </Button>
               <Button
                 variant="contained"
-                onClick={() => triggerMutation.mutate(triggerTarget)}
+                onClick={() => {
+                  setScribeMsg(0);
+                  triggerMutation.mutate(triggerTarget);
+                }}
               >
                 Generate Post
               </Button>

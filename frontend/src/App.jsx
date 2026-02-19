@@ -16,9 +16,11 @@ function LaurelIcon(props) {
     </SvgIcon>
   );
 }
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/useAuth';
 import MainLayout from './components/layouts/MainLayout';
 import AuthLayout from './components/layouts/AuthLayout';
+import AuthLoadingScreen from './components/common/AuthLoadingScreen';
 
 import Dashboard from './pages/dashboard/Dashboard';
 import Login from './pages/auth/Login';
@@ -60,14 +62,14 @@ const queryClient = new QueryClient({
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <AuthLoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 }
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <AuthLoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
   if (!user.is_admin) return <Navigate to="/" replace />;
   return children;
@@ -75,7 +77,7 @@ function AdminRoute({ children }) {
 
 function PublicRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <AuthLoadingScreen />;
   if (user) return <Navigate to="/" replace />;
   return children;
 }

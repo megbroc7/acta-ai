@@ -12,6 +12,7 @@ import {
 import { useSnackbar } from 'notistack';
 import api from '../../services/api';
 import { getStyleLabel } from '../../constants/headlineStyles';
+import ListSkeleton from '../../components/common/ListSkeleton';
 
 export default function PromptsList() {
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ export default function PromptsList() {
       </Box>
 
       {isLoading ? (
-        <Typography color="text.secondary">Loading...</Typography>
+        <ListSkeleton variant="cards" />
       ) : templates.length === 0 ? (
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 6 }}>

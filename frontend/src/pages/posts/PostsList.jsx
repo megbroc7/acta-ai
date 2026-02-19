@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import api from '../../services/api';
+import ListSkeleton from '../../components/common/ListSkeleton';
 
 const STATUS_COLORS = {
   draft: 'default',
@@ -105,7 +106,7 @@ export default function PostsList() {
       </Box>
 
       {isLoading ? (
-        <Typography color="text.secondary">Loading...</Typography>
+        <ListSkeleton variant="table" rows={5} />
       ) : posts.length === 0 ? (
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 6 }}>

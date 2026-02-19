@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   Box, Typography, Card, CardContent, CardActions, Grid, Chip, Button, Stack,
-  List, ListItem, ListItemText, Divider,
+  List, ListItem, ListItemText, Divider, Skeleton,
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import {
   Language, Description, Schedule, Article, Add, ArrowForward,
   AccessTime, Warning, AutoMode,
 } from '@mui/icons-material';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/useAuth';
 import api from '../../services/api';
 
 // ---------------------------------------------------------------------------
@@ -240,25 +240,27 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const { data: sites = [] } = useQuery({
+  const { data: sites = [], isLoading: sitesLoading } = useQuery({
     queryKey: ['sites'],
     queryFn: () => api.get('/sites/').then(r => r.data),
   });
 
-  const { data: templates = [] } = useQuery({
+  const { data: templates = [], isLoading: templatesLoading } = useQuery({
     queryKey: ['templates'],
     queryFn: () => api.get('/templates/').then(r => r.data),
   });
 
-  const { data: schedules = [] } = useQuery({
+  const { data: schedules = [], isLoading: schedulesLoading } = useQuery({
     queryKey: ['schedules'],
     queryFn: () => api.get('/schedules/').then(r => r.data),
   });
 
-  const { data: posts = [] } = useQuery({
+  const { data: posts = [], isLoading: postsLoading } = useQuery({
     queryKey: ['posts'],
     queryFn: () => api.get('/posts/').then(r => r.data),
   });
+
+  const statsLoading = sitesLoading || templatesLoading || schedulesLoading || postsLoading;
 
   const { data: attentionSchedules = [] } = useQuery({
     queryKey: ['attentionSchedules'],
@@ -323,19 +325,23 @@ export default function Dashboard() {
           </Box>
         </Typography>
 
-        <Typography
-          variant="body2"
-          sx={{
-            mt: 1,
-            color: 'text.secondary',
-            letterSpacing: '0.02em',
-            animation: `${countUp} 0.5s 0.2s ease-out both`,
-          }}
-        >
-          {activeSchedules.length} active {activeSchedules.length === 1 ? 'schedule' : 'schedules'}
-          {publishedCount > 0 && <> &middot; {publishedCount} {publishedCount === 1 ? 'post' : 'posts'} published</>}
-          {nextRun && <> &middot; Next run {formatRelativeTime(nextRun)}</>}
-        </Typography>
+        {statsLoading ? (
+          <Skeleton variant="text" width={280} height={20} sx={{ mt: 1 }} animation="wave" />
+        ) : (
+          <Typography
+            variant="body2"
+            sx={{
+              mt: 1,
+              color: 'text.secondary',
+              letterSpacing: '0.02em',
+              animation: `${countUp} 0.5s 0.2s ease-out both`,
+            }}
+          >
+            {activeSchedules.length} active {activeSchedules.length === 1 ? 'schedule' : 'schedules'}
+            {publishedCount > 0 && <> &middot; {publishedCount} {publishedCount === 1 ? 'post' : 'posts'} published</>}
+            {nextRun && <> &middot; Next run {formatRelativeTime(nextRun)}</>}
+          </Typography>
+        )}
       </Box>
 
       {/* ----------------------------------------------------------------- */}
@@ -363,12 +369,25 @@ export default function Dashboard() {
           '&::after': { bottom: 0 },
         }}
       >
-        <StatNumber value={sites.length} label="Sites" delay={0.1} onClick={() => navigate('/sites')} />
-        <StatNumber value={templates.length} label="Templates" delay={0.2} onClick={() => navigate('/prompts')} />
-        <StatNumber value={activeSchedules.length} label="Active Schedules" delay={0.3} onClick={() => navigate('/schedules')} />
-        <StatNumber value={posts.length} label="Blog Posts" delay={0.4} onClick={() => navigate('/posts')} />
-        {pendingReview.length > 0 && (
-          <StatNumber value={pendingReview.length} label="Pending Review" delay={0.5} onClick={() => navigate('/review')} />
+        {statsLoading ? (
+          <>
+            {[0, 1, 2, 3].map(i => (
+              <Box key={i} sx={{ textAlign: 'center' }}>
+                <Skeleton variant="rectangular" width={60} height={44} animation="wave" sx={{ mx: 'auto', mb: 0.5 }} />
+                <Skeleton variant="text" width={80} height={14} animation="wave" sx={{ mx: 'auto' }} />
+              </Box>
+            ))}
+          </>
+        ) : (
+          <>
+            <StatNumber value={sites.length} label="Sites" delay={0.1} onClick={() => navigate('/sites')} />
+            <StatNumber value={templates.length} label="Templates" delay={0.2} onClick={() => navigate('/prompts')} />
+            <StatNumber value={activeSchedules.length} label="Active Schedules" delay={0.3} onClick={() => navigate('/schedules')} />
+            <StatNumber value={posts.length} label="Blog Posts" delay={0.4} onClick={() => navigate('/posts')} />
+            {pendingReview.length > 0 && (
+              <StatNumber value={pendingReview.length} label="Pending Review" delay={0.5} onClick={() => navigate('/review')} />
+            )}
+          </>
         )}
       </Box>
 
