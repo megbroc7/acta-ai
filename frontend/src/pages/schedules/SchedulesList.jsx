@@ -48,13 +48,22 @@ export default function SchedulesList() {
     queryFn: () => api.get('/schedules/').then(r => r.data),
   });
 
-  const { data: execData, isLoading: execLoading } = useQuery({
+  const {
+    data: execData,
+    isLoading: execLoading,
+    isError: execIsError,
+    error: execError,
+  } = useQuery({
     queryKey: ['executions', expandedId],
-    queryFn: () => api.get(`/schedules/${expandedId}/executions/?limit=5`).then(r => r.data),
+    queryFn: () => api.get(`/schedules/${expandedId}/executions?limit=5`).then(r => r.data),
     enabled: !!expandedId,
   });
   const executions = execData?.entries || [];
   const execTotal = execData?.total || 0;
+  const execErrorMessage =
+    execError?.response?.data?.detail
+    || execError?.message
+    || 'Failed to load execution history';
 
   const deleteMutation = useMutation({
     mutationFn: (id) => api.delete(`/schedules/${id}`),
@@ -228,6 +237,10 @@ export default function SchedulesList() {
                         <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
                           <CircularProgress size={20} />
                         </Box>
+                      ) : execIsError ? (
+                        <Typography variant="body2" color="error.main" sx={{ py: 1 }}>
+                          {execErrorMessage}
+                        </Typography>
                       ) : executions.length === 0 ? (
                         <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', py: 1 }}>
                           No executions yet

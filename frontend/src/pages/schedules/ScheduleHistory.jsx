@@ -64,7 +64,12 @@ export default function ScheduleHistory() {
     queryFn: () => api.get(`/schedules/${id}`).then(r => r.data),
   });
 
-  const { data: execData, isLoading } = useQuery({
+  const {
+    data: execData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ['executionHistory', id, page, filter],
     queryFn: () => {
       const params = new URLSearchParams({
@@ -72,12 +77,17 @@ export default function ScheduleHistory() {
         offset: page * PAGE_SIZE,
       });
       if (filter) params.set('success_filter', filter);
-      return api.get(`/schedules/${id}/executions/?${params}`).then(r => r.data);
+      return api.get(`/schedules/${id}/executions?${params}`).then(r => r.data);
     },
+    enabled: !!id,
   });
 
   const total = execData?.total || 0;
   const entries = execData?.entries || [];
+  const historyErrorMessage =
+    error?.response?.data?.detail
+    || error?.message
+    || 'Failed to load execution history';
 
   const formatTime = (iso) => {
     const d = new Date(iso);
@@ -176,6 +186,12 @@ export default function ScheduleHistory() {
               <TableRow>
                 <TableCell colSpan={6} sx={{ textAlign: 'center', py: 3 }}>
                   Loading...
+                </TableCell>
+              </TableRow>
+            ) : isError ? (
+              <TableRow>
+                <TableCell colSpan={6} sx={{ textAlign: 'center', py: 3, color: 'error.main' }}>
+                  {historyErrorMessage}
                 </TableCell>
               </TableRow>
             ) : entries.length === 0 ? (

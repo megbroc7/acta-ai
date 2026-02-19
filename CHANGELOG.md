@@ -16,6 +16,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-19 (Session 47) — Schedules Execution History Visibility Fix
+
+**What we did:**
+Fixed a schedules-page issue where execution history could fail to load due to URL path mismatch and appear as empty history in the UI.
+
+**1. Endpoint path alignment** (`ScheduleHistory.jsx`, `SchedulesList.jsx`)
+- Updated execution history requests from `/schedules/{id}/executions/?...` to `/schedules/{id}/executions?...` to match backend route shape and avoid redirect-related fetch failures.
+
+**2. Better error visibility** (`ScheduleHistory.jsx`, `SchedulesList.jsx`)
+- Added explicit error states for execution-history queries so API failures display a readable message instead of implying no execution records exist.
+
+**Files modified:** `frontend/src/pages/schedules/ScheduleHistory.jsx`, `frontend/src/pages/schedules/SchedulesList.jsx`
+**No backend changes, no migrations, no new dependencies**
+
+---
+
 ### 2026-02-19 (Session 46) — Carousel Left-Aligned Layout Overhaul
 
 **What we did:**
