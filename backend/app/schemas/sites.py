@@ -31,7 +31,7 @@ class SiteCreate(BaseModel):
         if self.platform == Platform.wordpress:
             if not self.username or not self.app_password:
                 raise ValueError("WordPress sites require username and app_password")
-        elif self.platform in (Platform.shopify, Platform.wix):
+        elif self.platform == Platform.wix:
             if not self.api_key:
                 raise ValueError(f"{self.platform.value.title()} sites require api_key")
         return self
@@ -87,6 +87,20 @@ class ConnectionTestRequest(BaseModel):
     username: str | None = None
     app_password: str | None = None
     api_key: str | None = None
+
+    @model_validator(mode="after")
+    def check_connection_test_credentials(self):
+        if self.platform == Platform.copy:
+            return self
+        if not self.api_url:
+            raise ValueError(f"{self.platform.value.title()} connection test requires api_url")
+        if self.platform == Platform.wordpress:
+            if not self.username or not self.app_password:
+                raise ValueError("WordPress connection test requires username and app_password")
+        elif self.platform in (Platform.shopify, Platform.wix):
+            if not self.api_key:
+                raise ValueError(f"{self.platform.value.title()} connection test requires api_key")
+        return self
 
 
 class BlogOption(BaseModel):

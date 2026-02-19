@@ -116,7 +116,7 @@ export default function SitesList() {
                         variant="outlined"
                         sx={{ fontWeight: 700, letterSpacing: '0.03em' }}
                       />
-                      {['shopify', 'wix'].includes(site.platform) ? (
+                      {['wix'].includes(site.platform) ? (
                         <Chip
                           label="Coming Soon"
                           size="small"

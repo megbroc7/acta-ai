@@ -183,7 +183,7 @@ export default function ScheduleForm() {
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <TextField select label="Site" required fullWidth value={form.site_id} onChange={update('site_id')}>
                     <MenuItem value="">Select a site</MenuItem>
-                    {sites.filter(s => !['shopify', 'wix'].includes(s.platform)).map(s => (
+                    {sites.filter(s => !['wix'].includes(s.platform)).map(s => (
                       <MenuItem key={s.id} value={s.id}>{s.name} ({s.platform ? s.platform.charAt(0).toUpperCase() + s.platform.slice(1) : 'WordPress'})</MenuItem>
                     ))}
                   </TextField>

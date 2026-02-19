@@ -32,6 +32,16 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:5173"]
 
+    # Public URLs
+    BACKEND_BASE_URL: str = "http://localhost:8000"
+    FRONTEND_URL: str = "http://localhost:5173"
+
+    # Shopify (public app)
+    SHOPIFY_APP_CLIENT_ID: str = ""
+    SHOPIFY_APP_CLIENT_SECRET: str = ""
+    SHOPIFY_SCOPES: str = "read_content,write_content"
+    SHOPIFY_API_VERSION: str = "2026-01"
+
     # Environment
     ENVIRONMENT: str = "development"
     LOG_LEVEL: str = "INFO"

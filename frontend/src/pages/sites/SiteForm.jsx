@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Box, Typography, Card, CardContent, TextField, Button, Stack, Alert, MenuItem,
@@ -11,16 +11,17 @@ import api from '../../services/api';
 const PLATFORMS = [
   { value: 'wordpress', label: 'WordPress' },
   { value: 'copy', label: 'Copy & Paste (Squarespace, Ghost, etc.)' },
-  { value: 'shopify', label: 'Shopify (Coming Soon)' },
+  { value: 'shopify', label: 'Shopify' },
   { value: 'wix', label: 'Wix (Coming Soon)' },
 ];
 
-const COMING_SOON_PLATFORMS = ['shopify', 'wix'];
+const COMING_SOON_PLATFORMS = ['wix'];
 
 export default function SiteForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -33,6 +34,8 @@ export default function SiteForm() {
   });
   const [testResult, setTestResult] = useState(null);
   const [testing, setTesting] = useState(false);
+  const [shopifyBlogs, setShopifyBlogs] = useState([]);
+  const [loadingBlogs, setLoadingBlogs] = useState(false);
 
   const { data: site } = useQuery({
     queryKey: ['site', id],
@@ -53,6 +56,21 @@ export default function SiteForm() {
     }
   }, [site]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const connected = params.get('shopify_connected');
+    const error = params.get('shopify_error');
+    if (!connected && !error) return;
+
+    if (connected === '1') {
+      enqueueSnackbar('Shopify connected successfully', { variant: 'success' });
+    }
+    if (error) {
+      enqueueSnackbar(error, { variant: 'error' });
+    }
+    navigate(location.pathname, { replace: true });
+  }, [location.search, location.pathname, navigate, enqueueSnackbar]);
+
   const saveMutation = useMutation({
     mutationFn: (data) => isEdit ? api.put(`/sites/${id}`, data) : api.post('/sites/', data),
     onSuccess: () => {
@@ -63,18 +81,91 @@ export default function SiteForm() {
     onError: (err) => enqueueSnackbar(err.response?.data?.detail || 'Failed to save', { variant: 'error' }),
   });
 
+  async function fetchShopifyBlogs(showErrorToast = false) {
+    if (!isEdit || !id) return { connected: false, blogs: [] };
+    setLoadingBlogs(true);
+    try {
+      const res = await api.get(`/shopify/sites/${id}/blogs`);
+      const blogs = res.data?.blogs || [];
+      setShopifyBlogs(blogs);
+      if (blogs.length > 0) {
+        setForm((prev) => (
+          prev.default_blog_id
+            ? prev
+            : { ...prev, default_blog_id: blogs[0].id }
+        ));
+      }
+      return { connected: Boolean(res.data?.connected), blogs };
+    } catch (err) {
+      if (showErrorToast) {
+        enqueueSnackbar(err.response?.data?.detail || 'Failed to load Shopify blogs', { variant: 'error' });
+      }
+      setShopifyBlogs([]);
+      return { connected: false, blogs: [] };
+    } finally {
+      setLoadingBlogs(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!isEdit || form.platform !== 'shopify') return;
+    fetchShopifyBlogs();
+  }, [isEdit, form.platform, id]);
+
+  const handleConnectShopify = async () => {
+    if (!isEdit || !id) {
+      enqueueSnackbar('Save this Shopify site first, then connect it.', { variant: 'info' });
+      return;
+    }
+
+    try {
+      const res = await api.post('/shopify/install-url', {
+        site_id: id,
+        shop_domain: form.url || null,
+      });
+      window.location.assign(res.data.auth_url);
+    } catch (err) {
+      enqueueSnackbar(err.response?.data?.detail || 'Failed to start Shopify connect', { variant: 'error' });
+    }
+  };
+
   const handleTest = async () => {
     setTesting(true);
     setTestResult(null);
     try {
+      if (form.platform === 'shopify' && isEdit && !form.api_key) {
+        const shopifyResult = await fetchShopifyBlogs(true);
+        const blogs = shopifyResult.blogs;
+        const connected = shopifyResult.connected;
+        setTestResult({
+          success: connected,
+          message: connected
+            ? `Connected to Shopify (${blogs.length} blog${blogs.length === 1 ? '' : 's'} found)`
+            : 'Shopify is not connected yet. Click Connect Shopify first or provide a token to test manually.',
+        });
+        return;
+      }
+
       const payload = {
         platform: form.platform,
         api_url: form.api_url || null,
         username: form.username || null,
         app_password: form.app_password || null,
+        api_key: form.api_key || null,
       };
       const res = await api.post('/sites/test-connection', payload);
       setTestResult(res.data);
+      if (form.platform === 'shopify') {
+        const blogs = res.data?.blogs || [];
+        setShopifyBlogs(blogs);
+        if (blogs.length > 0) {
+          setForm((prev) => (
+            prev.default_blog_id
+              ? prev
+              : { ...prev, default_blog_id: blogs[0].id }
+          ));
+        }
+      }
     } catch {
       setTestResult({ success: false, message: 'Connection test failed' });
     } finally {
@@ -92,12 +183,22 @@ export default function SiteForm() {
       delete data.app_password;
       delete data.api_key;
       delete data.default_blog_id;
-    } else {
+    } else if (data.platform === 'wordpress') {
       delete data.api_key;
       delete data.default_blog_id;
+    } else if (data.platform === 'shopify') {
+      delete data.username;
+      delete data.app_password;
+      if (!data.default_blog_id) delete data.default_blog_id;
+    } else {
+      delete data.username;
+      delete data.app_password;
+      delete data.default_blog_id;
     }
+
     if (isEdit) {
       if (!data.app_password) delete data.app_password;
+      if (!data.api_key) delete data.api_key;
       delete data.platform;
     }
     saveMutation.mutate(data);
@@ -108,8 +209,17 @@ export default function SiteForm() {
   const isComingSoon = COMING_SOON_PLATFORMS.includes(form.platform);
   const isCopy = form.platform === 'copy';
   const isWP = form.platform === 'wordpress';
+  const isShopify = form.platform === 'shopify';
+  const blogOptions = shopifyBlogs.length > 0 ? shopifyBlogs : (testResult?.blogs || []);
 
-  const canTest = !isComingSoon && !isCopy && form.api_url && isWP && form.username && form.app_password;
+  const canTest = (
+    !isComingSoon
+    && !isCopy
+    && (
+      (isWP && form.api_url && form.username && form.app_password)
+      || (isShopify && form.api_url && (form.api_key || isEdit))
+    )
+  );
 
   return (
     <Box>
@@ -169,10 +279,10 @@ export default function SiteForm() {
                 >
                   <RocketLaunch sx={{ fontSize: 48, color: 'warning.main', mb: 1.5, opacity: 0.8 }} />
                   <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
-                    {form.platform === 'shopify' ? 'Shopify' : 'Wix'} Integration Coming Soon
+                    {form.platform === 'wix' ? 'Wix' : 'Platform'} Integration Coming Soon
                   </Typography>
                   <Typography color="text.secondary" sx={{ mb: 2, maxWidth: 480, mx: 'auto' }}>
-                    Direct publishing to {form.platform === 'shopify' ? 'Shopify' : 'Wix'} is on our roadmap.
+                    Direct publishing to {form.platform === 'wix' ? 'Wix' : 'this platform'} is on our roadmap.
                     In the meantime, you can generate full articles using the Test panel on any template
                     and copy them straight into your site.
                   </Typography>
@@ -211,23 +321,64 @@ export default function SiteForm() {
                   <TextField label="Site Name" required fullWidth value={form.name} onChange={update('name')} />
                   <TextField label="Site URL" required fullWidth value={form.url} onChange={update('url')} placeholder="https://yourblog.com" />
                   <TextField
-                    label="REST API URL"
+                    label={isShopify ? 'Shopify Admin API URL' : 'REST API URL'}
                     required
                     fullWidth
                     value={form.api_url}
                     onChange={update('api_url')}
-                    placeholder="https://yourblog.com/wp-json"
+                    placeholder={isShopify ? 'https://your-store.myshopify.com/admin/api/2026-01' : 'https://yourblog.com/wp-json'}
                   />
 
-                  <TextField label="Username" required={!isEdit} fullWidth value={form.username} onChange={update('username')} />
-                  <TextField
-                    label={isEdit ? 'App Password (leave blank to keep current)' : 'App Password'}
-                    required={!isEdit}
-                    fullWidth
-                    type="password"
-                    value={form.app_password}
-                    onChange={update('app_password')}
-                  />
+                  {isWP && (
+                    <>
+                      <TextField label="Username" required={!isEdit} fullWidth value={form.username} onChange={update('username')} />
+                      <TextField
+                        label={isEdit ? 'App Password (leave blank to keep current)' : 'App Password'}
+                        required={!isEdit}
+                        fullWidth
+                        type="password"
+                        value={form.app_password}
+                        onChange={update('app_password')}
+                      />
+                    </>
+                  )}
+
+                  {isShopify && (
+                    <>
+                      <TextField
+                        label={isEdit ? 'Admin API Access Token (optional to replace existing)' : 'Admin API Access Token'}
+                        required={!isEdit}
+                        fullWidth
+                        type="password"
+                        value={form.api_key}
+                        onChange={update('api_key')}
+                        helperText="Use Connect Shopify for OAuth, or paste a token manually."
+                      />
+                      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                        <Button variant="outlined" onClick={handleConnectShopify}>
+                          Connect Shopify
+                        </Button>
+                        {isEdit && (
+                          <Button variant="outlined" onClick={() => fetchShopifyBlogs(true)} disabled={loadingBlogs}>
+                            {loadingBlogs ? 'Loading Blogs...' : 'Load Blogs'}
+                          </Button>
+                        )}
+                      </Box>
+                      <TextField
+                        select
+                        label="Default Blog"
+                        fullWidth
+                        value={form.default_blog_id}
+                        onChange={update('default_blog_id')}
+                        helperText="Select the Shopify blog where posts should be published."
+                      >
+                        <MenuItem value="">Select a blog</MenuItem>
+                        {blogOptions.map((blog) => (
+                          <MenuItem key={blog.id} value={blog.id}>{blog.title}</MenuItem>
+                        ))}
+                      </TextField>
+                    </>
+                  )}
 
                   {testResult && (
                     <Alert severity={testResult.success ? 'success' : 'error'}>
