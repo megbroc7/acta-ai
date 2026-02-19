@@ -16,6 +16,53 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-19 (Session 43) — Carousel Visual Upgrade: Hero Images + Better Layouts
+
+**What we did:**
+Upgraded LinkedIn carousel PDFs from pure vector graphics to photo-backed hero slides with upgraded middle slide layouts. Hook and CTA slides now feature a full-bleed image background with a dark gradient overlay for text readability. Middle slides gain big numbered watermarks, accent left-border bars, and bordered stat cards.
+
+**1. Hero Image Pipeline** (`services/carousel.py`)
+- `_download_image(url)` — downloads image bytes via httpx, 15s timeout, non-fatal
+- `_get_carousel_image()` — 3-step fallback chain: existing `featured_image_url` → new DALL-E generation ($0.04) → graceful degradation to gradient-only
+- `_prepare_slide_image()` — PIL cover-crop (`ImageOps.fit`) to 1080x1350 slide dimensions, converts to `ImageReader` for ReportLab
+- `_draw_dark_overlay()` — semi-transparent black gradient via `setFillAlpha()` (darker at bottom where text lives)
+
+**2. Hook + CTA Slide Image Backgrounds** (`carousel.py`)
+- When image available: full-bleed image → dark overlay (hook: 35%→82% black, CTA: 50%→88% black) → white text forced on top
+- When no image: existing gradient background preserved (graceful fallback)
+- Footer forced to white on hero slides for readability
+- Top accent bar and background texture skipped on hero slides — the image is the visual
+- Hook headline bumped from 64pt to 68pt with more vertical breathing room
+- CTA "YOUR TAKE?" pill uses semi-transparent white when over image
+
+**3. Upgraded Middle Slide Layouts** (`carousel.py`)
+- Big "01", "02" slide number watermark (Inter 120pt, 10% opacity accent color) in top-right corner
+- Accent left-border bar (4px wide, full bullet section height) replaces short underline
+- Body font bumped from 29pt to 31pt with more line spacing (+14 vs +13)
+- Key stat card gains a visible border (stroke + fill) instead of fill-only
+
+**4. Upgraded TL;DR Slide** (`carousel.py`)
+- Numbered takeaway items ("1.", "2.", "3." in accent color) instead of plain bullet points
+- Taller content card (420→450px) with more internal padding
+- Items support multi-line wrapping (2 lines per item max)
+
+**5. Cost Tracking** (`carousel.py`)
+- `CarouselResult` gains `image_cost_usd: float` field
+- Posts with existing Unsplash/fresh DALL-E image: $0 extra
+- Posts with expired DALL-E or no image: +$0.04 (one DALL-E generation)
+
+**6. API Wiring** (`api/posts.py`)
+- `generate_carousel` endpoint now passes `post.featured_image_url` to the carousel builder
+
+**Files modified:** `carousel.py`, `posts.py`
+**No frontend changes** — image enhancement is entirely server-side
+**No migration needed**
+**No new dependencies** — `Pillow` and `httpx` already installed
+
+**Status:** Not yet tested live — first priority for next session.
+
+---
+
 ### 2026-02-19 (Session 42) — UI Polish: Auth Loading, Route Transitions, Loading Skeletons
 
 **What we did:**
