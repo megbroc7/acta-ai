@@ -16,6 +16,47 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-19 (Session 45) — Carousel Color Palette Grid + Background Patterns
+
+**What we did:**
+Expanded the carousel dialog from 3 preset themes to 24 curated color palettes in a scrollable 4-column grid, and added 4 decorative background pattern options (circles, triangles, blobs, dots) inspired by professional carousel tools.
+
+**1. Expanded Color Palettes** (`services/carousel.py`)
+- `CAROUSEL_PRESETS` expanded from 3 to 24 curated palettes
+- Original 3 preserved as first entries (backwards-compatible with saved branding)
+- Categories: Dark (midnight navy, deep forest, charcoal ember, espresso, obsidian gold), Light (warm cream, paper sage, soft blush, cloud blue), Cool (ocean teal, slate blue, arctic, sage mist), Warm (terracotta, bronze imperial, burgundy, sunset amber), Jewel (plum velvet, emerald, deep coral, sapphire)
+
+**2. Palette Grid UI** (`PostDetail.jsx`)
+- Replaced 2x2 theme grid with scrollable 4-column grid (`maxHeight: 380px`)
+- Each card shows a color swatch preview: primary as background, accent + text as small squares
+- Selected card gets green `#4A7C6F` border, hover lifts with `translateY(-1px)`
+- Custom option at the end with live preview of custom colors
+- Color pickers section appears below grid when Custom selected
+
+**3. Background Pattern Renderers** (`services/carousel.py`)
+- `BG_PATTERNS` set: `none`, `circles`, `triangles`, `blobs`, `dots`
+- `_draw_bg_circles()` — large translucent circles (alpha 0.06) + small filled dots + ring outlines
+- `_draw_bg_triangles()` — large translucent triangles at random angles + small dots + outline triangles
+- `_draw_bg_blobs()` — organic corner blobs (overlapping circles, alpha 0.88) in alternating corners + dot grids
+- `_draw_bg_dots()` — diamond-shaped dot grid cluster in rotating corners + bottom edge row of dots
+- All patterns use seeded `random.Random(slide_idx * N + offset)` for deterministic per-slide variation
+- Drawn after gradient, before accent bar and content
+
+**4. Background Pattern UI** (`PostDetail.jsx`)
+- Row of 5 MUI Chip buttons below palette grid: None, Circles, Triangles, Blobs, Dots
+- Selected chip uses filled green style, unselected uses outlined
+- Pattern choice sent as `bg_pattern` in branding payload
+
+**5. Schema + Branding Resolution**
+- `CarouselBranding` schema gains `bg_pattern: str | None` field (`schemas/posts.py`)
+- `resolve_branding()` tracks `bg_pattern` through template saved config → request override layers
+- `render_carousel_pdf()` reads `bg_pattern` from resolved branding dict
+
+**Files modified:** `carousel.py` (24 presets + 4 pattern renderers), `PostDetail.jsx` (palette grid + pattern picker), `schemas/posts.py` (bg_pattern field)
+**No migration needed, no new dependencies**
+
+---
+
 ### 2026-02-19 (Session 44) — Carousel Pillow Rewrite: Drop Shadows, Helvetica, No Images
 
 **What we did:**

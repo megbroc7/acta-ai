@@ -179,6 +179,7 @@ export default function PostDetail() {
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [carouselLoading, setCarouselLoading] = useState(false);
   const [carouselPreset, setCarouselPreset] = useState('roman_patina');
+  const [carouselPattern, setCarouselPattern] = useState('none');
   const [carouselCustomColors, setCarouselCustomColors] = useState({
     primary_color: '#2D4A3E',
     secondary_color: '#1A3028',
@@ -337,8 +338,8 @@ export default function PostDetail() {
     setCarouselLoading(true);
     try {
       const branding = carouselPreset === 'custom'
-        ? { preset: 'roman_patina', ...carouselCustomColors }
-        : { preset: carouselPreset };
+        ? { preset: 'roman_patina', ...carouselCustomColors, bg_pattern: carouselPattern }
+        : { preset: carouselPreset, bg_pattern: carouselPattern };
 
       const res = await api.post(`/posts/${id}/generate-carousel`, { branding }, {
         responseType: 'blob',
@@ -1102,68 +1103,86 @@ export default function PostDetail() {
             </Box>
           ) : (
             <>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-                Choose a theme for your carousel slides. The AI will structure your article into 5-7 branded slides.
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Choose a color palette for your carousel slides. The AI will structure your article into 5-7 branded slides.
               </Typography>
 
-              {/* Theme cards */}
-              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mb: 2 }}>
-                {[
-                  { key: 'roman_patina', label: 'Roman Patina', colors: ['#2D4A3E', '#1A3028', '#D4A574', '#FFFFFF'] },
-                  { key: 'clean_white', label: 'Clean White', colors: ['#FFFFFF', '#F5F3F0', '#4A7C6F', '#2A2520'] },
-                  { key: 'dark_professional', label: 'Dark Professional', colors: ['#1B2838', '#0F1923', '#5BA4B5', '#FFFFFF'] },
-                  { key: 'custom', label: 'Custom Colors', colors: null },
-                ].map(theme => (
-                  <Box
-                    key={theme.key}
-                    onClick={() => setCarouselPreset(theme.key)}
-                    sx={{
-                      p: 1.5,
-                      border: '2px solid',
-                      borderColor: carouselPreset === theme.key ? '#4A7C6F' : '#E0DCD5',
-                      bgcolor: carouselPreset === theme.key ? 'rgba(74, 124, 111, 0.04)' : 'transparent',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s',
-                      '&:hover': { borderColor: '#4A7C6F' },
-                    }}
-                  >
-                    <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em', display: 'block', mb: 0.75 }}>
-                      {theme.label}
-                    </Typography>
-                    {theme.colors ? (
-                      <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        {theme.colors.map((c, i) => (
-                          <Box
-                            key={i}
-                            sx={{
-                              width: 24, height: 24,
-                              bgcolor: c,
-                              border: '1px solid #E0DCD5',
-                            }}
-                          />
-                        ))}
+              {/* Palette grid */}
+              <Box sx={{ maxHeight: 380, overflowY: 'auto', pr: 0.5, mb: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
+                  {[
+                    { key: 'roman_patina', label: 'Roman Patina', primary: '#2D4A3E', secondary: '#1A3028', accent: '#D4A574', text: '#FFFFFF' },
+                    { key: 'clean_white', label: 'Clean White', primary: '#FFFFFF', secondary: '#F5F3F0', accent: '#4A7C6F', text: '#2A2520' },
+                    { key: 'dark_professional', label: 'Dark Pro', primary: '#1B2838', secondary: '#0F1923', accent: '#5BA4B5', text: '#FFFFFF' },
+                    { key: 'midnight_navy', label: 'Midnight', primary: '#0D1B2A', secondary: '#1B263B', accent: '#778DA9', text: '#E0E1DD' },
+                    { key: 'deep_forest', label: 'Deep Forest', primary: '#1B3A2D', secondary: '#0F2419', accent: '#7FB069', text: '#E8E4DF' },
+                    { key: 'charcoal_ember', label: 'Charcoal', primary: '#2B2D2F', secondary: '#1A1C1E', accent: '#E07A5F', text: '#F0EDEA' },
+                    { key: 'espresso', label: 'Espresso', primary: '#3C2415', secondary: '#261509', accent: '#D4A574', text: '#F5EDE4' },
+                    { key: 'obsidian_gold', label: 'Obsidian', primary: '#1C1C1C', secondary: '#111111', accent: '#C5A055', text: '#F5F5F0' },
+                    { key: 'warm_cream', label: 'Warm Cream', primary: '#FAF6F0', secondary: '#F0E8DA', accent: '#B08D57', text: '#3A3530' },
+                    { key: 'paper_sage', label: 'Paper Sage', primary: '#F7F7F2', secondary: '#ECEEE5', accent: '#6B8F71', text: '#2E3830' },
+                    { key: 'soft_blush', label: 'Soft Blush', primary: '#FDF6F3', secondary: '#F5E6DF', accent: '#C17767', text: '#3D2C2E' },
+                    { key: 'cloud_blue', label: 'Cloud Blue', primary: '#F5F8FC', secondary: '#E8EEF5', accent: '#4A7FB5', text: '#2A3544' },
+                    { key: 'ocean_teal', label: 'Ocean Teal', primary: '#1A4A4A', secondary: '#0F3535', accent: '#6EC6B8', text: '#E8F0EE' },
+                    { key: 'slate_blue', label: 'Slate Blue', primary: '#2E3A4E', secondary: '#1E2838', accent: '#7EA8BE', text: '#E4E8EC' },
+                    { key: 'arctic', label: 'Arctic', primary: '#E8EFF5', secondary: '#D5E1ED', accent: '#3D7EC7', text: '#1A2A3A' },
+                    { key: 'sage_mist', label: 'Sage Mist', primary: '#D4DDD5', secondary: '#C2CEC4', accent: '#5A7F61', text: '#2A3A2E' },
+                    { key: 'terracotta', label: 'Terracotta', primary: '#5C3A2A', secondary: '#3E2518', accent: '#E8A87C', text: '#F5EDE4' },
+                    { key: 'bronze_imperial', label: 'Bronze', primary: '#4A3728', secondary: '#32241A', accent: '#C49A6C', text: '#F0E8DF' },
+                    { key: 'burgundy', label: 'Burgundy', primary: '#4A1C2A', secondary: '#30111A', accent: '#D4758A', text: '#F5E8EC' },
+                    { key: 'sunset_amber', label: 'Sunset', primary: '#F5E6D0', secondary: '#EDDCC0', accent: '#D48C3C', text: '#3A2E24' },
+                    { key: 'plum_velvet', label: 'Plum', primary: '#3A1F4A', secondary: '#28133A', accent: '#B088C4', text: '#F0E8F5' },
+                    { key: 'emerald', label: 'Emerald', primary: '#1A4A30', secondary: '#0F3520', accent: '#50C878', text: '#E8F5EE' },
+                    { key: 'deep_coral', label: 'Deep Coral', primary: '#5A2030', secondary: '#3E1420', accent: '#FF8A80', text: '#F8E8EC' },
+                    { key: 'sapphire', label: 'Sapphire', primary: '#1A2A5A', secondary: '#101C42', accent: '#6E8CD4', text: '#E8ECF8' },
+                    { key: 'custom', label: 'Custom', primary: null },
+                  ].map(theme => {
+                    const isSelected = carouselPreset === theme.key;
+                    const isCustom = theme.key === 'custom';
+                    const bg = isCustom ? carouselCustomColors.primary_color : theme.primary;
+                    const acc = isCustom ? carouselCustomColors.accent_color : theme.accent;
+                    const txt = isCustom ? carouselCustomColors.text_color : theme.text;
+                    return (
+                      <Box
+                        key={theme.key}
+                        onClick={() => setCarouselPreset(theme.key)}
+                        sx={{
+                          p: 0.75,
+                          border: '2px solid',
+                          borderColor: isSelected ? '#4A7C6F' : '#E0DCD5',
+                          borderRadius: '6px',
+                          bgcolor: isSelected ? 'rgba(74, 124, 111, 0.05)' : '#FAFAF8',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s',
+                          '&:hover': { borderColor: isSelected ? '#4A7C6F' : '#B0ACA5', transform: 'translateY(-1px)' },
+                        }}
+                      >
+                        {/* Swatch area */}
+                        <Box sx={{
+                          height: 48, borderRadius: '3px', mb: 0.5,
+                          bgcolor: bg, border: '1px solid rgba(0,0,0,0.08)',
+                          display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start',
+                          p: 0.5, gap: 0.5, overflow: 'hidden',
+                        }}>
+                          <Box sx={{ width: 16, height: 16, borderRadius: '2px', bgcolor: acc, flexShrink: 0, border: '1px solid rgba(0,0,0,0.08)' }} />
+                          <Box sx={{ width: 16, height: 16, borderRadius: '2px', bgcolor: txt, flexShrink: 0, border: '1px solid rgba(0,0,0,0.08)' }} />
+                        </Box>
+                        <Typography variant="caption" sx={{
+                          fontWeight: 600, fontSize: '0.6rem', display: 'block',
+                          textAlign: 'center', lineHeight: 1.3, color: '#5A554E',
+                          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                        }}>
+                          {theme.label}
+                        </Typography>
                       </Box>
-                    ) : (
-                      <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        {['primary_color', 'secondary_color', 'accent_color', 'text_color'].map(k => (
-                          <Box
-                            key={k}
-                            sx={{
-                              width: 24, height: 24,
-                              bgcolor: carouselCustomColors[k],
-                              border: '1px solid #E0DCD5',
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    )}
-                  </Box>
-                ))}
+                    );
+                  })}
+                </Box>
               </Box>
 
               {/* Custom color pickers */}
               {carouselPreset === 'custom' && (
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mt: 1 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mt: 0.5 }}>
                   {[
                     { key: 'primary_color', label: 'Background' },
                     { key: 'secondary_color', label: 'Gradient Bottom' },
@@ -1186,6 +1205,35 @@ export default function PostDetail() {
                   ))}
                 </Box>
               )}
+
+              {/* Background pattern */}
+              <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em', display: 'block', mt: 2, mb: 0.75, color: '#5A554E' }}>
+                Background Pattern
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                {[
+                  { key: 'none', label: 'None' },
+                  { key: 'circles', label: 'Circles' },
+                  { key: 'triangles', label: 'Triangles' },
+                  { key: 'blobs', label: 'Blobs' },
+                  { key: 'dots', label: 'Dots' },
+                ].map(p => (
+                  <Chip
+                    key={p.key}
+                    label={p.label}
+                    size="small"
+                    onClick={() => setCarouselPattern(p.key)}
+                    variant={carouselPattern === p.key ? 'filled' : 'outlined'}
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.7rem',
+                      ...(carouselPattern === p.key
+                        ? { bgcolor: '#4A7C6F', color: '#fff', '&:hover': { bgcolor: '#3A6C5F' } }
+                        : { borderColor: '#E0DCD5', color: '#5A554E', '&:hover': { borderColor: '#4A7C6F' } }),
+                    }}
+                  />
+                ))}
+              </Box>
             </>
           )}
         </DialogContent>

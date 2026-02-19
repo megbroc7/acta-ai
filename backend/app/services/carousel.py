@@ -8,7 +8,9 @@ using Pillow for pixel-perfect rendering with drop shadows and anti-aliased text
 import io
 import json
 import logging
+import math
 import os
+import random as _random
 import re
 from dataclasses import dataclass
 
@@ -85,23 +87,155 @@ ALLOWED_SLIDE_TYPES = {"hook", "problem", "insight", "result", "tldr", "cta"}
 # ---------------------------------------------------------------------------
 
 CAROUSEL_PRESETS = {
+    # ── Original 3 (backwards-compatible) ──────────────────────────────────
     "roman_patina": {
-        "primary_color": "#2D4A3E",      # dark patina green
-        "secondary_color": "#1A3028",     # deeper green for gradient bottom
+        "primary_color": "#2D4A3E",
+        "secondary_color": "#1A3028",
         "text_color": "#FFFFFF",
-        "accent_color": "#D4A574",        # bronze
+        "accent_color": "#D4A574",
     },
     "clean_white": {
         "primary_color": "#FFFFFF",
-        "secondary_color": "#F5F3F0",     # warm stone
+        "secondary_color": "#F5F3F0",
         "text_color": "#2A2520",
-        "accent_color": "#4A7C6F",        # patina green
+        "accent_color": "#4A7C6F",
     },
     "dark_professional": {
-        "primary_color": "#1B2838",       # dark navy
-        "secondary_color": "#0F1923",     # deeper navy
+        "primary_color": "#1B2838",
+        "secondary_color": "#0F1923",
         "text_color": "#FFFFFF",
-        "accent_color": "#5BA4B5",        # teal accent
+        "accent_color": "#5BA4B5",
+    },
+    # ── Dark themes ────────────────────────────────────────────────────────
+    "midnight_navy": {
+        "primary_color": "#0D1B2A",
+        "secondary_color": "#1B263B",
+        "text_color": "#E0E1DD",
+        "accent_color": "#778DA9",
+    },
+    "deep_forest": {
+        "primary_color": "#1B3A2D",
+        "secondary_color": "#0F2419",
+        "text_color": "#E8E4DF",
+        "accent_color": "#7FB069",
+    },
+    "charcoal_ember": {
+        "primary_color": "#2B2D2F",
+        "secondary_color": "#1A1C1E",
+        "text_color": "#F0EDEA",
+        "accent_color": "#E07A5F",
+    },
+    "espresso": {
+        "primary_color": "#3C2415",
+        "secondary_color": "#261509",
+        "text_color": "#F5EDE4",
+        "accent_color": "#D4A574",
+    },
+    "obsidian_gold": {
+        "primary_color": "#1C1C1C",
+        "secondary_color": "#111111",
+        "text_color": "#F5F5F0",
+        "accent_color": "#C5A055",
+    },
+    # ── Light themes ───────────────────────────────────────────────────────
+    "warm_cream": {
+        "primary_color": "#FAF6F0",
+        "secondary_color": "#F0E8DA",
+        "text_color": "#3A3530",
+        "accent_color": "#B08D57",
+    },
+    "paper_sage": {
+        "primary_color": "#F7F7F2",
+        "secondary_color": "#ECEEE5",
+        "text_color": "#2E3830",
+        "accent_color": "#6B8F71",
+    },
+    "soft_blush": {
+        "primary_color": "#FDF6F3",
+        "secondary_color": "#F5E6DF",
+        "text_color": "#3D2C2E",
+        "accent_color": "#C17767",
+    },
+    "cloud_blue": {
+        "primary_color": "#F5F8FC",
+        "secondary_color": "#E8EEF5",
+        "text_color": "#2A3544",
+        "accent_color": "#4A7FB5",
+    },
+    # ── Cool themes ────────────────────────────────────────────────────────
+    "ocean_teal": {
+        "primary_color": "#1A4A4A",
+        "secondary_color": "#0F3535",
+        "text_color": "#E8F0EE",
+        "accent_color": "#6EC6B8",
+    },
+    "slate_blue": {
+        "primary_color": "#2E3A4E",
+        "secondary_color": "#1E2838",
+        "text_color": "#E4E8EC",
+        "accent_color": "#7EA8BE",
+    },
+    "arctic": {
+        "primary_color": "#E8EFF5",
+        "secondary_color": "#D5E1ED",
+        "text_color": "#1A2A3A",
+        "accent_color": "#3D7EC7",
+    },
+    "sage_mist": {
+        "primary_color": "#D4DDD5",
+        "secondary_color": "#C2CEC4",
+        "text_color": "#2A3A2E",
+        "accent_color": "#5A7F61",
+    },
+    # ── Warm themes ────────────────────────────────────────────────────────
+    "terracotta": {
+        "primary_color": "#5C3A2A",
+        "secondary_color": "#3E2518",
+        "text_color": "#F5EDE4",
+        "accent_color": "#E8A87C",
+    },
+    "bronze_imperial": {
+        "primary_color": "#4A3728",
+        "secondary_color": "#32241A",
+        "text_color": "#F0E8DF",
+        "accent_color": "#C49A6C",
+    },
+    "burgundy": {
+        "primary_color": "#4A1C2A",
+        "secondary_color": "#30111A",
+        "text_color": "#F5E8EC",
+        "accent_color": "#D4758A",
+    },
+    "sunset_amber": {
+        "primary_color": "#F5E6D0",
+        "secondary_color": "#EDDCC0",
+        "text_color": "#3A2E24",
+        "accent_color": "#D48C3C",
+    },
+    # ── Jewel tones ────────────────────────────────────────────────────────
+    "plum_velvet": {
+        "primary_color": "#3A1F4A",
+        "secondary_color": "#28133A",
+        "text_color": "#F0E8F5",
+        "accent_color": "#B088C4",
+    },
+    "emerald": {
+        "primary_color": "#1A4A30",
+        "secondary_color": "#0F3520",
+        "text_color": "#E8F5EE",
+        "accent_color": "#50C878",
+    },
+    "deep_coral": {
+        "primary_color": "#5A2030",
+        "secondary_color": "#3E1420",
+        "text_color": "#F8E8EC",
+        "accent_color": "#FF8A80",
+    },
+    "sapphire": {
+        "primary_color": "#1A2A5A",
+        "secondary_color": "#101C42",
+        "text_color": "#E8ECF8",
+        "accent_color": "#6E8CD4",
     },
 }
 
@@ -462,11 +596,12 @@ Return ONLY a JSON array of slide objects."""
 def resolve_branding(template=None, request_branding=None) -> dict:
     """Merge branding from request > template saved config > preset default.
 
-    Returns a complete dict with all color keys.
+    Returns a complete dict with all color keys + bg_pattern.
     """
     # Start with default preset
     preset_name = "roman_patina"
     result = dict(CAROUSEL_PRESETS["roman_patina"])
+    bg_pattern = "none"
 
     # Layer 1: template saved branding
     if template and template.carousel_branding:
@@ -479,6 +614,8 @@ def resolve_branding(template=None, request_branding=None) -> dict:
         for key in ("primary_color", "secondary_color", "text_color", "accent_color"):
             if saved.get(key):
                 result[key] = saved[key]
+        if saved.get("bg_pattern") in BG_PATTERNS:
+            bg_pattern = saved["bg_pattern"]
 
     # Layer 2: request-level branding override
     if request_branding:
@@ -491,8 +628,11 @@ def resolve_branding(template=None, request_branding=None) -> dict:
         for key in ("primary_color", "secondary_color", "text_color", "accent_color"):
             if req.get(key):
                 result[key] = req[key]
+        if req.get("bg_pattern") in BG_PATTERNS:
+            bg_pattern = req["bg_pattern"]
 
     result["preset"] = preset_name
+    result["bg_pattern"] = bg_pattern
     return result
 
 
@@ -662,6 +802,188 @@ def _draw_bullet_rows(
         line_count = min(len(text_lines), 2)
         cy += row_height + max(0, line_count - 1) * (font_size + 8)
     return cy
+
+
+# ── background patterns ────────────────────────────────────────────────────
+
+BG_PATTERNS = {"none", "circles", "triangles", "blobs", "dots"}
+
+
+def _draw_bg_pattern(img, pattern, accent_rgb, text_rgb, slide_idx):
+    """Dispatch to the appropriate background pattern renderer."""
+    if not pattern or pattern == "none":
+        return
+    renderer = {
+        "circles": _draw_bg_circles,
+        "triangles": _draw_bg_triangles,
+        "blobs": _draw_bg_blobs,
+        "dots": _draw_bg_dots,
+    }.get(pattern)
+    if renderer:
+        renderer(img, accent_rgb, text_rgb, slide_idx)
+
+
+def _draw_bg_circles(img, accent_rgb, text_rgb, slide_idx):
+    """Large translucent circles + small filled dots + small ring outlines."""
+    w, h = img.size
+    rng = _random.Random(slide_idx * 7 + 42)
+
+    # Large translucent circles
+    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    for _ in range(rng.randint(5, 7)):
+        cx = rng.randint(-120, w + 80)
+        cy = rng.randint(-120, h + 80)
+        r = rng.randint(100, 280)
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=_rgba(accent_rgb, 0.06))
+    img.alpha_composite(layer)
+
+    # Small filled dots + ring outlines
+    detail = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    dd = ImageDraw.Draw(detail)
+    for _ in range(rng.randint(5, 7)):
+        dx, dy = rng.randint(30, w - 30), rng.randint(30, h - 30)
+        dd.ellipse((dx - 4, dy - 4, dx + 4, dy + 4), fill=_rgba(accent_rgb, 0.80))
+    for _ in range(rng.randint(2, 4)):
+        rx, ry = rng.randint(60, w - 60), rng.randint(60, h - 60)
+        dd.ellipse((rx - 16, ry - 16, rx + 16, ry + 16),
+                   outline=_rgba(accent_rgb, 0.75), width=3)
+    img.alpha_composite(detail)
+
+
+def _draw_bg_triangles(img, accent_rgb, text_rgb, slide_idx):
+    """Large translucent triangles + small dots + small outline triangles."""
+    w, h = img.size
+    rng = _random.Random(slide_idx * 11 + 73)
+
+    # Large translucent triangles
+    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    for _ in range(rng.randint(5, 7)):
+        cx = rng.randint(-80, w + 80)
+        cy = rng.randint(-80, h + 80)
+        size = rng.randint(150, 350)
+        angle = rng.uniform(0, 2 * math.pi)
+        verts = [
+            (cx + size * math.cos(angle + i * 2 * math.pi / 3),
+             cy + size * math.sin(angle + i * 2 * math.pi / 3))
+            for i in range(3)
+        ]
+        d.polygon(verts, fill=_rgba(accent_rgb, 0.06))
+    img.alpha_composite(layer)
+
+    # Small filled dots + outline triangles
+    detail = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    dd = ImageDraw.Draw(detail)
+    for _ in range(rng.randint(4, 6)):
+        dx, dy = rng.randint(30, w - 30), rng.randint(30, h - 30)
+        dd.ellipse((dx - 4, dy - 4, dx + 4, dy + 4), fill=_rgba(accent_rgb, 0.80))
+    for _ in range(rng.randint(2, 4)):
+        cx, cy = rng.randint(60, w - 60), rng.randint(60, h - 60)
+        s = rng.randint(14, 22)
+        angle = rng.uniform(0, 2 * math.pi)
+        verts = [
+            (cx + s * math.cos(angle + i * 2 * math.pi / 3),
+             cy + s * math.sin(angle + i * 2 * math.pi / 3))
+            for i in range(3)
+        ]
+        outline_color = _rgba(accent_rgb, 0.75)
+        for j in range(3):
+            dd.line([verts[j], verts[(j + 1) % 3]], fill=outline_color, width=2)
+    img.alpha_composite(detail)
+
+
+def _draw_bg_blobs(img, accent_rgb, text_rgb, slide_idx):
+    """Organic corner blobs + dot grids."""
+    w, h = img.size
+    rng = _random.Random(slide_idx * 13 + 97)
+
+    # Two blobs in opposite corners (alternate per slide)
+    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    blob_fill = _rgba(accent_rgb, 0.88)
+
+    if slide_idx % 2 == 0:
+        blob_centers = [(-20, -20), (w + 20, h + 20)]
+    else:
+        blob_centers = [(w + 20, -20), (-20, h + 20)]
+
+    for bcx, bcy in blob_centers:
+        for _ in range(5):
+            ox = rng.randint(-50, 50)
+            oy = rng.randint(-50, 50)
+            r = rng.randint(60, 130)
+            d.ellipse((bcx + ox - r, bcy + oy - r, bcx + ox + r, bcy + oy + r),
+                      fill=blob_fill)
+    img.alpha_composite(layer)
+
+    # Dot grids near the blobs
+    grid = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(grid)
+    grid_fill = _rgba(accent_rgb, 0.55)
+
+    if slide_idx % 2 == 0:
+        grid_origins = [
+            (w // 2 + rng.randint(20, 100), 30 + rng.randint(0, 30)),
+            (w - 200 + rng.randint(0, 40), h - 200 + rng.randint(0, 40)),
+        ]
+    else:
+        grid_origins = [
+            (60 + rng.randint(0, 60), h // 2 + rng.randint(0, 60)),
+            (w - 200 + rng.randint(0, 40), 30 + rng.randint(0, 30)),
+        ]
+
+    spacing = 22
+    for gx, gy in grid_origins:
+        rows = rng.randint(4, 6)
+        cols = rng.randint(4, 6)
+        for row in range(rows):
+            for col in range(cols):
+                dx = gx + col * spacing
+                dy = gy + row * spacing
+                gd.ellipse((dx - 3, dy - 3, dx + 3, dy + 3), fill=grid_fill)
+    img.alpha_composite(grid)
+
+
+def _draw_bg_dots(img, accent_rgb, text_rgb, slide_idx):
+    """Diamond-shaped dot grid cluster + bottom row of dots."""
+    w, h = img.size
+    rng = _random.Random(slide_idx * 17 + 113)
+
+    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    dot_fill = _rgba(accent_rgb, 0.38)
+
+    # Large diamond-shaped dot grid in one corner
+    corner = slide_idx % 4
+    spacing = 32
+    max_rows = 8
+    if corner == 0:       # top-right
+        ox, oy, dx_dir = w - 60, 40, -1
+    elif corner == 1:     # top-left
+        ox, oy, dx_dir = 60, 40, 1
+    elif corner == 2:     # bottom-right
+        ox, oy, dx_dir = w - 60, h - 320, -1
+    else:                 # bottom-left
+        ox, oy, dx_dir = 60, h - 320, 1
+
+    for row in range(max_rows):
+        cols_in_row = max_rows - row
+        for col in range(cols_in_row):
+            dx = ox + dx_dir * col * spacing
+            dy = oy + row * spacing
+            d.ellipse((dx - 5, dy - 5, dx + 5, dy + 5), fill=dot_fill)
+
+    # Bottom edge row of dots
+    bottom_y = h - 40
+    dot_spacing = rng.randint(36, 48)
+    num_dots = w // dot_spacing + 1
+    for i in range(num_dots):
+        dx = i * dot_spacing + rng.randint(-3, 3)
+        r = rng.randint(4, 7)
+        d.ellipse((dx - r, bottom_y - r, dx + r, bottom_y + r),
+                  fill=_rgba(accent_rgb, 0.28))
+    img.alpha_composite(layer)
 
 
 # ── slide renderers ───────────────────────────────────────────────────────
@@ -953,6 +1275,7 @@ def render_carousel_pdf(slides: list[CarouselSlide], branding: dict) -> bytes:
     text_rgb = _hex_to_rgb(branding["text_color"])
     accent_rgb = _hex_to_rgb(branding["accent_color"])
     text_rgba = _rgba(text_rgb, 1.0)
+    bg_pattern = branding.get("bg_pattern", "none")
 
     margin = 70
     cw = SLIDE_WIDTH - margin * 2
@@ -963,6 +1286,9 @@ def render_carousel_pdf(slides: list[CarouselSlide], branding: dict) -> bytes:
     for idx, slide in enumerate(slides):
         img = Image.new("RGBA", (SLIDE_WIDTH, SLIDE_HEIGHT), (0, 0, 0, 255))
         _draw_gradient(img, rgb_top, rgb_bottom)
+
+        # Background decorative pattern
+        _draw_bg_pattern(img, bg_pattern, accent_rgb, text_rgb, idx)
 
         # Top accent bar
         draw = ImageDraw.Draw(img)

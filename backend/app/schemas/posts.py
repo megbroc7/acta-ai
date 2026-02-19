@@ -105,6 +105,7 @@ class CarouselBranding(BaseModel):
     secondary_color: str | None = None
     text_color: str | None = None
     accent_color: str | None = None
+    bg_pattern: str | None = None
 
 
 class CarouselRequest(BaseModel):
