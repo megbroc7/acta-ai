@@ -162,28 +162,75 @@ def _shopify_auth_headers(site: Site) -> dict:
     }
 
 
+def _shopify_graphql_url(site: Site) -> str:
+    """Build Shopify Admin GraphQL endpoint from the configured api_url."""
+    api_url = site.api_url.rstrip("/")
+    if api_url.endswith("/graphql.json"):
+        return api_url
+    return f"{api_url}/graphql.json"
+
+
+def _shopify_blog_gid(raw_blog_id: str) -> str:
+    """Normalize selected blog ID into Shopify GraphQL GID format."""
+    blog_id = (raw_blog_id or "").strip()
+    if blog_id.startswith("gid://"):
+        return blog_id
+    return f"gid://shopify/Blog/{blog_id}"
+
+
 async def publish_to_shopify(post: BlogPost, site: Site) -> PublishResult:
-    """Publish a blog post to Shopify as a blog article."""
+    """Publish a blog post to Shopify using Admin GraphQL articleCreate."""
     if not site.default_blog_id:
         raise PublishError(
             "Shopify site has no blog selected. Edit the site and choose a blog."
         )
+    if not site.api_key:
+        raise PublishError(
+            "Shopify site is not connected. Reconnect Shopify and try again."
+        )
 
     headers = _shopify_auth_headers(site)
-    payload = {
-        "article": {
-            "title": post.title,
-            "body_html": post.content,
-            "published": True,
-        }
+    article_input = {
+        "blogId": _shopify_blog_gid(site.default_blog_id),
+        "title": post.title,
+        "body": post.content,
+        "isPublished": True,
     }
+
+    excerpt = post.meta_description or post.excerpt
+    if excerpt:
+        article_input["summary"] = excerpt
+
     if post.tags:
-        payload["article"]["tags"] = ", ".join(post.tags)
+        cleaned_tags = [str(tag).strip() for tag in post.tags if str(tag).strip()]
+        if cleaned_tags:
+            article_input["tags"] = cleaned_tags
+
+    payload = {
+        "query": """
+            mutation CreateArticle($article: ArticleCreateInput!) {
+              articleCreate(article: $article) {
+                article {
+                  id
+                  handle
+                  blog {
+                    handle
+                  }
+                }
+                userErrors {
+                  field
+                  message
+                }
+              }
+            }
+        """,
+        "variables": {"article": article_input},
+    }
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
-                f"{site.api_url}/blogs/{site.default_blog_id}/articles.json",
+                _shopify_graphql_url(site),
                 headers=headers,
                 json=payload,
             )
@@ -197,11 +244,38 @@ async def publish_to_shopify(post: BlogPost, site: Site) -> PublishResult:
         )
 
     data = resp.json()
-    article = data["article"]
-    # Build the public article URL from the site URL
-    published_url = f"{site.url.rstrip('/')}/blogs/{site.default_blog_id}/{article['handle']}"
+    if data.get("errors"):
+        errors = "; ".join(err.get("message", "Unknown GraphQL error") for err in data["errors"])
+        raise PublishError(f"Shopify GraphQL error: {errors}")
+
+    result = data.get("data", {}).get("articleCreate", {})
+    user_errors = result.get("userErrors") or []
+    if user_errors:
+        messages = []
+        for err in user_errors:
+            field = ".".join(err.get("field") or [])
+            if field:
+                messages.append(f"{field}: {err.get('message', 'Invalid value')}")
+            else:
+                messages.append(err.get("message", "Invalid value"))
+        raise PublishError(f"Shopify rejected article: {'; '.join(messages)}")
+
+    article = result.get("article")
+    if not article:
+        raise PublishError("Shopify did not return an article in articleCreate response")
+    article_id = article.get("id")
+    if not article_id:
+        raise PublishError("Shopify returned article without an id")
+
+    blog_handle = (article.get("blog") or {}).get("handle")
+    article_handle = article.get("handle")
+    if blog_handle and article_handle:
+        published_url = f"{site.url.rstrip('/')}/blogs/{blog_handle}/{article_handle}"
+    else:
+        published_url = site.url
+
     return PublishResult(
-        platform_post_id=str(article["id"]),
+        platform_post_id=str(article_id),
         published_url=published_url,
     )
 
