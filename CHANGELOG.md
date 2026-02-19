@@ -16,6 +16,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-19 (Session 49) — PostDetail UX Polish
+
+**What we did:**
+Two UI improvements to the post detail page.
+
+**1. Compact action buttons** (`PostDetail.jsx`)
+- Converted all tool buttons (View Live, Edit, Revise with AI, LinkedIn, YouTube, Carousel) from text `Button` components to `IconButton` with `Tooltip` on hover.
+- Each icon button has a 1px border with brand color (LinkedIn blue, YouTube red, etc.), square corners matching design system.
+- Publish/Reject kept as compact text buttons with smaller font, separated by a vertical `Divider`.
+- Row uses tight `spacing={0.5}` with `flexWrap` for responsive layout.
+
+**2. YouTube script pretty-print** (`PostDetail.jsx`, `PromptForm.jsx`)
+- Added `marked` library for client-side markdown→HTML rendering.
+- YouTube script dialog now renders formatted HTML instead of raw markdown in a read-only TextField.
+- Styled with Cinzel serif headings, bronze blockquote borders, proper lists/bold/italic.
+- Scrollable container with 480px max height.
+- Applied to both PostDetail and PromptForm test panel dialogs.
+- Copy to Clipboard still copies raw markdown (for pasting into docs/teleprompters).
+
+**Files changed:**
+- `frontend/src/pages/posts/PostDetail.jsx` — icon buttons + markdown rendering
+- `frontend/src/pages/prompts/PromptForm.jsx` — markdown rendering for test panel YouTube dialog
+- `frontend/package.json` — added `marked` ^17.0.3
+
+---
+
 ### 2026-02-19 (Session 48) — YouTube Script Repurpose
 
 **What we did:**
