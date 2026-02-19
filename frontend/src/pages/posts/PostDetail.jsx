@@ -10,7 +10,10 @@ import {
   ArrowBack, Edit, Publish, ThumbDown, OpenInNew, Gavel, ImageOutlined,
   AutoFixHigh, CheckCircle, ContentCopy, LinkedIn, Refresh, RecordVoiceOver,
   CheckCircleOutline, ExpandMore, Code, SlideshowOutlined, Download,
+  YouTube,
 } from '@mui/icons-material';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import TurndownService from 'turndown';
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
@@ -175,6 +178,13 @@ export default function PostDetail() {
   const [markPublishedUrl, setMarkPublishedUrl] = useState('');
   const [showFaqSchema, setShowFaqSchema] = useState(false);
 
+  // YouTube script state
+  const [youtubeOpen, setYoutubeOpen] = useState(false);
+  const [youtubeLoading, setYoutubeLoading] = useState(false);
+  const [youtubeScript, setYoutubeScript] = useState('');
+  const [youtubeLength, setYoutubeLength] = useState('long');
+  const [youtubeVoiceApplied, setYoutubeVoiceApplied] = useState(false);
+
   // Carousel state
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [carouselLoading, setCarouselLoading] = useState(false);
@@ -332,6 +342,23 @@ export default function PostDetail() {
   const handleLinkedinOpen = () => {
     setLinkedinOpen(true);
     generateLinkedinPost({ closeOnError: true });
+  };
+
+  const generateYoutubeScript = async (length) => {
+    setYoutubeLoading(true);
+    setYoutubeScript('');
+    try {
+      const res = await api.post(`/posts/${id}/repurpose-youtube-script`, {
+        video_length: length,
+      });
+      setYoutubeScript(res.data.youtube_script);
+      setYoutubeVoiceApplied(res.data.voice_applied || false);
+    } catch (err) {
+      const detail = err.response?.data?.detail || 'Failed to generate YouTube script';
+      enqueueSnackbar(detail, { variant: 'error' });
+    } finally {
+      setYoutubeLoading(false);
+    }
   };
 
   const handleCarouselGenerate = async () => {
@@ -518,6 +545,17 @@ export default function PostDetail() {
             }}
           >
             LinkedIn
+          </Button>
+          <Button
+            variant="outlined" size="small" startIcon={<YouTube />}
+            onClick={() => { setYoutubeOpen(true); setYoutubeScript(''); setYoutubeLength('long'); }}
+            disabled={youtubeLoading}
+            sx={{
+              color: '#FF0000', borderColor: '#FF0000',
+              '&:hover': { borderColor: '#CC0000', bgcolor: 'rgba(255, 0, 0, 0.04)' },
+            }}
+          >
+            YouTube Script
           </Button>
           <Button
             variant="outlined" size="small" startIcon={<SlideshowOutlined />}
@@ -1250,6 +1288,153 @@ export default function PostDetail() {
           >
             {carouselLoading ? 'Generating...' : 'Generate & Download'}
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* YouTube Script Dialog */}
+      <Dialog
+        open={youtubeOpen}
+        onClose={() => { if (!youtubeLoading) setYoutubeOpen(false); }}
+        maxWidth="md"
+        fullWidth
+        disableEscapeKeyDown={youtubeLoading}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <YouTube sx={{ color: '#FF0000' }} />
+          <span>YouTube Script</span>
+          {youtubeVoiceApplied && !youtubeLoading && youtubeScript && (
+            <Tooltip title="Your writing voice profile from 'Match My Writing Style' was used to shape this script">
+              <Chip
+                icon={<RecordVoiceOver sx={{ fontSize: 14 }} />}
+                label="Your Voice"
+                size="small"
+                sx={{
+                  ml: 'auto',
+                  height: 22,
+                  fontWeight: 600,
+                  fontSize: '0.65rem',
+                  bgcolor: 'rgba(74, 124, 111, 0.12)',
+                  color: '#4A7C6F',
+                  '& .MuiChip-icon': { color: '#4A7C6F' },
+                }}
+              />
+            </Tooltip>
+          )}
+        </DialogTitle>
+        <DialogContent>
+          {/* Length selector */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <ToggleButtonGroup
+              value={youtubeLength}
+              exclusive
+              onChange={(e, val) => { if (val) { setYoutubeLength(val); setYoutubeScript(''); } }}
+              disabled={youtubeLoading}
+              size="small"
+            >
+              <ToggleButton value="short" sx={{ px: 2.5, fontWeight: 600, fontSize: '0.8rem', textTransform: 'none' }}>
+                Short-Form (60-90s)
+              </ToggleButton>
+              <ToggleButton value="long" sx={{ px: 2.5, fontWeight: 600, fontSize: '0.8rem', textTransform: 'none' }}>
+                Long-Form (5-8 min)
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+
+          {youtubeLoading ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4, gap: 2 }}>
+              <CircularProgress size={36} sx={{ color: '#FF0000' }} />
+              <Typography variant="body2" color="text.secondary">
+                Generating your {youtubeLength === 'short' ? 'Short-form' : 'Long-form'} YouTube script...
+              </Typography>
+            </Box>
+          ) : youtubeScript ? (() => {
+            const wordCount = youtubeScript.split(/\s+/).filter(Boolean).length;
+            const durationEst = youtubeLength === 'short'
+              ? `~${Math.round(wordCount / 3)}s (at ~3 words/sec)`
+              : `~${(wordCount / 150).toFixed(1)} min (at ~150 words/min)`;
+            return (
+              <>
+                <TextField
+                  fullWidth
+                  multiline
+                  minRows={12}
+                  maxRows={24}
+                  value={youtubeScript}
+                  InputProps={{ readOnly: true }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: 13,
+                      lineHeight: 1.7,
+                    },
+                  }}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5, flexWrap: 'wrap', gap: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Chip
+                      label={`${wordCount} words`}
+                      size="small"
+                      sx={{ fontWeight: 600, fontSize: '0.7rem', bgcolor: 'rgba(74, 124, 111, 0.12)', color: '#4A7C6F' }}
+                    />
+                    <Chip
+                      label={durationEst}
+                      size="small"
+                      sx={{ fontWeight: 600, fontSize: '0.7rem', bgcolor: 'rgba(176, 141, 87, 0.12)', color: '#B08D57' }}
+                    />
+                  </Box>
+                  <Typography variant="caption" color="text.secondary">
+                    {youtubeLength === 'short' ? 'Target: 200-300 words' : 'Target: 1000-1500 words'}
+                  </Typography>
+                </Box>
+              </>
+            );
+          })() : (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="body2" color="text.secondary">
+                Select a format above, then click Generate to create your script.
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setYoutubeOpen(false)} disabled={youtubeLoading}>
+            Close
+          </Button>
+          {!youtubeLoading && youtubeScript && (
+            <>
+              <Button
+                variant="outlined"
+                startIcon={<Refresh />}
+                onClick={() => generateYoutubeScript(youtubeLength)}
+                sx={{
+                  color: '#FF0000', borderColor: '#FF0000',
+                  '&:hover': { borderColor: '#CC0000', bgcolor: 'rgba(255, 0, 0, 0.04)' },
+                }}
+              >
+                Regenerate
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<ContentCopy />}
+                onClick={() => {
+                  navigator.clipboard.writeText(youtubeScript);
+                  enqueueSnackbar('YouTube script copied to clipboard', { variant: 'success' });
+                }}
+                sx={{ bgcolor: '#FF0000', '&:hover': { bgcolor: '#CC0000' } }}
+              >
+                Copy to Clipboard
+              </Button>
+            </>
+          )}
+          {!youtubeLoading && !youtubeScript && (
+            <Button
+              variant="contained"
+              onClick={() => generateYoutubeScript(youtubeLength)}
+              sx={{ bgcolor: '#FF0000', '&:hover': { bgcolor: '#CC0000' } }}
+            >
+              Generate
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 

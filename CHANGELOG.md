@@ -16,6 +16,41 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-19 (Session 48) — YouTube Script Repurpose
+
+**What we did:**
+Added the ability to repurpose any blog post into a production-ready YouTube video script — either Short-Form (60-90s YouTube Short, 200-300 words) or Long-Form (5-8 min standard video, 1000-1500 words). Follows the same architecture as the LinkedIn repurpose feature (Session 37). Tribune+ tier gate.
+
+**1. Tier gating** (`tier_limits.py`)
+- Added `repurpose_youtube_script` feature key: False for Scriptor, True for Tribune + Imperator.
+- Added "YouTube Script" label in `check_feature_access`.
+
+**2. Backend service** (`content.py`)
+- `YOUTUBE_ALGORITHM_INTELLIGENCE` constant (~3500 chars): audience retention curves, CTR/title/thumbnail, watch time & session time, Shorts algorithm (loop completion, first frame, replay signal), comment triggers, suggested video/browse optimization via ASR transcript.
+- `_youtube_tone_for_industry()` — 3 tiers: AI-friendly (storytelling energy), AI-hostile (practitioner authority), default (peer authority). Calibrated for video delivery vs. LinkedIn's written format.
+- `repurpose_to_youtube_script(content_html, title, industry, template, video_length)` — short-form structure: HOOK → ONE INSIGHT → PAYOFF. Long-form structure: HOOK → CONTEXT → 3-4 SECTIONS → CTA → OUTRO BRIDGE. Output includes `[PAUSE]` markers, `*B-ROLL:*` cues, `*ON-SCREEN TEXT:*` suggestions, and `### PRODUCTION NOTES` section (suggested title, thumbnail concept, tags, pinned comment). Reuses `_build_linkedin_banned_list()` and `_build_linkedin_voice_section()`.
+
+**3. API endpoints** (`posts.py`, `templates.py`)
+- `POST /posts/{post_id}/repurpose-youtube-script` — accepts `{"video_length": "short"|"long"}`, returns `{youtube_script, video_length, voice_applied}`.
+- `POST /templates/{template_id}/test/youtube-script` — same shape, for test panel use.
+- Both: tier gate (Tribune+), maintenance check, template voice injection.
+
+**4. PostDetail.jsx**
+- Red YouTube-branded button in action bar (next to LinkedIn).
+- `maxWidth="md"` dialog with ToggleButtonGroup length selector (Short-Form 60-90s / Long-Form 5-8 min).
+- Does NOT auto-generate on open — user picks length first, then clicks Generate.
+- Result: read-only TextField (13px, 1.7 line-height) + word count chip + duration estimate chip.
+- Actions: Close / Regenerate / Copy to Clipboard. Voice Applied chip when applicable.
+
+**5. PromptForm.jsx (Test Panel)**
+- YouTube icon button next to LinkedIn icon button (red, edit-mode only).
+- Identical dialog structure, calls `/templates/{id}/test/youtube-script`.
+
+**Files modified:** `backend/app/services/tier_limits.py`, `backend/app/services/content.py`, `backend/app/api/posts.py`, `backend/app/api/templates.py`, `frontend/src/pages/posts/PostDetail.jsx`, `frontend/src/pages/prompts/PromptForm.jsx`
+**No migration needed. No new dependencies.**
+
+---
+
 ### 2026-02-19 (Session 47) — Schedules Execution History Visibility Fix
 
 **What we did:**

@@ -709,3 +709,72 @@ async def test_linkedin(
         or template.preferred_terms
     )
     return {"linkedin_post": linkedin_text, "voice_applied": has_voice}
+
+
+@router.post("/{template_id}/test/youtube-script")
+async def test_youtube_script(
+    template_id: str,
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate a YouTube script from test panel content (Tribune+ only)."""
+    from app.services.tier_limits import check_feature_access
+    from app.services.content import repurpose_to_youtube_script
+
+    check_feature_access(current_user, "repurpose_youtube_script")
+
+    if await is_maintenance_mode(db):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI generation is paused — maintenance mode is active",
+        )
+
+    content_html = data.get("content_html")
+    title = data.get("title")
+    if not content_html or not title:
+        raise HTTPException(status_code=400, detail="content_html and title are required")
+
+    video_length = data.get("video_length", "long")
+    if video_length not in ("short", "long"):
+        raise HTTPException(status_code=400, detail="video_length must be 'short' or 'long'")
+
+    result = await db.execute(
+        select(PromptTemplate).where(
+            PromptTemplate.id == template_id,
+            PromptTemplate.user_id == current_user.id,
+        )
+    )
+    template = result.scalar_one_or_none()
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    try:
+        script_text = await repurpose_to_youtube_script(
+            content_html,
+            title,
+            industry=template.industry,
+            template=template,
+            video_length=video_length,
+        )
+    except Exception as exc:
+        logger.error(f"YouTube script test panel repurpose failed: {exc}")
+        raise HTTPException(status_code=502, detail="YouTube script generation failed")
+
+    has_voice = bool(
+        template.brand_voice_description
+        or (template.personality_level is not None and template.personality_level != 5)
+        or template.perspective
+        or template.default_tone
+        or template.use_anecdotes
+        or template.use_rhetorical_questions
+        or template.use_humor
+        or template.use_contractions is False
+        or template.phrases_to_avoid
+        or template.preferred_terms
+    )
+    return {
+        "youtube_script": script_text,
+        "video_length": video_length,
+        "voice_applied": has_voice,
+    }

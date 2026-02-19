@@ -405,6 +405,83 @@ async def repurpose_linkedin(
     return {"linkedin_post": linkedin_text, "voice_applied": has_voice}
 
 
+@router.post("/{post_id}/repurpose-youtube-script")
+async def repurpose_youtube_script(
+    post_id: str,
+    data: dict | None = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate a YouTube video script from a blog article (Tribune+ only)."""
+    from app.services.tier_limits import check_feature_access
+    from app.services.content import repurpose_to_youtube_script
+
+    check_feature_access(current_user, "repurpose_youtube_script")
+
+    if await is_maintenance_mode(db):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI generation is paused — maintenance mode is active",
+        )
+
+    result = await db.execute(
+        select(BlogPost).where(
+            BlogPost.id == post_id, BlogPost.user_id == current_user.id
+        )
+    )
+    post = result.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if not post.content:
+        raise HTTPException(status_code=400, detail="Post has no content to repurpose")
+
+    video_length = (data or {}).get("video_length", "long")
+    if video_length not in ("short", "long"):
+        raise HTTPException(status_code=400, detail="video_length must be 'short' or 'long'")
+
+    # Load template for industry tone calibration + voice injection
+    template = None
+    if post.prompt_template_id:
+        tmpl_result = await db.execute(
+            select(PromptTemplate).where(PromptTemplate.id == post.prompt_template_id)
+        )
+        template = tmpl_result.scalar_one_or_none()
+
+    try:
+        script_text = await repurpose_to_youtube_script(
+            post.content,
+            post.title,
+            industry=template.industry if template else None,
+            template=template,
+            video_length=video_length,
+        )
+    except Exception as exc:
+        logger.error(f"YouTube script repurpose failed for post {post_id}: {exc}")
+        raise HTTPException(status_code=502, detail="YouTube script generation failed")
+
+    has_voice = bool(
+        template
+        and (
+            template.brand_voice_description
+            or (template.personality_level is not None and template.personality_level != 5)
+            or template.perspective
+            or template.default_tone
+            or template.use_anecdotes
+            or template.use_rhetorical_questions
+            or template.use_humor
+            or template.use_contractions is False
+            or template.phrases_to_avoid
+            or template.preferred_terms
+        )
+    )
+    return {
+        "youtube_script": script_text,
+        "video_length": video_length,
+        "voice_applied": has_voice,
+    }
+
+
 @router.post("/{post_id}/generate-carousel")
 async def generate_carousel(
     post_id: str,

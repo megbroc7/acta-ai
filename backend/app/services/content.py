@@ -47,6 +47,9 @@ CHART_TIMEOUT = 30
 CHART_MAX_TOKENS = 1500
 LINKEDIN_TIMEOUT = 30
 LINKEDIN_MAX_TOKENS = 500
+YOUTUBE_SCRIPT_TIMEOUT = 60
+YOUTUBE_SCRIPT_SHORT_MAX_TOKENS = 1500
+YOUTUBE_SCRIPT_LONG_MAX_TOKENS = 4000
 FAQ_SCHEMA_TIMEOUT = 30
 FAQ_SCHEMA_MAX_TOKENS = 1500
 
@@ -2688,6 +2691,304 @@ async def repurpose_to_linkedin(
         user_prompt=user_prompt,
         timeout=LINKEDIN_TIMEOUT,
         max_tokens=LINKEDIN_MAX_TOKENS,
+        temperature=0.7,
+    )
+    return resp.text
+
+
+# ---------------------------------------------------------------------------
+# YouTube script repurpose
+# ---------------------------------------------------------------------------
+
+YOUTUBE_ALGORITHM_INTELLIGENCE = (
+    "## YouTube Algorithm Intelligence\n"
+    "Internalize the following platform rules. They are non-negotiable.\n\n"
+
+    "### Audience Retention (Primary Ranking Signal)\n"
+    "YouTube measures the percentage of each video that viewers watch. Higher "
+    "retention = more impressions. The algorithm cares about the retention CURVE, "
+    "not just average watch time.\n"
+    "- The first 5-8 seconds decide whether viewers stay or bounce. Open with a "
+    "PATTERN INTERRUPT: a surprising claim, a visual reset, or a direct question "
+    "that creates an open loop. Never open with 'Hey guys, welcome back to my "
+    "channel.' That is a retention killer.\n"
+    "- Retention dips at predictable intervals: ~30 seconds, ~60 seconds, and "
+    "~90 seconds (for short-form) or ~2 min, ~5 min, ~8 min (for long-form). "
+    "Plant a CURIOSITY HOOK or topic pivot just before each dip point.\n"
+    "- Use OPEN LOOPS aggressively: tease upcoming content ('In a moment I will "
+    "show you why this approach backfires') to keep viewers watching through "
+    "the dip zones.\n"
+    "- End with a BRIDGE to the next video or CTA. Never say 'That is all for "
+    "today' or 'Thanks for watching' — the algorithm interprets session-ending "
+    "language as a signal to stop recommending your content.\n\n"
+
+    "### CTR & Title/Thumbnail Relationship\n"
+    "Click-through rate determines initial distribution. The title and thumbnail "
+    "work as a PAIR — they must create a curiosity gap together.\n"
+    "- Front-load the value proposition in the first 40 characters of the title. "
+    "YouTube truncates titles on mobile and in suggested video cards.\n"
+    "- Suggested titles should be specific, not generic. '5 Pricing Mistakes "
+    "That Cost Me $47K' beats 'Pricing Tips for Entrepreneurs.'\n"
+    "- The thumbnail concept should visualize the TENSION or TRANSFORMATION in "
+    "the video, not summarize the content.\n\n"
+
+    "### Watch Time & Session Time\n"
+    "YouTube rewards videos that keep people ON THE PLATFORM longer. This means:\n"
+    "- Structure content to flow naturally into the next topic without hard stops. "
+    "Use transition phrases that maintain momentum: 'Now here is where it gets "
+    "interesting,' 'But that is only half the story.'\n"
+    "- Never say 'That is all for today,' 'That is the end of this video,' or "
+    "'Thanks for watching.' These phrases trigger exits. Instead, bridge to a "
+    "CTA or tease the next video topic.\n"
+    "- Suggest a specific next video in the closing CTA. The algorithm tracks "
+    "whether your content initiates viewing sessions.\n\n"
+
+    "### YouTube Shorts Algorithm (Short-Form Only)\n"
+    "Shorts have a separate recommendation engine with different rules:\n"
+    "- LOOP COMPLETION is the primary signal. Shorts that viewers watch multiple "
+    "times (loops) get exponentially more distribution.\n"
+    "- The FIRST FRAME must hook immediately. There is no '5-second window' for "
+    "Shorts — viewers swipe within 1-2 seconds if the opening is weak.\n"
+    "- REPLAY SIGNAL: End the Short in a way that loops naturally back to the "
+    "beginning, or end on a surprising beat that makes viewers replay.\n"
+    "- Optimal Short length: 40-60 seconds for educational content. Under 30 "
+    "seconds signals low effort; over 90 seconds loses Shorts feed placement.\n\n"
+
+    "### Comment Triggers\n"
+    "Comments are a high-weight engagement signal that boosts distribution.\n"
+    "- Embed one DEBATABLE CLAIM mid-video — a genuine professional opinion that "
+    "reasonable viewers would disagree on. This drives comment activity.\n"
+    "- Suggest a specific PINNED COMMENT question that asks viewers to share "
+    "their own experience or data point. Never use generic 'Let me know in "
+    "the comments' — instead: 'Drop your biggest pricing mistake below — I "
+    "will reply to the first 20.'\n"
+    "- Acknowledge potential counterarguments: 'Now some of you will disagree "
+    "with this...' This primes viewers to respond.\n\n"
+
+    "### Suggested Video & Browse Optimization\n"
+    "YouTube's recommendation engine uses the spoken transcript (via ASR) to "
+    "understand video topics and match them to viewer interests.\n"
+    "- Mention the core topic EXPLICITLY in the first 30 seconds of the script. "
+    "The ASR system uses early transcript signals for topical classification.\n"
+    "- Use entity-rich language: mention specific tools, frameworks, brand "
+    "names, and industry terms. YouTube's NLP maps these to viewer interests.\n"
+    "- Suggest 5-8 tags in the production notes that combine broad category "
+    "tags with specific long-tail terms.\n"
+)
+
+
+# Industries where YouTube audiences are open to polished, high-energy content
+_YOUTUBE_AI_FRIENDLY = {
+    "leadership", "management", "coaching", "motivation", "inspiration",
+    "personal development", "self-help", "fitness", "lifestyle",
+    "education", "teaching", "training",
+}
+
+# Industries where YouTube audiences demand raw practitioner credibility
+_YOUTUBE_AI_HOSTILE = {
+    "marketing", "branding", "advertising", "content marketing",
+    "strategy", "consulting", "innovation",
+    "healthcare", "medicine", "medical", "pharma", "pharmaceutical",
+    "legal", "law", "finance", "accounting", "engineering",
+}
+
+
+def _youtube_tone_for_industry(industry: str | None) -> str:
+    """Return an industry-calibrated tone section for the YouTube script prompt."""
+    if not industry:
+        return ""
+
+    industry_lower = industry.lower().strip()
+
+    for keyword in _YOUTUBE_AI_FRIENDLY:
+        if keyword in industry_lower:
+            return (
+                "## Tone Calibration\n"
+                f"Industry: {industry}. This audience responds well to high-energy, "
+                "storytelling-driven video content. Use a confident, engaging delivery "
+                "style with natural enthusiasm. Conversational warmth is appropriate "
+                "here — think TED talk energy, not corporate webinar.\n\n"
+            )
+
+    for keyword in _YOUTUBE_AI_HOSTILE:
+        if keyword in industry_lower:
+            return (
+                "## Tone Calibration\n"
+                f"Industry: {industry}. WARNING: This audience has extremely high "
+                "AI and content literacy. They will immediately click away from "
+                "anything that sounds scripted, generic, or teleprompter-read. "
+                "You MUST:\n"
+                "- Write like a practitioner sharing hard-won experience on camera, "
+                "not a narrator reading a script.\n"
+                "- Pull specific numbers, names, case studies, or examples directly "
+                "from the article. Do not generalize.\n"
+                "- Include at least one concrete detail (a metric, a tool name, a "
+                "real scenario) that signals genuine expertise.\n"
+                "- Favor understated authority over enthusiasm. Let the content carry "
+                "the energy, not vocal inflection cues.\n\n"
+            )
+
+    return (
+        "## Tone Calibration\n"
+        f"Industry: {industry}. Write with the authority of someone who works "
+        "in this field daily. Ground claims in specifics from the article. "
+        "Keep the delivery natural and conversational — the viewer should feel "
+        "like they are learning from a peer, not watching a presentation.\n\n"
+    )
+
+
+async def repurpose_to_youtube_script(
+    content_html: str,
+    title: str,
+    industry: str | None = None,
+    template=None,
+    video_length: str = "long",
+) -> str:
+    """Convert a blog post into a YouTube video script.
+
+    video_length: "short" (60-90 sec YouTube Short) or "long" (5-8 min standard).
+    Reuses LinkedIn helpers for banned phrases and voice injection.
+    """
+    plain_text = md(content_html, heading_style="ATX", strip=["img"])
+    if len(plain_text) > 8000:
+        plain_text = plain_text[:8000] + "\n…[truncated]"
+
+    banned_list = _build_linkedin_banned_list(template)
+    tone_section = _youtube_tone_for_industry(industry)
+    voice_section = _build_linkedin_voice_section(template) if template else ""
+
+    preferred_line = ""
+    if template and template.preferred_terms:
+        terms = ", ".join(template.preferred_terms)
+        preferred_line = f"\n- ALWAYS use these preferred terms: {terms}\n"
+
+    has_custom_perspective = (
+        template
+        and template.perspective
+        and template.perspective in PERSPECTIVE_MAP
+        and "first_person" not in template.perspective
+    )
+    perspective_line = (
+        "- Speak in the perspective specified in the Author Voice section below.\n"
+        if has_custom_perspective
+        else "- Speak in first person. Conversational but authoritative.\n"
+    )
+
+    has_no_contractions = template and template.use_contractions is False
+    contraction_line = (
+        ""
+        if has_no_contractions
+        else "Use contractions naturally (you're, it's, we've, don't). "
+    )
+
+    if video_length == "short":
+        structure_section = (
+            "## Script Structure (Short-Form — 60-90 second YouTube Short)\n"
+            "Target: 200-300 words. This is a single-take, vertical-format video.\n\n"
+            "### HOOK (first 2-3 seconds, spoken aloud)\n"
+            "One punchy sentence that stops the scroll. A surprising stat, a "
+            "contrarian take, or a direct challenge. The viewer decides in under "
+            "2 seconds whether to keep watching.\n\n"
+            "### ONE INSIGHT (40-60 seconds)\n"
+            "Distill the single most valuable takeaway from the article. Do NOT "
+            "try to cover everything. Deliver it conversationally as if explaining "
+            "to a colleague. Include:\n"
+            "- One specific example, number, or case study from the article\n"
+            "- One *B-ROLL:* cue for visual variety\n"
+            "- One *ON-SCREEN TEXT:* suggestion for a key stat or phrase\n\n"
+            "### PAYOFF (last 5-10 seconds)\n"
+            "Land the takeaway with a surprising twist, a concrete result, or a "
+            "reframe that makes the viewer want to replay. Do NOT use a call to "
+            "action — Shorts should end on impact, not on an ask. The last beat "
+            "should loop naturally to the hook.\n\n"
+        )
+        max_tokens = YOUTUBE_SCRIPT_SHORT_MAX_TOKENS
+    else:
+        structure_section = (
+            "## Script Structure (Long-Form — 5-8 minute YouTube video)\n"
+            "Target: 1000-1500 words. This is a talking-head or screen-share video.\n\n"
+            "### HOOK (first 5-8 seconds)\n"
+            "One sentence that creates an OPEN LOOP. Tease the biggest payoff or "
+            "most surprising insight from the article without revealing it. The "
+            "viewer must feel compelled to keep watching to close the loop.\n"
+            "Include: one *ON-SCREEN TEXT:* suggestion for the hook stat/phrase.\n\n"
+            "### CONTEXT (30-45 seconds)\n"
+            "Briefly frame why this topic matters NOW. Reference a trend, a common "
+            "mistake, or a recent event. This establishes relevance and authority.\n\n"
+            "### SECTION 1-3 (or up to 4 sections, ~60-90 seconds each)\n"
+            "Each section covers one major point from the article:\n"
+            "- Open with a transition that maintains momentum\n"
+            "- Deliver the insight conversationally with specific examples\n"
+            "- Include at least one *B-ROLL:* cue per section (screen recording, "
+            "diagram, example shot)\n"
+            "- Include one *ON-SCREEN TEXT:* per section for key stats or frameworks\n"
+            "- Plant an open loop before each section transition to prevent "
+            "retention dips\n"
+            "- Mark natural pause points with [PAUSE] for emphasis\n\n"
+            "### CTA (15-20 seconds)\n"
+            "Ask viewers to subscribe or comment with a SPECIFIC prompt — not "
+            "'Like and subscribe.' Give them a reason: 'If you want to see how "
+            "I applied this to [X], subscribe — that video drops next week.'\n"
+            "Include the debatable claim or comment trigger here.\n\n"
+            "### OUTRO BRIDGE (5-10 seconds)\n"
+            "Tease the next video topic or connect to a related video. Never "
+            "say 'thanks for watching' or 'that is all for today.' End with "
+            "forward momentum.\n\n"
+        )
+        max_tokens = YOUTUBE_SCRIPT_LONG_MAX_TOKENS
+
+    length_label = "Short-Form (60-90s)" if video_length == "short" else "Long-Form (5-8 min)"
+
+    system_prompt = (
+        f"You are a YouTube script writer who deeply understands the platform's "
+        f"algorithm and audience psychology. Convert the blog article below into "
+        f"a production-ready {length_label} YouTube video script.\n\n"
+
+        f"{YOUTUBE_ALGORITHM_INTELLIGENCE}\n"
+
+        f"{structure_section}"
+
+        "## Formatting Rules\n"
+        "- Use markdown headings (### HOOK, ### SECTION 1: [Title], ### CTA, etc.)\n"
+        "- Mark pauses with [PAUSE] where the speaker should let a point land\n"
+        "- Mark B-roll cues in italics: *B-ROLL: description of what to show*\n"
+        "- Mark on-screen text in italics: *ON-SCREEN TEXT: \"the text to display\"*\n"
+        "- Write the script as spoken words — the speaker will read this aloud\n"
+        "- After the script, include a ### PRODUCTION NOTES section with:\n"
+        "  - **Suggested Title**: An algorithm-optimized title (front-load value "
+        "in first 40 chars)\n"
+        "  - **Thumbnail Concept**: One sentence describing the visual\n"
+        "  - **Tags**: 5-8 tags (broad + long-tail mix)\n"
+        "  - **Pinned Comment**: A specific question to drive comment engagement\n\n"
+
+        "## Writing Rules\n"
+        f"{perspective_line}"
+        "- SENTENCE DYNAMICS: Deliberately vary sentence length. Mix short punchy "
+        "fragments with longer descriptive sentences. Identical sentence lengths "
+        "are the #1 marker of AI-generated scripts.\n"
+        f"- Use active voice exclusively. {contraction_line}"
+        "Minimize adverbs. Replace them with stronger, specific verbs.\n"
+        "- Write for the EAR, not the eye. Use short sentences. Avoid subordinate "
+        "clauses. Read the script aloud in your head — if it sounds stiff, rewrite.\n"
+        "- Never use em dashes in scripts. Use periods or ellipses for pauses.\n"
+        f"{preferred_line}\n"
+
+        f"{voice_section}"
+        f"{tone_section}"
+
+        "## Banned Phrases\n"
+        "NEVER use any of the following words or phrases. They are immediate "
+        "markers of AI-generated content and will destroy viewer trust:\n"
+        f"{banned_list}"
+    )
+
+    user_prompt = f"Blog title: {title}\n\nFull article:\n{plain_text}"
+
+    resp = await _call_openai(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        timeout=YOUTUBE_SCRIPT_TIMEOUT,
+        max_tokens=max_tokens,
         temperature=0.7,
     )
     return resp.text
