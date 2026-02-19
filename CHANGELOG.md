@@ -16,6 +16,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-19 (Session 44) — Carousel Pillow Rewrite: Drop Shadows, Helvetica, No Images
+
+**What we did:**
+Complete rewrite of carousel PDF rendering from ReportLab (vector) to Pillow (pixel-perfect raster). Carousels now have drop shadows on content cards, anti-aliased Helvetica text, clean gradient-only backgrounds (no hero images), and auto-sizing stat text.
+
+**1. Pillow Rendering Engine** (`services/carousel.py`)
+- Replaced all ReportLab rendering with Pillow `ImageDraw` + `ImageFilter`
+- Each slide rendered as 1080x1350 RGBA image, assembled into multi-page PDF via `PIL.Image.save()`
+- `_draw_card()` — rounded rectangles with drop shadows via `GaussianBlur` (the Canva look)
+- `_draw_gradient()` — line-per-row vertical gradient fill
+- `_draw_text()` — anti-aliased text with left/center/right alignment
+- `_draw_bullet_rows()` — accent dot + alternating row card backgrounds
+
+**2. Helvetica Fonts Only**
+- System Helvetica loaded via `ImageFont.truetype()` from macOS `.ttc` files (index 0=regular, 1=bold)
+- Fallback chain: Helvetica → HelveticaNeue → LiberationSans → bundled Inter → PIL default
+- Font caching via `_font_cache` dict keyed on `(bold, size)`
+
+**3. No Background Images**
+- Removed hero image pipeline (`_download_image`, `_get_carousel_image`, `_prepare_slide_image`, `_draw_dark_overlay`)
+- All slides use bold gradient backgrounds only — cleaner, no DALL-E cost
+- `image_cost_usd` always 0.0
+
+**4. Visual Improvements**
+- Content cards on middle/result slides with 14px rounded corners + drop shadow
+- Bigger typography: hook 74pt, middle headline 54pt, body 34pt, stat up to 110pt, CTA headline 64pt
+- Expanded usable area: margin 80→70, more vertical space (reclaimed ~120px)
+- Accent row card bullets with filled circles and alternating backgrounds
+- TL;DR numbered row cards (42pt numbers, 72px spacing)
+- Auto-scaling stat text: progressively shrinks font until text fits within stat box
+
+**5. Removed ReportLab dependency** (for carousel rendering)
+- All `reportlab` imports removed from carousel.py
+- PIL `Image`, `ImageDraw`, `ImageFilter`, `ImageFont` handle everything
+
+**Files modified:** `carousel.py` (complete rendering rewrite)
+**No frontend changes, no migration, no new dependencies**
+
+---
+
 ### 2026-02-19 (Session 43) — Carousel Visual Upgrade: Hero Images + Better Layouts
 
 **What we did:**
