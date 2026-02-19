@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { marked } from 'marked';
 import { useSnackbar } from 'notistack';
 import { useAuth } from '../../contexts/useAuth';
 import api, { fetchSSE } from '../../services/api';
@@ -2324,20 +2325,44 @@ export default function PromptForm() {
               : `~${(wordCount / 150).toFixed(1)} min (at ~150 words/min)`;
             return (
               <>
-                <TextField
-                  fullWidth
-                  multiline
-                  minRows={12}
-                  maxRows={24}
-                  value={youtubeScript}
-                  InputProps={{ readOnly: true }}
+                <Box
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      fontFamily: 'Inter, sans-serif',
-                      fontSize: 13,
-                      lineHeight: 1.7,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 0,
+                    p: 2.5,
+                    maxHeight: 480,
+                    overflow: 'auto',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 14,
+                    lineHeight: 1.8,
+                    color: 'text.primary',
+                    '& h1, & h2, & h3': {
+                      fontFamily: 'Cinzel, serif',
+                      fontWeight: 700,
+                      mt: 2.5,
+                      mb: 1,
+                      '&:first-of-type': { mt: 0 },
+                    },
+                    '& h1': { fontSize: '1.3rem' },
+                    '& h2': { fontSize: '1.1rem' },
+                    '& h3': { fontSize: '0.95rem' },
+                    '& p': { mb: 1.5 },
+                    '& strong': { fontWeight: 700 },
+                    '& em': { fontStyle: 'italic' },
+                    '& ul, & ol': { pl: 2.5, mb: 1.5 },
+                    '& li': { mb: 0.5 },
+                    '& hr': { border: 'none', borderTop: '1px solid', borderColor: 'divider', my: 2 },
+                    '& blockquote': {
+                      borderLeft: '3px solid',
+                      borderColor: '#B08D57',
+                      pl: 2,
+                      ml: 0,
+                      color: 'text.secondary',
+                      fontStyle: 'italic',
                     },
                   }}
+                  dangerouslySetInnerHTML={{ __html: marked.parse(youtubeScript) }}
                 />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5, flexWrap: 'wrap', gap: 1 }}>
                   <Box sx={{ display: 'flex', gap: 1 }}>

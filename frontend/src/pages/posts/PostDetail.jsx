@@ -15,6 +15,7 @@ import {
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import TurndownService from 'turndown';
+import { marked } from 'marked';
 import { useSnackbar } from 'notistack';
 import api, { fetchSSE } from '../../services/api';
 
@@ -508,81 +509,80 @@ export default function PostDetail() {
             )}
           </Box>
         </Box>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+        <Stack direction="row" spacing={0.5} alignItems="center" sx={{ flexWrap: 'wrap', gap: 0.5 }}>
           {post.published_url && (
-            <Button
-              variant="outlined" size="small" startIcon={<OpenInNew />}
-              href={post.published_url} target="_blank"
-            >
-              View Live
-            </Button>
+            <Tooltip title="View Live">
+              <IconButton
+                size="small" href={post.published_url} target="_blank" component="a"
+                sx={{ color: 'text.secondary', border: '1px solid', borderColor: 'divider', borderRadius: 0, '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' } }}
+              >
+                <OpenInNew fontSize="small" />
+              </IconButton>
+            </Tooltip>
           )}
-          <Button
-            variant="outlined" size="small" startIcon={<Edit />}
-            onClick={() => navigate(`/posts/${id}/edit`, { state: { from: fromReview ? 'review' : undefined } })}
-          >
-            Edit
-          </Button>
+          <Tooltip title="Edit">
+            <IconButton
+              size="small"
+              onClick={() => navigate(`/posts/${id}/edit`, { state: { from: fromReview ? 'review' : undefined } })}
+              sx={{ color: 'text.secondary', border: '1px solid', borderColor: 'divider', borderRadius: 0, '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' } }}
+            >
+              <Edit fontSize="small" />
+            </IconButton>
+          </Tooltip>
           {canRevise && post.status === 'draft' && (
-            <Button
-              variant="outlined" size="small" startIcon={<AutoFixHigh />}
-              onClick={() => setReviseOpen(true)}
-              sx={{
-                color: '#B08D57', borderColor: '#B08D57',
-                '&:hover': { borderColor: '#8A6D3B', bgcolor: 'rgba(176, 141, 87, 0.06)' },
-              }}
-            >
-              Revise with AI
-            </Button>
+            <Tooltip title="Revise with AI">
+              <IconButton
+                size="small" onClick={() => setReviseOpen(true)}
+                sx={{ color: '#B08D57', border: '1px solid', borderColor: '#B08D57', borderRadius: 0, '&:hover': { borderColor: '#8A6D3B', bgcolor: 'rgba(176, 141, 87, 0.06)' } }}
+              >
+                <AutoFixHigh fontSize="small" />
+              </IconButton>
+            </Tooltip>
           )}
-          <Button
-            variant="outlined" size="small" startIcon={<LinkedIn />}
-            onClick={handleLinkedinOpen}
-            disabled={linkedinLoading}
-            sx={{
-              color: '#0A66C2', borderColor: '#0A66C2',
-              '&:hover': { borderColor: '#004182', bgcolor: 'rgba(10, 102, 194, 0.06)' },
-            }}
-          >
-            LinkedIn
-          </Button>
-          <Button
-            variant="outlined" size="small" startIcon={<YouTube />}
-            onClick={() => { setYoutubeOpen(true); setYoutubeScript(''); setYoutubeLength('long'); }}
-            disabled={youtubeLoading}
-            sx={{
-              color: '#FF0000', borderColor: '#FF0000',
-              '&:hover': { borderColor: '#CC0000', bgcolor: 'rgba(255, 0, 0, 0.04)' },
-            }}
-          >
-            YouTube Script
-          </Button>
-          <Button
-            variant="outlined" size="small" startIcon={<SlideshowOutlined />}
-            onClick={() => setCarouselOpen(true)}
-            disabled={carouselLoading}
-            sx={{
-              color: '#4A7C6F', borderColor: '#4A7C6F',
-              '&:hover': { borderColor: '#2D5E4A', bgcolor: 'rgba(74, 124, 111, 0.06)' },
-            }}
-          >
-            Carousel
-          </Button>
+          <Tooltip title="LinkedIn Post">
+            <IconButton
+              size="small" onClick={handleLinkedinOpen} disabled={linkedinLoading}
+              sx={{ color: '#0A66C2', border: '1px solid', borderColor: '#0A66C2', borderRadius: 0, '&:hover': { borderColor: '#004182', bgcolor: 'rgba(10, 102, 194, 0.06)' } }}
+            >
+              <LinkedIn fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="YouTube Script">
+            <IconButton
+              size="small"
+              onClick={() => { setYoutubeOpen(true); setYoutubeScript(''); setYoutubeLength('long'); }}
+              disabled={youtubeLoading}
+              sx={{ color: '#FF0000', border: '1px solid', borderColor: '#FF0000', borderRadius: 0, '&:hover': { borderColor: '#CC0000', bgcolor: 'rgba(255, 0, 0, 0.04)' } }}
+            >
+              <YouTube fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Carousel">
+            <IconButton
+              size="small" onClick={() => setCarouselOpen(true)} disabled={carouselLoading}
+              sx={{ color: '#4A7C6F', border: '1px solid', borderColor: '#4A7C6F', borderRadius: 0, '&:hover': { borderColor: '#2D5E4A', bgcolor: 'rgba(74, 124, 111, 0.06)' } }}
+            >
+              <SlideshowOutlined fontSize="small" />
+            </IconButton>
+          </Tooltip>
           {post.status !== 'published' && (
             <>
+              <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
               {isCopyPlatform ? (
                 <Button
                   variant="contained" size="small" startIcon={<CheckCircleOutline />}
                   onClick={() => setMarkPublishedOpen(true)}
                   disabled={markPublishedMutation.isPending}
+                  sx={{ fontSize: '0.75rem', py: 0.5, px: 1.5 }}
                 >
-                  Mark as Published
+                  Mark Published
                 </Button>
               ) : (
                 <Button
                   variant="contained" size="small" startIcon={<Publish />}
                   onClick={() => publishMutation.mutate()}
                   disabled={publishMutation.isPending}
+                  sx={{ fontSize: '0.75rem', py: 0.5, px: 1.5 }}
                 >
                   Publish
                 </Button>
@@ -590,6 +590,7 @@ export default function PostDetail() {
               <Button
                 variant="outlined" size="small" color="error" startIcon={<ThumbDown />}
                 onClick={() => setRejectOpen(true)}
+                sx={{ fontSize: '0.75rem', py: 0.5, px: 1.5 }}
               >
                 Reject
               </Button>
@@ -1354,20 +1355,44 @@ export default function PostDetail() {
               : `~${(wordCount / 150).toFixed(1)} min (at ~150 words/min)`;
             return (
               <>
-                <TextField
-                  fullWidth
-                  multiline
-                  minRows={12}
-                  maxRows={24}
-                  value={youtubeScript}
-                  InputProps={{ readOnly: true }}
+                <Box
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      fontFamily: 'Inter, sans-serif',
-                      fontSize: 13,
-                      lineHeight: 1.7,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 0,
+                    p: 2.5,
+                    maxHeight: 480,
+                    overflow: 'auto',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 14,
+                    lineHeight: 1.8,
+                    color: 'text.primary',
+                    '& h1, & h2, & h3': {
+                      fontFamily: 'Cinzel, serif',
+                      fontWeight: 700,
+                      mt: 2.5,
+                      mb: 1,
+                      '&:first-of-type': { mt: 0 },
+                    },
+                    '& h1': { fontSize: '1.3rem' },
+                    '& h2': { fontSize: '1.1rem' },
+                    '& h3': { fontSize: '0.95rem' },
+                    '& p': { mb: 1.5 },
+                    '& strong': { fontWeight: 700 },
+                    '& em': { fontStyle: 'italic' },
+                    '& ul, & ol': { pl: 2.5, mb: 1.5 },
+                    '& li': { mb: 0.5 },
+                    '& hr': { border: 'none', borderTop: '1px solid', borderColor: 'divider', my: 2 },
+                    '& blockquote': {
+                      borderLeft: '3px solid',
+                      borderColor: '#B08D57',
+                      pl: 2,
+                      ml: 0,
+                      color: 'text.secondary',
+                      fontStyle: 'italic',
                     },
                   }}
+                  dangerouslySetInnerHTML={{ __html: marked.parse(youtubeScript) }}
                 />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5, flexWrap: 'wrap', gap: 1 }}>
                   <Box sx={{ display: 'flex', gap: 1 }}>
