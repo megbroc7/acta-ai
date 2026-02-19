@@ -27,6 +27,7 @@ TIER_LIMITS = {
         "revise_with_ai": False,
         "web_research": False,
         "repurpose_linkedin": False,
+        "generate_carousel": False,
         "dalle_quality": None,
     },
     "tribune": {
@@ -40,6 +41,7 @@ TIER_LIMITS = {
         "revise_with_ai": True,
         "web_research": True,
         "repurpose_linkedin": True,
+        "generate_carousel": True,
         "dalle_quality": "standard",
     },
     "imperator": {
@@ -53,6 +55,7 @@ TIER_LIMITS = {
         "revise_with_ai": True,
         "web_research": True,
         "repurpose_linkedin": True,
+        "generate_carousel": True,
         "dalle_quality": "hd",
     },
 }
@@ -212,6 +215,7 @@ def check_feature_access(user: User, feature: str):
             "revise_with_ai": "Revise with AI",
             "web_research": "Web Research",
             "repurpose_linkedin": "Repurpose to LinkedIn",
+            "generate_carousel": "LinkedIn Carousel",
         }
         label = feature_labels.get(feature, feature)
         raise HTTPException(

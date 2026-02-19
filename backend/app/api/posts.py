@@ -4,7 +4,7 @@ import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -18,6 +18,7 @@ from app.models.user import User
 from app.schemas.posts import (
     BulkActionRequest,
     BulkRejectRequest,
+    CarouselRequest,
     MarkPublishedRequest,
     PostCountsResponse,
     PostCreate,
@@ -402,6 +403,69 @@ async def repurpose_linkedin(
         )
     )
     return {"linkedin_post": linkedin_text, "voice_applied": has_voice}
+
+
+@router.post("/{post_id}/generate-carousel")
+async def generate_carousel(
+    post_id: str,
+    data: CarouselRequest | None = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate a LinkedIn carousel PDF from a blog post (Tribune+ only)."""
+    from app.services.tier_limits import check_feature_access
+    from app.services.carousel import generate_carousel as build_carousel
+
+    check_feature_access(current_user, "generate_carousel")
+
+    if await is_maintenance_mode(db):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI generation is paused — maintenance mode is active",
+        )
+
+    result = await db.execute(
+        select(BlogPost).where(
+            BlogPost.id == post_id, BlogPost.user_id == current_user.id
+        )
+    )
+    post = result.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if not post.content:
+        raise HTTPException(status_code=400, detail="Post has no content to generate a carousel from")
+
+    # Load template for saved branding defaults
+    template = None
+    if post.prompt_template_id:
+        tmpl_result = await db.execute(
+            select(PromptTemplate).where(PromptTemplate.id == post.prompt_template_id)
+        )
+        template = tmpl_result.scalar_one_or_none()
+
+    try:
+        carousel_result = await build_carousel(
+            content_html=post.content,
+            title=post.title,
+            template=template,
+            request_branding=data.branding if data else None,
+        )
+    except Exception as exc:
+        logger.error(f"Carousel generation failed for post {post_id}: {exc}")
+        raise HTTPException(status_code=502, detail="Carousel generation failed")
+
+    # Build a safe filename from the title
+    safe_title = "".join(c if c.isalnum() or c in " -_" else "" for c in post.title)[:50].strip()
+    filename = f"{safe_title} - Carousel.pdf" if safe_title else "carousel.pdf"
+
+    return Response(
+        content=carousel_result.pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )
 
 
 @router.post("/{post_id}/revise-stream")

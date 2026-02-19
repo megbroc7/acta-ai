@@ -35,6 +35,9 @@ apscheduler==3.10.4
 # Payments
 stripe>=11.0.0
 
+# PDF generation
+reportlab>=4.0
+
 # Encryption
 cryptography==43.0.1
 

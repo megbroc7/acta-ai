@@ -46,6 +46,9 @@ class PromptTemplate(Base):
     # Web Research
     web_research_enabled: Mapped[bool | None] = mapped_column(Boolean, default=False, nullable=True)
 
+    # Carousel Branding
+    carousel_branding: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
     # Experience (Reverse Interview)
     experience_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     experience_qa: Mapped[list | None] = mapped_column(JSON, nullable=True)

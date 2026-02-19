@@ -97,3 +97,15 @@ class PostCountsResponse(BaseModel):
     draft: int = 0
     published: int = 0
     rejected: int = 0
+
+
+class CarouselBranding(BaseModel):
+    preset: str | None = "roman_patina"
+    primary_color: str | None = None
+    secondary_color: str | None = None
+    text_color: str | None = None
+    accent_color: str | None = None
+
+
+class CarouselRequest(BaseModel):
+    branding: CarouselBranding | None = None

@@ -9,7 +9,7 @@ import {
 import {
   ArrowBack, Edit, Publish, ThumbDown, OpenInNew, Gavel, ImageOutlined,
   AutoFixHigh, CheckCircle, ContentCopy, LinkedIn, Refresh, RecordVoiceOver,
-  CheckCircleOutline, ExpandMore, Code,
+  CheckCircleOutline, ExpandMore, Code, SlideshowOutlined, Download,
 } from '@mui/icons-material';
 import TurndownService from 'turndown';
 import { useSnackbar } from 'notistack';
@@ -175,6 +175,17 @@ export default function PostDetail() {
   const [markPublishedUrl, setMarkPublishedUrl] = useState('');
   const [showFaqSchema, setShowFaqSchema] = useState(false);
 
+  // Carousel state
+  const [carouselOpen, setCarouselOpen] = useState(false);
+  const [carouselLoading, setCarouselLoading] = useState(false);
+  const [carouselPreset, setCarouselPreset] = useState('roman_patina');
+  const [carouselCustomColors, setCarouselCustomColors] = useState({
+    primary_color: '#2D4A3E',
+    secondary_color: '#1A3028',
+    text_color: '#FFFFFF',
+    accent_color: '#D4A574',
+  });
+
   const fromReview = location.state?.from === 'review';
 
   const { data: post, isLoading } = useQuery({
@@ -322,6 +333,50 @@ export default function PostDetail() {
     generateLinkedinPost({ closeOnError: true });
   };
 
+  const handleCarouselGenerate = async () => {
+    setCarouselLoading(true);
+    try {
+      const branding = carouselPreset === 'custom'
+        ? { preset: 'roman_patina', ...carouselCustomColors }
+        : { preset: carouselPreset };
+
+      const res = await api.post(`/posts/${id}/generate-carousel`, { branding }, {
+        responseType: 'blob',
+      });
+
+      // Trigger download
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      // Extract filename from Content-Disposition or use fallback
+      const disposition = res.headers['content-disposition'];
+      const match = disposition && disposition.match(/filename="(.+?)"/);
+      a.download = match ? match[1] : 'carousel.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      enqueueSnackbar('Carousel PDF downloaded', { variant: 'success' });
+    } catch (err) {
+      // With responseType: 'blob', error responses are also blobs
+      let detail = 'Carousel generation failed';
+      if (err.response?.data instanceof Blob) {
+        try {
+          const text = await err.response.data.text();
+          const json = JSON.parse(text);
+          detail = json.detail || detail;
+        } catch { /* use default */ }
+      } else if (err.response?.data?.detail) {
+        detail = err.response.data.detail;
+      }
+      enqueueSnackbar(detail, { variant: 'error' });
+    } finally {
+      setCarouselLoading(false);
+    }
+  };
+
   if (isLoading) return <Typography color="text.secondary">Loading...</Typography>;
   if (!post) return <Typography color="error">Post not found</Typography>;
 
@@ -429,6 +484,17 @@ export default function PostDetail() {
             }}
           >
             LinkedIn
+          </Button>
+          <Button
+            variant="outlined" size="small" startIcon={<SlideshowOutlined />}
+            onClick={() => setCarouselOpen(true)}
+            disabled={carouselLoading}
+            sx={{
+              color: '#4A7C6F', borderColor: '#4A7C6F',
+              '&:hover': { borderColor: '#2D5E4A', bgcolor: 'rgba(74, 124, 111, 0.06)' },
+            }}
+          >
+            Carousel
           </Button>
           {post.status !== 'published' && (
             <>
@@ -977,6 +1043,131 @@ export default function PostDetail() {
             sx={{ bgcolor: '#4A7C6F', '&:hover': { bgcolor: '#2D5E4A' } }}
           >
             {markPublishedMutation.isPending ? 'Saving...' : 'Confirm Published'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Carousel PDF Dialog */}
+      <Dialog
+        open={carouselOpen}
+        onClose={() => { if (!carouselLoading) setCarouselOpen(false); }}
+        maxWidth="sm"
+        fullWidth
+        disableEscapeKeyDown={carouselLoading}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <SlideshowOutlined sx={{ color: '#4A7C6F' }} />
+          <span>LinkedIn Carousel</span>
+        </DialogTitle>
+        <DialogContent>
+          {carouselLoading ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4, gap: 2 }}>
+              <CircularProgress size={36} sx={{ color: '#4A7C6F' }} />
+              <Typography variant="body2" color="text.secondary">
+                Structuring slides and rendering PDF...
+              </Typography>
+            </Box>
+          ) : (
+            <>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+                Choose a theme for your carousel slides. The AI will structure your article into 5-7 branded slides.
+              </Typography>
+
+              {/* Theme cards */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mb: 2 }}>
+                {[
+                  { key: 'roman_patina', label: 'Roman Patina', colors: ['#2D4A3E', '#1A3028', '#D4A574', '#FFFFFF'] },
+                  { key: 'clean_white', label: 'Clean White', colors: ['#FFFFFF', '#F5F3F0', '#4A7C6F', '#2A2520'] },
+                  { key: 'dark_professional', label: 'Dark Professional', colors: ['#1B2838', '#0F1923', '#5BA4B5', '#FFFFFF'] },
+                  { key: 'custom', label: 'Custom Colors', colors: null },
+                ].map(theme => (
+                  <Box
+                    key={theme.key}
+                    onClick={() => setCarouselPreset(theme.key)}
+                    sx={{
+                      p: 1.5,
+                      border: '2px solid',
+                      borderColor: carouselPreset === theme.key ? '#4A7C6F' : '#E0DCD5',
+                      bgcolor: carouselPreset === theme.key ? 'rgba(74, 124, 111, 0.04)' : 'transparent',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      '&:hover': { borderColor: '#4A7C6F' },
+                    }}
+                  >
+                    <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em', display: 'block', mb: 0.75 }}>
+                      {theme.label}
+                    </Typography>
+                    {theme.colors ? (
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        {theme.colors.map((c, i) => (
+                          <Box
+                            key={i}
+                            sx={{
+                              width: 24, height: 24,
+                              bgcolor: c,
+                              border: '1px solid #E0DCD5',
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    ) : (
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        {['primary_color', 'secondary_color', 'accent_color', 'text_color'].map(k => (
+                          <Box
+                            key={k}
+                            sx={{
+                              width: 24, height: 24,
+                              bgcolor: carouselCustomColors[k],
+                              border: '1px solid #E0DCD5',
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Custom color pickers */}
+              {carouselPreset === 'custom' && (
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mt: 1 }}>
+                  {[
+                    { key: 'primary_color', label: 'Background' },
+                    { key: 'secondary_color', label: 'Gradient Bottom' },
+                    { key: 'text_color', label: 'Text' },
+                    { key: 'accent_color', label: 'Accent' },
+                  ].map(({ key, label }) => (
+                    <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        component="input"
+                        type="color"
+                        value={carouselCustomColors[key]}
+                        onChange={e => setCarouselCustomColors(prev => ({ ...prev, [key]: e.target.value }))}
+                        sx={{
+                          width: 36, height: 36, p: 0, border: '1px solid #E0DCD5',
+                          cursor: 'pointer', bgcolor: 'transparent',
+                        }}
+                      />
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>{label}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCarouselOpen(false)} disabled={carouselLoading}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={carouselLoading ? <CircularProgress size={18} color="inherit" /> : <Download />}
+            onClick={handleCarouselGenerate}
+            disabled={carouselLoading}
+            sx={{ bgcolor: '#4A7C6F', '&:hover': { bgcolor: '#2D5E4A' } }}
+          >
+            {carouselLoading ? 'Generating...' : 'Generate & Download'}
           </Button>
         </DialogActions>
       </Dialog>

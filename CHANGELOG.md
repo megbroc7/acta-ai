@@ -9,12 +9,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Next up
-- **LinkedIn Carousel PDF Generation** — ReportLab-based branded slide deck from blog posts (5-7 slides, Roman bronze patina design, one GPT call for slide structuring). Research complete, ready to build.
+- Template-level carousel branding defaults (Phase 6 — save preferred theme in PromptForm Defaults tab)
 - Shopify/Wix publishing (currently "Coming Soon")
 
 ---
 
 ## Session Log
+
+### 2026-02-19 (Session 41) — LinkedIn Carousel PDF Generation
+
+**What we did:**
+Built the full LinkedIn carousel feature — AI structures blog posts into branded slide decks, rendered as downloadable PDFs via ReportLab.
+
+**1. Carousel Service** (`services/carousel.py` — new file)
+- Single GPT-4o call structures blog content into 5-7 slides (hook → problem → insights → result → CTA)
+- ReportLab renders 1080x1350 portrait PDF slides (LinkedIn spec) with vertical gradients, Cinzel headlines, Inter body text, accent bars, key stat callouts, slide counters, and "SWIPE >" indicators
+- 3 preset themes: Roman Patina (dark patina green + bronze), Clean White (warm stone + green accent), Dark Professional (navy + teal)
+- Custom Colors option with full color picker support
+- Branding resolution: request override > template saved config > preset default
+
+**2. Backend Infrastructure**
+- `reportlab>=4.0` added to requirements.txt; Cinzel + Inter variable TTFs bundled in `backend/app/assets/fonts/`
+- Migration `p5q6r7s8t9u0`: adds `carousel_branding` JSON column to `prompt_templates`
+- `CarouselBranding` + `CarouselRequest` schemas; `carousel_branding` added to template create/update/response schemas
+- `POST /posts/{post_id}/generate-carousel` endpoint — tier-gated (Tribune+), maintenance-checked, returns PDF with Content-Disposition attachment header
+- `generate_carousel` feature gate added to all three tiers in `tier_limits.py`
+
+**3. Frontend — PostDetail Carousel Dialog** (`PostDetail.jsx`)
+- New "Carousel" button (patina green, SlideshowOutlined icon) in action bar next to LinkedIn
+- Theme selector dialog: 4 clickable cards with color swatch previews (3 presets + Custom)
+- Custom mode: 4 native `<input type="color">` pickers (Background, Gradient Bottom, Text, Accent)
+- "Generate & Download" button → blob response → browser download via temporary URL
+- Blob-aware error handling (parses blob→text→JSON for error detail from 403/503 responses)
+- Loading state with spinner + "Structuring slides and rendering PDF..."
+
+**Files changed:** `requirements.txt`, `carousel.py` (new), `prompt_template.py`, `posts.py` (schema + API), `templates.py`, `tier_limits.py`, `PostDetail.jsx`
+**Migration:** `p5q6r7s8t9u0` — add `carousel_branding` JSON to `prompt_templates`
+**New dependency:** `reportlab>=4.0` (+ `pillow` as transitive dep)
+**Cost per carousel:** ~$0.01 (one GPT-4o call) + $0 PDF render
+
+---
 
 ### 2026-02-19 (Session 40) — GEO Optimization, LinkedIn Platform Intelligence, Web Research Default-On
 
