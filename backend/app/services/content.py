@@ -541,15 +541,27 @@ def build_content_system_prompt(
     if seo:
         sections.append("## SEO Instructions\n" + "\n".join(seo))
 
-    # --- Entity Injection (always-on semantic SEO) ---
+    # --- Entity Injection (always-on semantic SEO / GEO) ---
     entity_injection = (
         "## Entity Injection\n"
         "Identify 3-5 real-world entities (people, organizations, places, concepts, "
-        "events, or technologies) that are closely related to the topic. Weave them "
-        "naturally into the article with brief context — do not just name-drop. "
-        "For example, reference a researcher and their finding, an organization and "
-        "its role, or a landmark event and its impact. This helps search engines "
-        "understand the semantic context of the content beyond keyword matching."
+        "events, or technologies) that are central to the topic.\n"
+        "For each entity, go beyond name-dropping — state its relationship to the "
+        "topic explicitly so AI models can categorize the content:\n"
+        "- Declare taxonomic relationships: 'X is a type of Y', 'X falls under the "
+        "category of Y'\n"
+        "- State roles and associations: 'X was developed by Y', 'X is the governing "
+        "body for Y'\n"
+        "- Define cause/effect or purpose: 'X is used for Y', 'X solves the problem "
+        "of Y'\n"
+        "Establish a clear entity hierarchy: identify the PRIMARY entity (the article's "
+        "core subject) and 2-4 SUPPORTING entities that provide context, contrast, or "
+        "evidence. The primary entity should appear in the introduction, TL;DR, and "
+        "conclusion. Supporting entities should cluster in the sections where they add "
+        "the most value.\n"
+        "Write at least one clear definitional sentence for the primary entity early "
+        "in the article — a single sentence an AI could extract as a knowledge-graph "
+        "triple (Subject → Predicate → Object)."
     )
     sections.append(entity_injection)
 
@@ -609,7 +621,25 @@ def build_content_system_prompt(
         "markdown blockquotes starting with **Key Takeaway:** — e.g. "
         '"> **Key Takeaway:** The most effective approach is X because Y." '
         "Place them after the supporting evidence, not before. These concise "
-        "snippets are prime targets for featured snippets and AI answer extraction."
+        "snippets are prime targets for featured snippets and AI answer extraction.\n"
+        "Quotable definitions: For every major concept introduced, write one crisp "
+        "definitional sentence that an AI could cite verbatim — e.g. "
+        "'Content pruning is the practice of removing or consolidating underperforming "
+        "pages to strengthen a site's topical authority.' Place these near the first "
+        "mention of the concept, not buried in a paragraph.\n"
+        "Comparison tables: When comparing 3 or more alternatives, options, tools, or "
+        "approaches, present them in a markdown table with clear column headers rather "
+        "than prose. Tables are highly extractable by AI answer engines and improve "
+        "scannability.\n"
+        "Question-headed sections: Phrase every H2 as a natural question that a real "
+        "person would type into a search bar or ask an AI assistant — e.g. "
+        "'How Much Does X Cost in 2026?' not 'Pricing Overview'. The answer-first "
+        "paragraph directly below should be a standalone answer to that exact question.\n"
+        "Freshness signals: Weave 1-2 temporal references into the article where "
+        "factually appropriate — e.g. 'As of 2026', 'In Q1 2026', 'Current best "
+        "practice as of early 2026'. Place at least one in the TL;DR or introduction. "
+        "Do NOT fabricate dates for undated information — only attach dates to facts "
+        "you are confident are current."
     )
     sections.append(structure)
 
@@ -1157,19 +1187,27 @@ async def _generate_outline(
         f"Create a detailed outline for a {word_count}-word article titled '{title}'.\n\n"
         "## Structure\n"
         "- Introduction (~125 words): Hook + thesis statement\n"
-        "- 3-5 H2 sections (main body): Each framed as a question readers care about\n"
+        "- 3-5 H2 sections (main body): Each H2 must be phrased as a natural question "
+        "a real person would type into Google or ask an AI assistant — e.g. "
+        "'How Much Does Solar Panel Installation Cost?' not 'Solar Panel Pricing'\n"
         "- Conclusion (~125 words): One specific, actionable next step — NOT a summary\n\n"
         "## For Each H2 Section, Provide:\n"
-        "1. **Header** as a reader question or clear angle\n"
+        "1. **Header** as a natural-language question readers would actually search for\n"
         f"2. **Word budget** — distribute ~{body_budget} words across all sections "
         "(state the budget for each, e.g. '~350 words')\n"
         "3. **Answer statement** (40-60 words) — the direct answer that will OPEN "
-        "the section before any supporting detail (inverted pyramid)\n"
+        "the section before any supporting detail (inverted pyramid). This must work "
+        "as a standalone answer if extracted by an AI search engine.\n"
         "4. **Key points** (2-3) — supporting evidence, examples, or sub-arguments\n"
         "5. **Data marker** — one place where a statistic, number, or citation "
         "would strengthen credibility\n"
         "6. **Transition hook** — one sentence showing how this section connects "
-        "to the next (use conversational connectors, not 'Moreover' or 'Furthermore')\n\n"
+        "to the next (use conversational connectors, not 'Moreover' or 'Furthermore')\n"
+        "7. **Related question (H3)** — for at least 2 of the H2 sections, include one "
+        "H3 subheading phrased as a follow-up question readers would also ask (the kind "
+        "that appears in Google's 'People Also Ask' or AI follow-up suggestions). "
+        "E.g. under 'How Much Does X Cost?' add an H3 like 'Is X Worth the Investment "
+        "in 2026?' Each related-question H3 should have its own 2-3 sentence answer.\n\n"
     )
     if research_context:
         user_prompt += (
@@ -1998,7 +2036,11 @@ async def generate_content(
             f"{research_text}\n"
             "</research>\n\n"
             "Weave the most relevant research findings naturally into the article. "
-            "Cite specific numbers and name the source inline where appropriate."
+            "For every statistic or factual claim drawn from the research, include an "
+            "inline citation immediately after the claim using the format: "
+            "(Source: Organization Name, Year) — e.g. '...grew by 34% year-over-year "
+            "(Source: Gartner, 2025).' This makes claims individually citable by AI "
+            "search engines. Do not cluster all citations at the end of a paragraph."
         )
     draft_resp = await _call_openai(
         system_prompt=system_prompt,
@@ -2334,6 +2376,82 @@ async def generate_post(
 # LinkedIn repurpose
 # ---------------------------------------------------------------------------
 
+# LinkedIn algorithm intelligence — injected into every LinkedIn prompt.
+# Structured as a single block so it's easy to update as the platform evolves.
+LINKEDIN_PLATFORM_INTELLIGENCE = (
+    "## LinkedIn Algorithm Intelligence\n"
+    "Internalize the following platform rules. They are non-negotiable.\n\n"
+
+    "### Dwell Time (Primary Ranking Signal)\n"
+    "LinkedIn measures how long readers stay on your post. Longer dwell = more reach.\n"
+    "- Plant an OPEN LOOP in the first 3 lines: tease a result, a number, or a "
+    "lesson learned — but withhold the payoff until the body. The reader must scroll "
+    "to close the loop.\n"
+    "- Use PATTERN INTERRUPTS every 3-4 lines: a one-word sentence, a surprising "
+    "pivot ('But here is what nobody talks about.'), or a mid-post contradiction "
+    "that resets attention.\n"
+    "- Place the most valuable insight at ~60-70% through the post, not at the top. "
+    "Front-loading the payoff lets readers leave early.\n\n"
+
+    "### Comment Velocity (5-10x Weight vs. Likes)\n"
+    "Comments are the highest-value engagement signal. The algorithm amplifies posts "
+    "that generate conversation, especially in the first 60 minutes.\n"
+    "- Embed one DEBATABLE OPINION or lightly polarizing take mid-post — something "
+    "reasonable people would disagree on. This is not clickbait; it is a genuine "
+    "professional stance that invites counter-perspectives.\n"
+    "- End with a SPECIFIC open-ended question that asks peers to share their own "
+    "experience, approach, or contrarian view. Never a yes/no question. Never "
+    "'What do you think?' — too generic. Instead: 'What is the one metric your "
+    "team stopped tracking that actually improved performance?'\n"
+    "- Avoid engagement-bait phrases: 'Like if you agree', 'Share this with your "
+    "network', 'Tag someone who needs this', 'Comment YES below'. LinkedIn's "
+    "algorithm actively penalizes these patterns and may classify the post as spam.\n\n"
+
+    "### Text Post Format Signals\n"
+    "For text-only posts (no document/carousel), the algorithm rewards:\n"
+    "- CHARACTER COUNT: 1,200-1,500 characters. Under 800 gets minimal distribution. "
+    "Over 2,000 gets penalized for low completion rate.\n"
+    "- LINE BREAK DENSITY: 8-12 blank-line paragraph breaks. This creates the visual "
+    "rhythm of short paragraphs that keeps mobile readers scrolling. A wall of text "
+    "with only 2-3 breaks gets scroll-past on mobile (where ~70% of LinkedIn "
+    "consumption happens).\n"
+    "- 1-3 sentences per paragraph MAX. Single-sentence paragraphs are not just "
+    "acceptable — they are the norm for high-performing LinkedIn posts.\n\n"
+
+    "### Content Categorization & Topical Routing\n"
+    "LinkedIn's algorithm classifies every post into a content category and routes "
+    "it to users interested in that topic. Help the algorithm by:\n"
+    "- Placing a CLEAR TOPICAL SIGNAL in the first 2 lines. If the post is about "
+    "hiring strategy, say 'hiring' or 'recruiting' in the hook — not in line 8.\n"
+    "- Using 2-3 hashtags at the very end that match LinkedIn's known topic "
+    "categories (e.g. #Leadership, #Marketing, #AI, #Sales). Niche hashtags with "
+    "<500 followers get no algorithmic boost.\n\n"
+
+    "### Native Expertise Signals\n"
+    "LinkedIn deprioritizes content that feels repurposed from another platform. "
+    "The post MUST feel like it was written on LinkedIn, for LinkedIn.\n"
+    "- Open with 'I' or a first-person observation. Never open with a thesis "
+    "statement or a definition — that reads as a blog excerpt.\n"
+    "- Reference professional context: 'a conversation with my team', 'something "
+    "I noticed in our Q4 results', 'a pattern I keep seeing in my industry'. "
+    "These signal lived experience.\n"
+    "- NEVER reference the original blog post, 'my latest article', or 'link in "
+    "comments'. External links incur a 20-30% reach penalty and signal content "
+    "that exists to drive traffic away from LinkedIn.\n\n"
+
+    "### Reach Killers (Avoid These)\n"
+    "- Editing the post within 1 hour of publishing tanks its momentum (the "
+    "algorithm resets distribution).\n"
+    "- Posting and immediately commenting on your own post to 'boost' it — "
+    "LinkedIn detects and penalizes this.\n"
+    "- Multiple outbound links (even in comments) within the first hour.\n"
+    "- Identical content posted across platforms — LinkedIn's algorithm detects "
+    "cross-posted content and deprioritizes it.\n"
+    "- Excessive emoji use (>3) or emoji-heavy formatting (emoji bullets, emoji "
+    "headers) — correlated with lower professional trust scores.\n"
+)
+
+
 # Industries where AI-style text is tolerated or even performs well.
 _LINKEDIN_AI_FRIENDLY = {
     "leadership", "management", "coaching", "motivation", "inspiration",
@@ -2515,38 +2633,48 @@ async def repurpose_to_linkedin(
     )
 
     system_prompt = (
-        "You are a LinkedIn ghostwriter. Convert the blog article below into "
-        "a compelling LinkedIn post. Rules:\n"
-        "- ~1300 characters (hard max 1500). No markdown formatting.\n"
-        "- Structure - follow this exactly:\n"
-        "  HOOK (first line, under 150 characters): LinkedIn truncates text at "
-        "~150 chars with a 'See more' button. Your opening line's ONLY job is "
-        "to create enough tension, curiosity, or surprise to earn that click. "
-        "Use a contrarian take, an unexpected stat, or a specific pain point. "
-        "Never waste this line on a greeting or generic statement.\n"
-        "  STORY (body): Blend 2-3 key insights from the article with a clear "
-        "narrative thread. Use the Problem > Insight > Action arc.\n"
-        "  PAYOFF (ending): Resolve the tension from the hook, then close with "
-        "a specific open-ended question that invites counter-perspectives or "
-        "asks peers to share their approach. Never a yes/no question.\n"
+        "You are a LinkedIn ghostwriter who deeply understands the platform's "
+        "algorithm and unspoken rules. Convert the blog article below into a "
+        "LinkedIn post that the algorithm will actively distribute.\n\n"
+
+        # --- Platform intelligence (algorithm rules) ---
+        f"{LINKEDIN_PLATFORM_INTELLIGENCE}\n"
+
+        # --- Post structure ---
+        "## Post Structure\n"
+        "Follow this arc exactly:\n"
+        "- HOOK (first line, under 150 characters): LinkedIn truncates at ~150 "
+        "chars with a 'See more' button. Your opening line's ONLY job is to earn "
+        "that click. Use a contrarian take, an unexpected stat, a personal 'I' "
+        "observation, or a specific pain point. The hook MUST contain a clear "
+        "topical signal so the algorithm can categorize the post.\n"
+        "- STORY (body): Blend 2-3 key insights from the article with a clear "
+        "narrative thread. Use the Problem > Insight > Action arc. Plant one open "
+        "loop in the first 3 lines. Include one debatable professional opinion "
+        "that invites disagreement.\n"
+        "- PAYOFF (ending): Resolve the hook's tension. Close with a specific "
+        "open-ended question that asks peers to share their experience or "
+        "contrarian view. Never a yes/no question. Never 'What do you think?'\n\n"
+
+        # --- Writing rules ---
+        "## Writing Rules\n"
+        "- ~1,300 characters (hard max 1,500). No markdown formatting.\n"
         f"{perspective_line}"
-        "- MOBILE FORMATTING: 1-3 sentences per paragraph max. Separate every "
-        "paragraph with a blank line. Large text blocks cause immediate scroll-past "
-        "on mobile. Most LinkedIn users read on phones.\n"
         "- SENTENCE DYNAMICS: Deliberately vary sentence length. Mix short punchy "
         "fragments (3-6 words) with longer descriptive sentences. Identical "
         "sentence lengths are the #1 marker of AI text.\n"
         f"- Use active voice exclusively. {contraction_line}"
         "Minimize adverbs. Replace them with stronger, specific verbs.\n"
-        "- Maximum 3 hashtags at the very end.\n"
-        "- Do NOT summarize. Distill. Pick the most valuable takeaway and lead with it.\n"
-        "- No emojis in the hook line. Sparing emojis elsewhere (0-3 total).\n"
+        "- Do NOT summarize. Distill. Pick the most valuable takeaway and lead "
+        "with it.\n"
         "- Never use em dashes. Use periods, commas, or colons instead.\n"
-        "- Do NOT include any URLs or 'link in comments' references. External "
-        "links incur a 20-30% reach penalty on LinkedIn.\n"
         f"{preferred_line}\n"
+
+        # --- Voice & tone sections (template-specific) ---
         f"{voice_section}"
         f"{tone_section}"
+
+        # --- Banned phrases ---
         "## Banned Phrases\n"
         "NEVER use any of the following words or phrases. They are immediate "
         "markers of AI-generated content and will destroy reader trust:\n"

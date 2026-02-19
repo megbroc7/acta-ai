@@ -67,12 +67,17 @@ async def create_template(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    from app.services.tier_limits import check_image_source, check_template_limit
+    from app.services.tier_limits import check_image_source, check_template_limit, get_effective_tier
 
     await check_template_limit(db, current_user)
     check_image_source(current_user, data.image_source if hasattr(data, "image_source") else None)
 
     dump = data.model_dump()
+
+    # Default web_research_enabled to True for Tribune+ users on new templates
+    user_tier = get_effective_tier(current_user)
+    if user_tier in ("tribune", "imperator") and not dump.get("web_research_enabled"):
+        dump["web_research_enabled"] = True
     # Auto-format experience_qa → experience_notes
     if dump.get("experience_qa"):
         from app.services.content import format_experience_qa
@@ -98,7 +103,11 @@ async def list_templates(
 
     # Auto-create default template if user has none
     if not templates:
-        default = PromptTemplate(user_id=current_user.id, **DEFAULT_TEMPLATE)
+        from app.services.tier_limits import get_effective_tier
+        default_data = {**DEFAULT_TEMPLATE}
+        if get_effective_tier(current_user) in ("tribune", "imperator"):
+            default_data["web_research_enabled"] = True
+        default = PromptTemplate(user_id=current_user.id, **default_data)
         db.add(default)
         await db.commit()
         await db.refresh(default)

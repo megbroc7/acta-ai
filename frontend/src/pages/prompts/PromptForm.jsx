@@ -15,6 +15,7 @@ import {
   SaveAlt, LinkedIn, Refresh,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
+import { useAuth } from '../../contexts/AuthContext';
 import api, { fetchSSE } from '../../services/api';
 import { HEADLINE_STYLES, resolveHeadlineStyle } from '../../constants/headlineStyles';
 const AUDIENCE_LEVELS = [
@@ -205,7 +206,12 @@ export default function PromptForm() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuth();
   const [tab, setTab] = useState(0);
+
+  // Tribune+ users get web research on by default for new templates
+  const userTier = user?.subscription_tier || (user?.trial_active ? 'tribune' : null);
+  const isTribunePlus = userTier === 'tribune' || userTier === 'imperator';
 
   const [form, setForm] = useState({
     name: '', description: '',
@@ -221,8 +227,8 @@ export default function PromptForm() {
     // Featured Image
     image_source: 'none',
     image_style_guidance: '',
-    // Web Research
-    web_research_enabled: false,
+    // Web Research — default ON for Tribune+
+    web_research_enabled: isTribunePlus,
     // Voice Matching
     writing_sample: '',
     voice_match_active: false,
@@ -1282,6 +1288,7 @@ export default function PromptForm() {
                         checked={form.web_research_enabled}
                         onChange={updateChecked('web_research_enabled')}
                         color="primary"
+                        disabled={!isTribunePlus}
                       />
                     }
                     label={
@@ -1293,6 +1300,11 @@ export default function PromptForm() {
                       </Tooltip>
                     }
                   />
+                  {!isTribunePlus && (
+                    <Typography variant="caption" sx={{ color: 'warning.main', display: 'block', mt: 0.5 }}>
+                      Upgrade to Tribune or higher to enable web research with cited sources.
+                    </Typography>
+                  )}
                 </Box>
 
                 <Divider />
