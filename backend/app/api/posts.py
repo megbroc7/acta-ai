@@ -505,6 +505,78 @@ async def repurpose_youtube_script(
     }
 
 
+@router.post("/{post_id}/repurpose-email-newsletter")
+async def repurpose_email_newsletter(
+    post_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate an email newsletter from a blog article (Tribune+ only)."""
+    from app.services.tier_limits import check_feature_access
+    from app.services.content import repurpose_to_email_newsletter
+
+    check_feature_access(current_user, "repurpose_email_newsletter")
+
+    if await is_maintenance_mode(db):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI generation is paused — maintenance mode is active",
+        )
+
+    result = await db.execute(
+        select(BlogPost).where(
+            BlogPost.id == post_id, BlogPost.user_id == current_user.id
+        )
+    )
+    post = result.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if not post.content:
+        raise HTTPException(status_code=400, detail="Post has no content to repurpose")
+
+    # Load template for industry tone calibration + voice injection
+    template = None
+    if post.prompt_template_id:
+        tmpl_result = await db.execute(
+            select(PromptTemplate).where(PromptTemplate.id == post.prompt_template_id)
+        )
+        template = tmpl_result.scalar_one_or_none()
+
+    try:
+        email_data = await repurpose_to_email_newsletter(
+            post.content,
+            post.title,
+            industry=template.industry if template else None,
+            template=template,
+        )
+    except Exception as exc:
+        logger.error(f"Email newsletter repurpose failed for post {post_id}: {exc}")
+        raise HTTPException(status_code=502, detail="Email newsletter generation failed")
+
+    has_voice = bool(
+        template
+        and (
+            template.brand_voice_description
+            or (template.personality_level is not None and template.personality_level != 5)
+            or template.perspective
+            or template.default_tone
+            or template.use_anecdotes
+            or template.use_rhetorical_questions
+            or template.use_humor
+            or template.use_contractions is False
+            or template.phrases_to_avoid
+            or template.preferred_terms
+        )
+    )
+    return {
+        "email_subject": email_data["email_subject"],
+        "email_preview_text": email_data["email_preview_text"],
+        "email_body": email_data["email_body"],
+        "voice_applied": has_voice,
+    }
+
+
 @router.post("/{post_id}/generate-carousel")
 async def generate_carousel(
     post_id: str,

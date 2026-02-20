@@ -12,7 +12,7 @@ import {
   Save, ArrowBack, AutoAwesome, HelpOutline, ExpandMore, TuneOutlined,
   PlayArrow, RestartAlt, Visibility, VisibilityOff, Article, RecordVoiceOver,
   SkipNext, ContentCopy, QuestionAnswer, Image as ImageIcon, AutoFixHigh, Code,
-  SaveAlt, LinkedIn, Refresh, YouTube,
+  SaveAlt, LinkedIn, Refresh, YouTube, MailOutline,
 } from '@mui/icons-material';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -304,6 +304,12 @@ export default function PromptForm() {
   const [youtubeScript, setYoutubeScript] = useState('');
   const [youtubeLength, setYoutubeLength] = useState('long');
   const [youtubeVoiceApplied, setYoutubeVoiceApplied] = useState(false);
+
+  // Email newsletter test panel state
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailData, setEmailData] = useState(null);
+  const [emailVoiceApplied, setEmailVoiceApplied] = useState(false);
 
   const { data: template } = useQuery({
     queryKey: ['template', id],
@@ -709,6 +715,31 @@ export default function PromptForm() {
     } finally {
       setYoutubeLoading(false);
     }
+  };
+
+  const generateEmailNewsletter = async ({ closeOnError = true } = {}) => {
+    if (!id || !testContent) return;
+    setEmailLoading(true);
+    setEmailData(null);
+    try {
+      const res = await api.post(`/templates/${id}/test/email-newsletter`, {
+        content_html: testContent.content_html,
+        title: testTitle,
+      });
+      setEmailData(res.data);
+      setEmailVoiceApplied(res.data.voice_applied || false);
+    } catch (err) {
+      const detail = err.response?.data?.detail || 'Failed to generate email newsletter';
+      enqueueSnackbar(detail, { variant: 'error' });
+      if (closeOnError) setEmailOpen(false);
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
+  const handleEmailOpen = () => {
+    setEmailOpen(true);
+    generateEmailNewsletter({ closeOnError: true });
   };
 
   return (
@@ -1669,6 +1700,18 @@ export default function PromptForm() {
                                 </IconButton>
                               </Tooltip>
                             )}
+                            {isEdit && (
+                              <Tooltip title="Email Newsletter">
+                                <IconButton
+                                  size="small"
+                                  onClick={handleEmailOpen}
+                                  disabled={emailLoading}
+                                  sx={{ color: '#D44638' }}
+                                >
+                                  <MailOutline sx={{ fontSize: 18 }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
                           </Box>
                         </Box>
                         {featuredImageUrl && (
@@ -2429,6 +2472,211 @@ export default function PromptForm() {
             >
               Generate
             </Button>
+          )}
+        </DialogActions>
+      </Dialog>
+
+      {/* Email Newsletter Dialog */}
+      <Dialog
+        open={emailOpen}
+        onClose={() => { if (!emailLoading) setEmailOpen(false); }}
+        maxWidth="sm"
+        fullWidth
+        disableEscapeKeyDown={emailLoading}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <MailOutline sx={{ color: '#D44638' }} />
+          <span>Email Newsletter</span>
+          {emailVoiceApplied && !emailLoading && emailData && (
+            <Tooltip title="Your writing voice profile was used to shape this email">
+              <Chip
+                icon={<RecordVoiceOver sx={{ fontSize: 14 }} />}
+                label="Your Voice"
+                size="small"
+                sx={{
+                  ml: 'auto',
+                  height: 22,
+                  fontWeight: 600,
+                  fontSize: '0.65rem',
+                  bgcolor: 'rgba(74, 124, 111, 0.12)',
+                  color: '#4A7C6F',
+                  '& .MuiChip-icon': { color: '#4A7C6F' },
+                }}
+              />
+            </Tooltip>
+          )}
+        </DialogTitle>
+        <DialogContent>
+          {emailLoading ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4, gap: 2 }}>
+              <CircularProgress size={36} sx={{ color: '#D44638' }} />
+              <Typography variant="body2" color="text.secondary">
+                Generating your email newsletter...
+              </Typography>
+            </Box>
+          ) : emailData ? (() => {
+            const subjectLen = emailData.email_subject.length;
+            const subjectOk = subjectLen <= 60;
+            const previewLen = emailData.email_preview_text.length;
+            const previewOk = previewLen >= 40 && previewLen <= 90;
+            const bodyWords = emailData.email_body.split(/\s+/).filter(Boolean).length;
+            return (
+              <>
+                {/* Subject Line */}
+                <Box sx={{
+                  mb: 2, p: 1.5,
+                  border: '1px solid',
+                  borderColor: subjectOk ? '#4A7C6F' : '#A0522D',
+                  bgcolor: subjectOk ? 'rgba(74, 124, 111, 0.04)' : 'rgba(160, 82, 45, 0.04)',
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+                    <Typography variant="caption" sx={{
+                      fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
+                      color: subjectOk ? '#4A7C6F' : '#A0522D',
+                    }}>
+                      Subject Line
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Chip
+                        label={`${subjectLen} / 60 chars`}
+                        size="small"
+                        sx={{
+                          height: 20, fontWeight: 600, fontSize: '0.65rem',
+                          bgcolor: subjectOk ? 'rgba(74, 124, 111, 0.12)' : 'rgba(160, 82, 45, 0.15)',
+                          color: subjectOk ? '#4A7C6F' : '#A0522D',
+                        }}
+                      />
+                      <Tooltip title="Copy subject line">
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            navigator.clipboard.writeText(emailData.email_subject);
+                            enqueueSnackbar('Subject line copied', { variant: 'success' });
+                          }}
+                          sx={{ color: '#D44638', p: 0.5 }}
+                        >
+                          <ContentCopy sx={{ fontSize: 14 }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                  <Typography variant="body2" sx={{
+                    fontFamily: 'Inter, sans-serif', fontWeight: 600, lineHeight: 1.5,
+                  }}>
+                    {emailData.email_subject}
+                  </Typography>
+                </Box>
+
+                {/* Preview Text */}
+                <Box sx={{
+                  mb: 2, p: 1.5,
+                  border: '1px solid',
+                  borderColor: previewOk ? '#4A7C6F' : '#A0522D',
+                  bgcolor: previewOk ? 'rgba(74, 124, 111, 0.04)' : 'rgba(160, 82, 45, 0.04)',
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+                    <Typography variant="caption" sx={{
+                      fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
+                      color: previewOk ? '#4A7C6F' : '#A0522D',
+                    }}>
+                      Preview Text
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Chip
+                        label={`${previewLen} chars (target: 40-90)`}
+                        size="small"
+                        sx={{
+                          height: 20, fontWeight: 600, fontSize: '0.65rem',
+                          bgcolor: previewOk ? 'rgba(74, 124, 111, 0.12)' : 'rgba(160, 82, 45, 0.15)',
+                          color: previewOk ? '#4A7C6F' : '#A0522D',
+                        }}
+                      />
+                      <Tooltip title="Copy preview text">
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            navigator.clipboard.writeText(emailData.email_preview_text);
+                            enqueueSnackbar('Preview text copied', { variant: 'success' });
+                          }}
+                          sx={{ color: '#D44638', p: 0.5 }}
+                        >
+                          <ContentCopy sx={{ fontSize: 14 }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                  <Typography variant="body2" sx={{
+                    fontFamily: 'Inter, sans-serif', fontStyle: 'italic', lineHeight: 1.5,
+                    color: 'text.secondary',
+                  }}>
+                    {emailData.email_preview_text}
+                  </Typography>
+                </Box>
+
+                {/* Email Body */}
+                <TextField
+                  fullWidth
+                  multiline
+                  minRows={8}
+                  maxRows={16}
+                  value={emailData.email_body}
+                  InputProps={{ readOnly: true }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                    },
+                  }}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5 }}>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Chip
+                      label={`${emailData.email_body.length} characters`}
+                      size="small"
+                      sx={{ fontWeight: 600, fontSize: '0.7rem', bgcolor: 'rgba(74, 124, 111, 0.12)', color: '#4A7C6F' }}
+                    />
+                    <Chip
+                      label={`${bodyWords} words`}
+                      size="small"
+                      sx={{ fontWeight: 600, fontSize: '0.7rem', bgcolor: 'rgba(212, 70, 56, 0.08)', color: '#D44638' }}
+                    />
+                  </Box>
+                </Box>
+              </>
+            );
+          })() : null}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEmailOpen(false)} disabled={emailLoading}>
+            Close
+          </Button>
+          {!emailLoading && emailData && (
+            <>
+              <Button
+                variant="outlined"
+                startIcon={<Refresh />}
+                onClick={() => generateEmailNewsletter({ closeOnError: false })}
+                sx={{
+                  color: '#D44638', borderColor: '#D44638',
+                  '&:hover': { borderColor: '#B33024', bgcolor: 'rgba(212, 70, 56, 0.06)' },
+                }}
+              >
+                Regenerate
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<ContentCopy />}
+                onClick={() => {
+                  const fullText = `Subject: ${emailData.email_subject}\nPreview: ${emailData.email_preview_text}\n\n${emailData.email_body}`;
+                  navigator.clipboard.writeText(fullText);
+                  enqueueSnackbar('Email newsletter copied to clipboard', { variant: 'success' });
+                }}
+                sx={{ bgcolor: '#D44638', '&:hover': { bgcolor: '#B33024' } }}
+              >
+                Copy All
+              </Button>
+            </>
           )}
         </DialogActions>
       </Dialog>

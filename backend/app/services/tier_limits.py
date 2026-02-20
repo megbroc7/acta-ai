@@ -28,6 +28,7 @@ TIER_LIMITS = {
         "web_research": False,
         "repurpose_linkedin": False,
         "repurpose_youtube_script": False,
+        "repurpose_email_newsletter": False,
         "generate_carousel": False,
         "dalle_quality": None,
     },
@@ -43,6 +44,7 @@ TIER_LIMITS = {
         "web_research": True,
         "repurpose_linkedin": True,
         "repurpose_youtube_script": True,
+        "repurpose_email_newsletter": True,
         "generate_carousel": True,
         "dalle_quality": "standard",
     },
@@ -58,6 +60,7 @@ TIER_LIMITS = {
         "web_research": True,
         "repurpose_linkedin": True,
         "repurpose_youtube_script": True,
+        "repurpose_email_newsletter": True,
         "generate_carousel": True,
         "dalle_quality": "hd",
     },
@@ -220,6 +223,7 @@ def check_feature_access(user: User, feature: str):
             "repurpose_linkedin": "Repurpose to LinkedIn",
             "repurpose_youtube_script": "YouTube Script",
             "generate_carousel": "LinkedIn Carousel",
+            "repurpose_email_newsletter": "Email Newsletter",
         }
         label = feature_labels.get(feature, feature)
         raise HTTPException(

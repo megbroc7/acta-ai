@@ -16,6 +16,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-20 (Session 52) — Email Newsletter Repurpose Feature
+
+**What we did:**
+Added "Repurpose to Email Newsletter" — the fourth repurpose format alongside LinkedIn, YouTube Script, and Carousel. Generates a ready-to-paste email draft (subject line, preview text, body with CTA) from any blog post.
+
+**Backend:**
+- **Tier gating:** Added `repurpose_email_newsletter` to tier definitions (Tribune+ only) and feature labels in `tier_limits.py`
+- **Service constants:** Added `EMAIL_NEWSLETTER_TIMEOUT` (45s), `EMAIL_NEWSLETTER_MAX_TOKENS` (1500), and `EMAIL_SPAM_TRIGGERS` (12 common spam filter words) in `content.py`
+- **Tone calibration:** Added `_email_tone_for_industry()` — warm/motivational for AI-friendly industries, practitioner-credible for AI-hostile industries, helpful-peer default
+- **Banned list builder:** Added `_build_email_banned_list()` merging `BANNED_PHRASES` + `EMAIL_SPAM_TRIGGERS` + template phrases
+- **Core function:** Added `repurpose_to_email_newsletter()` returning structured `{email_subject, email_preview_text, email_body}` with delimiter-based response parsing
+- **API endpoints:** Added `POST /posts/{id}/repurpose-email-newsletter` and `POST /templates/{id}/test/email-newsletter`
+
+**Frontend:**
+- **PostDetail.jsx:** Added email state, `generateEmailNewsletter()`, Gmail-red toolbar button (`MailOutline` icon), and dialog with three sections (subject line with char count, preview text with char count, email body with word/char count), individual copy buttons per section, and "Copy All"
+- **PromptForm.jsx:** Same additions for the template test panel, calling the test endpoint
+
+**Files changed (6):**
+`tier_limits.py`, `content.py`, `posts.py`, `templates.py`, `PostDetail.jsx`, `PromptForm.jsx`
+
+**No database changes.** Email content is generated on-demand and not persisted.
+
+---
+
 ### 2026-02-20 (Session 51) — Shopify Public App Phase 1-4 Closeout
 
 **What we did:**

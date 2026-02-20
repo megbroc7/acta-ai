@@ -52,6 +52,8 @@ YOUTUBE_SCRIPT_SHORT_MAX_TOKENS = 1500
 YOUTUBE_SCRIPT_LONG_MAX_TOKENS = 4000
 FAQ_SCHEMA_TIMEOUT = 30
 FAQ_SCHEMA_MAX_TOKENS = 1500
+EMAIL_NEWSLETTER_TIMEOUT = 45
+EMAIL_NEWSLETTER_MAX_TOKENS = 1500
 
 # --- Cost calculation (GPT-4o pricing as of 2026) ---
 GPT4O_INPUT_COST = 2.50 / 1_000_000    # $2.50 per 1M input tokens
@@ -153,6 +155,12 @@ BANNED_PHRASES = (
     + BANNED_JOURNEY_POWER + BANNED_OVERUSED_ADJECTIVES + BANNED_CLICHES
     + BANNED_ACADEMIC_FILLER
 )
+
+EMAIL_SPAM_TRIGGERS = [
+    "act now", "limited time", "free", "no obligation", "click here",
+    "urgent", "congratulations", "guaranteed", "no risk",
+    "once in a lifetime", "don't miss out", "exclusive deal",
+]
 
 TITLE_TYPES = ["HOW-TO", "CONTRARIAN", "LISTICLE", "EXPERIENCE", "DIRECT BENEFIT"]
 
@@ -2579,6 +2587,17 @@ def _build_linkedin_banned_list(template) -> str:
     return ", ".join(f'"{p}"' for p in all_banned)
 
 
+def _build_email_banned_list(template) -> str:
+    """Merge BANNED_PHRASES + EMAIL_SPAM_TRIGGERS with template's phrases_to_avoid."""
+    all_banned = list(BANNED_PHRASES) + list(EMAIL_SPAM_TRIGGERS)
+    if template and template.phrases_to_avoid:
+        existing_lower = {p.lower() for p in all_banned}
+        for phrase in template.phrases_to_avoid:
+            if phrase.lower() not in existing_lower:
+                all_banned.append(phrase)
+    return ", ".join(f'"{p}"' for p in all_banned)
+
+
 async def repurpose_to_linkedin(
     content_html: str,
     title: str,
@@ -2837,6 +2856,50 @@ def _youtube_tone_for_industry(industry: str | None) -> str:
     )
 
 
+def _email_tone_for_industry(industry: str | None) -> str:
+    """Return an industry-calibrated tone section for the email newsletter prompt."""
+    if not industry:
+        return ""
+
+    industry_lower = industry.lower().strip()
+
+    # AI-friendly industries: warm, story-driven, motivational
+    for keyword in _LINKEDIN_AI_FRIENDLY:
+        if keyword in industry_lower:
+            return (
+                "## Tone Calibration\n"
+                f"Industry: {industry}. Subscribers in this space signed up for "
+                "inspiration and growth. Use a warm, story-driven tone. A "
+                "motivational register is appropriate — make readers feel "
+                "energized to act on what they learn.\n\n"
+            )
+
+    # AI-hostile industries: specific, practitioner-credible
+    for keyword in _LINKEDIN_AI_HOSTILE:
+        if keyword in industry_lower:
+            return (
+                "## Tone Calibration\n"
+                f"Industry: {industry}. WARNING: Subscribers in this field have "
+                "extremely high AI literacy and will unsubscribe from anything "
+                "that reads as generic or automated. You MUST:\n"
+                "- Pull specific numbers, names, or examples directly from the "
+                "article. Do not generalize.\n"
+                "- Write like a practitioner sharing a hard-won lesson, not a "
+                "content marketer broadcasting a summary.\n"
+                "- Include at least one concrete data point or example from the "
+                "article that could not have been written without reading it.\n"
+                "- Prefer understated credibility over enthusiasm.\n\n"
+            )
+
+    # Default: helpful peer sharing a useful find
+    return (
+        "## Tone Calibration\n"
+        f"Industry: {industry}. Write like a helpful peer who found something "
+        "genuinely useful and is forwarding it to a colleague. Ground claims "
+        "in specifics from the article.\n\n"
+    )
+
+
 async def repurpose_to_youtube_script(
     content_html: str,
     title: str,
@@ -2992,3 +3055,152 @@ async def repurpose_to_youtube_script(
         temperature=0.7,
     )
     return resp.text
+
+
+async def repurpose_to_email_newsletter(
+    content_html: str,
+    title: str,
+    industry: str | None = None,
+    template=None,
+) -> dict:
+    """Convert a blog post into an email newsletter (subject, preview, body).
+
+    Returns a dict with keys: email_subject, email_preview_text, email_body.
+    Voice is injected from the template when available; tone is calibrated
+    based on industry.
+    """
+    # Convert HTML → plain-ish text for the prompt
+    plain_text = md(content_html, heading_style="ATX", strip=["img"])
+    if len(plain_text) > 6000:
+        plain_text = plain_text[:6000] + "\n…[truncated]"
+
+    # Merge banned phrases + email spam triggers
+    banned_list = _build_email_banned_list(template)
+
+    # Industry-aware tone calibration
+    tone_section = _email_tone_for_industry(industry)
+
+    # Voice/style from template
+    voice_section = _build_linkedin_voice_section(template) if template else ""
+
+    # Preferred terms
+    preferred_line = ""
+    if template and template.preferred_terms:
+        terms = ", ".join(template.preferred_terms)
+        preferred_line = f"\n- ALWAYS use these preferred terms: {terms}\n"
+
+    # Perspective
+    has_custom_perspective = (
+        template
+        and template.perspective
+        and template.perspective in PERSPECTIVE_MAP
+        and "first_person" not in template.perspective
+    )
+    perspective_line = (
+        "- Write in the perspective specified in the Author Voice section below.\n"
+        if has_custom_perspective
+        else "- Write in first person. Conversational and personal, like emailing a friend.\n"
+    )
+
+    # Contractions
+    has_no_contractions = template and template.use_contractions is False
+    contraction_line = (
+        ""
+        if has_no_contractions
+        else "Use contractions (you're, it's, we've, don't). "
+    )
+
+    system_prompt = (
+        "You are an email newsletter writer who understands subscriber psychology "
+        "and email deliverability. Convert the blog article below into a "
+        "newsletter email that makes subscribers glad they opened it.\n\n"
+
+        "## Email Psychology\n"
+        "- Subject line: 6-10 words. Create curiosity gap or promise specific value. "
+        "Avoid ALL CAPS, excessive punctuation, and spam trigger words.\n"
+        "- Preview text: 40-90 characters. Complements (not repeats) the subject line. "
+        "This is the second line subscribers see in their inbox.\n"
+        "- Body: 300-500 words. Subscribers opted in — they WANT to hear from you. "
+        "Write like a smart friend forwarding something interesting, not a marketer "
+        "broadcasting content.\n\n"
+
+        "## Email Structure\n"
+        "- OPENING (2-3 sentences): Hook with a relatable observation, question, or "
+        "surprising stat from the article. No \"Hey [Name]\" placeholder.\n"
+        "- INSIGHT (bulk of email): 2-3 key takeaways from the article, rewritten "
+        "conversationally. Use short paragraphs (1-2 sentences each). "
+        "Include ONE specific example or data point from the article.\n"
+        "- CTA (1-2 sentences): Natural bridge to the full article. "
+        "Frame as \"here's the full breakdown\" or \"I wrote about this in depth\" — "
+        "not \"click here to read more.\"\n\n"
+
+        "## Writing Rules\n"
+        f"{perspective_line}"
+        f"- {contraction_line}Short paragraphs. One idea per paragraph. "
+        "White space is your friend.\n"
+        "- Write for scanning — subscribers decide in 3 seconds whether to keep reading.\n"
+        "- NEVER reference \"this blog post\" or \"our latest article\" — write as if "
+        "YOU are sharing your own thinking, and the link is where they get the details.\n"
+        "- No images, no HTML formatting — plain text that works in any email client.\n"
+        "- Never use em dashes. Use periods, commas, or colons instead.\n"
+        "- SENTENCE DYNAMICS: Deliberately vary sentence length. Mix short punchy "
+        "fragments with longer descriptive sentences.\n"
+        f"{preferred_line}\n"
+
+        "## Deliverability\n"
+        "- Avoid spam trigger words in subject line and preview text\n"
+        "- No excessive punctuation (!!! or ???)\n"
+        "- No ALL CAPS words in subject line\n"
+        "- Keep subject line under 60 characters\n\n"
+
+        "## Output Format\n"
+        "Respond in EXACTLY this format:\n"
+        "SUBJECT: <your subject line>\n"
+        "PREVIEW: <your preview text>\n"
+        "---\n"
+        "<your email body>\n\n"
+
+        f"{voice_section}"
+        f"{tone_section}"
+
+        "## Banned Phrases\n"
+        "NEVER use any of the following words or phrases. They are immediate "
+        "markers of AI-generated content or email spam triggers:\n"
+        f"{banned_list}"
+    )
+
+    user_prompt = f"Blog title: {title}\n\nFull article:\n{plain_text}"
+
+    resp = await _call_openai(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        timeout=EMAIL_NEWSLETTER_TIMEOUT,
+        max_tokens=EMAIL_NEWSLETTER_MAX_TOKENS,
+        temperature=0.7,
+    )
+
+    # Parse structured response: SUBJECT: ...\nPREVIEW: ...\n---\n<body>
+    raw = resp.text
+    email_subject = ""
+    email_preview_text = ""
+    email_body = raw  # fallback: entire response as body
+
+    lines = raw.split("\n")
+    body_start = 0
+    for i, line in enumerate(lines):
+        if line.startswith("SUBJECT:"):
+            email_subject = line[len("SUBJECT:"):].strip()
+        elif line.startswith("PREVIEW:"):
+            email_preview_text = line[len("PREVIEW:"):].strip()
+        elif line.strip() == "---":
+            body_start = i + 1
+            break
+
+    if body_start > 0:
+        email_body = "\n".join(lines[body_start:]).strip()
+
+    return {
+        "email_subject": email_subject,
+        "email_preview_text": email_preview_text,
+        "email_body": email_body,
+    }

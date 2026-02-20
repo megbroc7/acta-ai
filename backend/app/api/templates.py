@@ -778,3 +778,68 @@ async def test_youtube_script(
         "video_length": video_length,
         "voice_applied": has_voice,
     }
+
+
+@router.post("/{template_id}/test/email-newsletter")
+async def test_email_newsletter(
+    template_id: str,
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate an email newsletter from test panel content (Tribune+ only)."""
+    from app.services.tier_limits import check_feature_access
+    from app.services.content import repurpose_to_email_newsletter
+
+    check_feature_access(current_user, "repurpose_email_newsletter")
+
+    if await is_maintenance_mode(db):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI generation is paused — maintenance mode is active",
+        )
+
+    content_html = data.get("content_html")
+    title = data.get("title")
+    if not content_html or not title:
+        raise HTTPException(status_code=400, detail="content_html and title are required")
+
+    result = await db.execute(
+        select(PromptTemplate).where(
+            PromptTemplate.id == template_id,
+            PromptTemplate.user_id == current_user.id,
+        )
+    )
+    template = result.scalar_one_or_none()
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    try:
+        email_data = await repurpose_to_email_newsletter(
+            content_html,
+            title,
+            industry=template.industry,
+            template=template,
+        )
+    except Exception as exc:
+        logger.error(f"Email newsletter test panel repurpose failed: {exc}")
+        raise HTTPException(status_code=502, detail="Email newsletter generation failed")
+
+    has_voice = bool(
+        template.brand_voice_description
+        or (template.personality_level is not None and template.personality_level != 5)
+        or template.perspective
+        or template.default_tone
+        or template.use_anecdotes
+        or template.use_rhetorical_questions
+        or template.use_humor
+        or template.use_contractions is False
+        or template.phrases_to_avoid
+        or template.preferred_terms
+    )
+    return {
+        "email_subject": email_data["email_subject"],
+        "email_preview_text": email_data["email_preview_text"],
+        "email_body": email_data["email_body"],
+        "voice_applied": has_voice,
+    }
