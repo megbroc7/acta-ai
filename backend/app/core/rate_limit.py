@@ -74,6 +74,10 @@ class InMemoryRateLimiter:
             hit_times.append(now)
             return True, 0
 
+    def clear(self) -> None:
+        with self._lock:
+            self._hits.clear()
+
 
 limiter = InMemoryRateLimiter()
 

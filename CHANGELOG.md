@@ -16,6 +16,56 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-20 (Session 57) — Week 1 Blocker #4: Refresh Token Rotation + Revocation
+
+**What we did:**
+Implemented refresh token rotation and revocation for auth sessions to prevent replay and token-family abuse.
+
+**Backend/data changes:**
+- Added new persistent refresh token session model and table:
+  - `backend/app/models/refresh_token.py`
+  - `backend/migrations/versions/t9u0v1w2x3y4_add_refresh_token_sessions.py`
+- Updated JWT refresh token generation to include:
+  - `jti` (unique token id)
+  - `family` (session lineage id)
+- Added refresh token service helpers in `backend/app/services/refresh_tokens.py` for:
+  - session creation
+  - token rotation marking
+  - family-wide revocation
+- Updated auth routes in `backend/app/api/auth.py`:
+  - `/auth/token` now persists a refresh token session row when issuing tokens.
+  - `/auth/refresh` now validates DB-backed refresh sessions, rotates token on success, and revokes entire token family on detected reuse.
+  - Legacy refresh tokens missing `jti`/`family` are rejected.
+
+**Frontend changes:**
+- Updated `frontend/src/services/api.js` so refresh responses persist rotated `refresh_token` values in local storage.
+
+**Validation:**
+- Ran backend tests:
+  - `cd backend && source .venv/bin/activate && pytest -q`
+  - Result: `35 passed`
+- Applied migrations on local DB and verified revision:
+  - `PYTHONPATH=. alembic upgrade head`
+  - `PYTHONPATH=. alembic current`
+  - Result: `t9u0v1w2x3y4 (head)`
+
+**Operational note:**
+- Existing old refresh tokens (issued before `jti`/`family`) are no longer valid and users must sign in again.
+
+**Files changed (10):**
+- `backend/app/api/auth.py`
+- `backend/app/core/security.py`
+- `backend/app/models/refresh_token.py`
+- `backend/app/models/__init__.py`
+- `backend/app/services/refresh_tokens.py`
+- `backend/migrations/versions/t9u0v1w2x3y4_add_refresh_token_sessions.py`
+- `backend/tests/test_refresh_token_rotation.py`
+- `frontend/src/services/api.js`
+- `backend/app/core/rate_limit.py`
+- `CHANGELOG.md`
+
+---
+
 ### 2026-02-20 (Session 56) — Week 1 Blocker #3: Auth Rate Limiting
 
 **What we did:**

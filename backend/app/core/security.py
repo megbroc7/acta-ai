@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -24,9 +25,16 @@ def create_access_token(subject: str) -> str:
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 
-def create_refresh_token(subject: str) -> str:
+def create_refresh_token(
+    subject: str,
+    *,
+    token_jti: str | None = None,
+    token_family: str | None = None,
+) -> str:
     expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    to_encode = {"sub": subject, "exp": expire, "type": "refresh"}
+    jti = token_jti or str(uuid.uuid4())
+    family = token_family or jti
+    to_encode = {"sub": subject, "exp": expire, "type": "refresh", "jti": jti, "family": family}
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 

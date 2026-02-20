@@ -8,6 +8,7 @@ from app.models.app_settings import AppSettings
 from app.models.notification import Notification
 from app.models.subscription import Subscription
 from app.models.shopify_connection import ShopifyConnection
+from app.models.refresh_token import RefreshToken
 
 __all__ = [
     "User",
@@ -23,4 +24,5 @@ __all__ = [
     "Notification",
     "Subscription",
     "ShopifyConnection",
+    "RefreshToken",
 ]
