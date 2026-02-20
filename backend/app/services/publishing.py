@@ -6,6 +6,10 @@ import httpx
 
 from app.models.blog_post import BlogPost
 from app.models.site import Site
+from app.services.site_credentials import (
+    WordPressCredentialError,
+    resolve_wordpress_credentials,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +26,13 @@ class PublishResult:
 
 def _wp_auth_headers(site: Site) -> dict:
     """Build Basic Auth header from site credentials."""
+    try:
+        username, app_password = resolve_wordpress_credentials(site)
+    except WordPressCredentialError as exc:
+        raise PublishError(str(exc)) from exc
+
     credentials = base64.b64encode(
-        f"{site.username}:{site.app_password}".encode()
+        f"{username}:{app_password}".encode()
     ).decode()
     return {"Authorization": f"Basic {credentials}"}
 

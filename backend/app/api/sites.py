@@ -26,6 +26,12 @@ from app.services.shopify_connections import (
     resolve_site_access_token,
     upsert_site_connection,
 )
+from app.services.site_credentials import (
+    WordPressCredentialError,
+    display_wordpress_username,
+    resolve_wordpress_credentials,
+    set_wordpress_credentials,
+)
 
 router = APIRouter(prefix="/sites", tags=["sites"])
 
@@ -84,6 +90,33 @@ async def _fetch_shopify_blogs(api_url: str, api_key: str) -> list[dict]:
                 for b in resp.json().get("blogs", [])
             ]
         return []
+
+
+def _raise_wordpress_credential_error(exc: WordPressCredentialError) -> None:
+    detail = str(exc)
+    status_code = status.HTTP_400_BAD_REQUEST
+    # Encryption failures indicate server configuration/runtime issues.
+    if "ENCRYPTION_KEY" in detail or "encrypt" in detail.lower() or "decrypt" in detail.lower():
+        status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    raise HTTPException(status_code=status_code, detail=detail)
+
+
+def _site_response(site: Site) -> SiteResponse:
+    response = SiteResponse.model_validate(site)
+    if site.platform == Platform.wordpress.value:
+        response.username = display_wordpress_username(site)
+    else:
+        response.username = None
+    return response
+
+
+def _site_detail_response(site: Site) -> SiteDetail:
+    response = SiteDetail.model_validate(site)
+    if site.platform == Platform.wordpress.value:
+        response.username = display_wordpress_username(site)
+    else:
+        response.username = None
+    return response
 
 
 @router.post("/test-connection", response_model=ConnectionTestResponse)
@@ -147,11 +180,22 @@ async def create_site(
         url=data.url,
         api_url=data.api_url or data.url,
         platform=data.platform,
-        username=data.username,
-        app_password=data.app_password,
+        username=None,
+        app_password=None,
         api_key=data.api_key if data.platform != Platform.shopify else None,
         default_blog_id=data.default_blog_id,
     )
+
+    if data.platform == Platform.wordpress:
+        try:
+            set_wordpress_credentials(
+                site,
+                username=data.username,
+                app_password=data.app_password,
+            )
+        except WordPressCredentialError as exc:
+            _raise_wordpress_credential_error(exc)
+
     db.add(site)
     await db.flush()
 
@@ -189,7 +233,7 @@ async def create_site(
         except Exception:
             pass  # Non-critical — categories/tags can be fetched later
 
-    return site
+    return _site_response(site)
 
 
 @router.get("/", response_model=list[SiteResponse])
@@ -200,7 +244,7 @@ async def list_sites(
     result = await db.execute(
         select(Site).where(Site.user_id == current_user.id)
     )
-    return result.scalars().all()
+    return [_site_response(site) for site in result.scalars().all()]
 
 
 @router.get("/{site_id}", response_model=SiteDetail)
@@ -217,7 +261,7 @@ async def get_site(
     site = result.scalar_one_or_none()
     if not site:
         raise HTTPException(status_code=404, detail="Site not found")
-    return site
+    return _site_detail_response(site)
 
 
 @router.put("/{site_id}", response_model=SiteResponse)
@@ -237,8 +281,26 @@ async def update_site(
         raise HTTPException(status_code=404, detail="Site not found")
 
     update_data = data.model_dump(exclude_unset=True)
+    wp_username_provided = "username" in update_data
+    wp_app_password_provided = "app_password" in update_data
+    wp_username = update_data.pop("username", None)
+    wp_app_password = update_data.pop("app_password", None)
+
     for key, value in update_data.items():
         setattr(site, key, value)
+
+    if site.platform == Platform.wordpress.value and (
+        wp_username_provided or wp_app_password_provided
+    ):
+        try:
+            current_username, current_app_password = resolve_wordpress_credentials(site)
+            set_wordpress_credentials(
+                site,
+                username=wp_username if wp_username_provided else current_username,
+                app_password=wp_app_password if wp_app_password_provided else current_app_password,
+            )
+        except WordPressCredentialError as exc:
+            _raise_wordpress_credential_error(exc)
 
     if site.platform == "shopify" and update_data.get("api_key"):
         try:
@@ -259,7 +321,7 @@ async def update_site(
 
     await db.commit()
     await db.refresh(site)
-    return site
+    return _site_response(site)
 
 
 @router.delete("/{site_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -336,6 +398,11 @@ async def refresh_site(
     from datetime import datetime, timezone as tz
 
     if site.platform == "wordpress":
+        try:
+            wp_username, wp_app_password = resolve_wordpress_credentials(site)
+        except WordPressCredentialError as exc:
+            _raise_wordpress_credential_error(exc)
+
         # Clear existing
         for cat in site.categories:
             await db.delete(cat)
@@ -343,11 +410,11 @@ async def refresh_site(
             await db.delete(tag)
 
         # Re-fetch
-        cats = await _fetch_categories(site.api_url, site.username, site.app_password)
+        cats = await _fetch_categories(site.api_url, wp_username, wp_app_password)
         for c in cats:
             db.add(Category(site_id=site.id, platform_id=str(c["id"]), name=c["name"]))
 
-        tags = await _fetch_tags(site.api_url, site.username, site.app_password)
+        tags = await _fetch_tags(site.api_url, wp_username, wp_app_password)
         for t in tags:
             db.add(Tag(site_id=site.id, platform_id=str(t["id"]), name=t["name"]))
     elif site.platform == "shopify":
@@ -377,4 +444,4 @@ async def refresh_site(
         .where(Site.id == site_id)
         .options(selectinload(Site.categories), selectinload(Site.tags))
     )
-    return result.scalar_one()
+    return _site_detail_response(result.scalar_one())

@@ -16,6 +16,48 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-20 (Session 54) — Week 1 Blocker: Encrypt WordPress Credentials At Rest
+
+**What we did:**
+Completed the first Week 1 production hardening blocker from `PRODUCTION_COMMERCIALIZATION_GUIDE.md` by moving WordPress credentials to encrypted-at-rest storage and removing plaintext storage paths.
+
+**Backend/data changes:**
+- Added encrypted WordPress credential columns on `sites`:
+  - `wp_username_encrypted`
+  - `wp_app_password_encrypted`
+- Added migration:
+  - `r7s8t9u0v1w2_encrypt_wordpress_credentials.py`
+  - Backfills existing `sites.username` / `sites.app_password` into encrypted columns.
+  - Clears legacy plaintext values during upgrade.
+- Added new credential service:
+  - `site_credentials.py` (`set_wordpress_credentials`, `resolve_wordpress_credentials`, safe username display helper)
+
+**Runtime refactor:**
+- Updated site create/update/refresh flows to use encrypted credential helpers.
+- Updated WordPress publish authentication path to decrypt credentials only at use time.
+- Updated data export to exclude encrypted WordPress credential columns from output.
+
+**Validation:**
+- Added tests in `test_wordpress_credentials_encryption.py`.
+- Ran targeted suites:
+  - `pytest -q tests/test_wordpress_credentials_encryption.py tests/test_shopify_phase_1_4_closeout.py tests/test_shopify_phase_5_webhooks.py`
+  - Result: `25 passed`
+
+**Operational note:**
+- `ENCRYPTION_KEY` is now required for credential migration and encrypted credential runtime resolution.
+
+**Files changed (8):**
+- `backend/app/models/site.py`
+- `backend/migrations/versions/r7s8t9u0v1w2_encrypt_wordpress_credentials.py`
+- `backend/app/services/site_credentials.py`
+- `backend/app/api/sites.py`
+- `backend/app/services/publishing.py`
+- `backend/app/api/settings.py`
+- `backend/tests/test_wordpress_credentials_encryption.py`
+- `CHANGELOG.md`
+
+---
+
 ### 2026-02-20 (Session 53) — About & User Guide Refresh
 
 **What we did:**

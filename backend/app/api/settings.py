@@ -171,7 +171,15 @@ async def export_data(
     )
     sites = []
     for site in sites_q.scalars():
-        s = _serialize(site, exclude={"app_password", "api_key"})
+        s = _serialize(
+            site,
+            exclude={
+                "app_password",
+                "api_key",
+                "wp_username_encrypted",
+                "wp_app_password_encrypted",
+            },
+        )
         s["categories"] = [_serialize(c) for c in site.categories]
         s["tags"] = [_serialize(t) for t in site.tags]
         sites.append(s)

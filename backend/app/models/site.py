@@ -23,6 +23,8 @@ class Site(Base):
     platform: Mapped[str] = mapped_column(String(20), nullable=False, default="wordpress")
     username: Mapped[str | None] = mapped_column(String(255), nullable=True)
     app_password: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    wp_username_encrypted: Mapped[str | None] = mapped_column(String(5000), nullable=True)
+    wp_app_password_encrypted: Mapped[str | None] = mapped_column(String(5000), nullable=True)
     api_key: Mapped[str | None] = mapped_column(String(500), nullable=True)
     default_blog_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
