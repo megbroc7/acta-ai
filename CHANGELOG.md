@@ -16,6 +16,44 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-20 (Session 58) — Week 1 Blocker #5: Nginx Security Headers + TLS Plan
+
+**What we did:**
+Implemented production-oriented nginx security headers and added a concrete TLS rollout plan for production deployment.
+
+**Nginx hardening changes:**
+- Updated `frontend/nginx.conf` to include security headers on frontend responses:
+  - `X-Content-Type-Options`
+  - `X-Frame-Options`
+  - `Referrer-Policy`
+  - `Permissions-Policy`
+  - `Cross-Origin-Opener-Policy`
+  - `Cross-Origin-Resource-Policy`
+  - `Content-Security-Policy`
+- Kept existing SPA fallback and `/api/` proxy behavior intact.
+- Re-declared security headers in the static asset location block to account for nginx `add_header` inheritance behavior.
+
+**TLS plan deliverables:**
+- Added production TLS nginx template:
+  - `frontend/nginx.tls.conf`
+  - Includes:
+    - HTTP -> HTTPS redirect
+    - TLS 1.2/1.3 settings
+    - OCSP stapling
+    - HSTS
+    - API proxy + SPA routing
+- Added deployment/runbook document:
+  - `backend/docs/NGINX_TLS_PLAN.md`
+  - Includes certbot steps, renewal checks, verification commands, and rollback procedure.
+
+**Files changed (4):**
+- `frontend/nginx.conf`
+- `frontend/nginx.tls.conf`
+- `backend/docs/NGINX_TLS_PLAN.md`
+- `CHANGELOG.md`
+
+---
+
 ### 2026-02-20 (Session 57) — Week 1 Blocker #4: Refresh Token Rotation + Revocation
 
 **What we did:**
