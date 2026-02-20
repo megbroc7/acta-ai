@@ -1,12 +1,14 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.config import settings
+from app.core.rate_limit import enforce_rate_limit
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -24,7 +26,17 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(
+    request: Request,
+    data: UserCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    enforce_rate_limit(
+        request,
+        bucket="auth_register",
+        limit=settings.RATE_LIMIT_AUTH_REGISTER,
+    )
+
     # Check if email already exists
     result = await db.execute(select(User).where(User.email == data.email))
     if result.scalar_one_or_none():
@@ -47,9 +59,16 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
 
 @router.post("/token", response_model=TokenResponse)
 async def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
+    enforce_rate_limit(
+        request,
+        bucket="auth_token",
+        limit=settings.RATE_LIMIT_AUTH_TOKEN,
+    )
+
     result = await db.execute(select(User).where(User.email == form_data.username))
     user = result.scalar_one_or_none()
 
@@ -73,7 +92,17 @@ async def login(
 
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh_token(data: RefreshRequest, db: AsyncSession = Depends(get_db)):
+async def refresh_token(
+    request: Request,
+    data: RefreshRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    enforce_rate_limit(
+        request,
+        bucket="auth_refresh",
+        limit=settings.RATE_LIMIT_AUTH_REFRESH,
+    )
+
     payload = decode_token(data.refresh_token)
     if payload is None or payload.get("type") != "refresh":
         raise HTTPException(

@@ -16,6 +16,52 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-20 (Session 56) — Week 1 Blocker #3: Auth Rate Limiting
+
+**What we did:**
+Implemented rate limiting for auth abuse protection on:
+- `POST /auth/register`
+- `POST /auth/token`
+- `POST /auth/refresh`
+
+**Backend changes:**
+- Added auth rate-limit enforcement calls at endpoint entry in `backend/app/api/auth.py`.
+- Added new limiter module `backend/app/core/rate_limit.py`:
+  - client key resolution by IP
+  - optional `X-Forwarded-For` trust mode
+  - configurable limit string parser (`count/period`)
+  - in-memory limiter with `429 Too Many Requests` + `Retry-After`
+- Added new config settings in `backend/app/core/config.py`:
+  - `RATE_LIMIT_STORAGE_URI`
+  - `RATE_LIMIT_TRUST_PROXY_HEADERS`
+  - `RATE_LIMIT_AUTH_REGISTER`
+  - `RATE_LIMIT_AUTH_TOKEN`
+  - `RATE_LIMIT_AUTH_REFRESH`
+- Updated env examples with rate-limit config defaults:
+  - `.env.example`
+  - `backend/.env.example`
+
+**Tests/validation:**
+- Added `backend/tests/test_auth_rate_limit.py` covering:
+  - IP key resolution behavior
+  - forwarded header behavior
+  - limit parsing
+  - block-after-threshold behavior
+- Ran:
+  - `cd backend && source .venv/bin/activate && pytest -q`
+  - Result: `31 passed`
+
+**Files changed (7):**
+- `backend/app/api/auth.py`
+- `backend/app/core/rate_limit.py`
+- `backend/app/core/config.py`
+- `backend/tests/test_auth_rate_limit.py`
+- `backend/.env.example`
+- `.env.example`
+- `CHANGELOG.md`
+
+---
+
 ### 2026-02-20 (Session 55) — Week 1 Blocker #2: Remove Plaintext Credential Paths
 
 **What we did:**

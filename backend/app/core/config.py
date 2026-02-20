@@ -47,6 +47,13 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     DEBUG: bool = True
 
+    # Rate limiting
+    RATE_LIMIT_STORAGE_URI: str = "memory://"
+    RATE_LIMIT_TRUST_PROXY_HEADERS: bool = False
+    RATE_LIMIT_AUTH_REGISTER: str = "5/minute"
+    RATE_LIMIT_AUTH_TOKEN: str = "5/minute"
+    RATE_LIMIT_AUTH_REFRESH: str = "5/minute"
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
 
