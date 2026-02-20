@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.models.site import Site
 from app.services.publishing import _wp_auth_headers
 from app.services.site_credentials import (
+    WordPressCredentialError,
     display_wordpress_username,
     resolve_wordpress_credentials,
     set_wordpress_credentials,
@@ -41,7 +42,7 @@ def _wordpress_site(**overrides) -> Site:
 
 
 def test_set_wordpress_credentials_encrypts_and_clears_plaintext(_fresh_encryption_key):
-    site = _wordpress_site(username="legacy-user", app_password="legacy-password")
+    site = _wordpress_site()
 
     set_wordpress_credentials(
         site,
@@ -49,8 +50,6 @@ def test_set_wordpress_credentials_encrypts_and_clears_plaintext(_fresh_encrypti
         app_password="new-password",
     )
 
-    assert site.username is None
-    assert site.app_password is None
     assert site.wp_username_encrypted is not None
     assert site.wp_app_password_encrypted is not None
     assert site.wp_username_encrypted != "new-user"
@@ -61,27 +60,25 @@ def test_set_wordpress_credentials_encrypts_and_clears_plaintext(_fresh_encrypti
     assert app_password == "new-password"
 
 
-def test_resolve_wordpress_credentials_supports_legacy_plaintext_fallback(_fresh_encryption_key):
+def test_resolve_wordpress_credentials_requires_encrypted_values(_fresh_encryption_key):
     site = _wordpress_site(
-        username="legacy-user",
-        app_password="legacy-password",
         wp_username_encrypted=None,
         wp_app_password_encrypted=None,
     )
 
-    username, app_password = resolve_wordpress_credentials(site)
-    assert username == "legacy-user"
-    assert app_password == "legacy-password"
+    with pytest.raises(
+        WordPressCredentialError,
+        match="WordPress credentials are missing",
+    ):
+        resolve_wordpress_credentials(site)
 
 
-def test_display_wordpress_username_falls_back_if_ciphertext_invalid(_fresh_encryption_key):
+def test_display_wordpress_username_returns_none_if_ciphertext_invalid(_fresh_encryption_key):
     site = _wordpress_site(
-        username="legacy-user",
-        app_password=None,
         wp_username_encrypted="not-valid-ciphertext",
     )
 
-    assert display_wordpress_username(site) == "legacy-user"
+    assert display_wordpress_username(site) is None
 
 
 def test_publish_headers_use_decrypted_wordpress_credentials(_fresh_encryption_key):

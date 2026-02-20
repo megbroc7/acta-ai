@@ -174,7 +174,6 @@ async def export_data(
         s = _serialize(
             site,
             exclude={
-                "app_password",
                 "api_key",
                 "wp_username_encrypted",
                 "wp_app_password_encrypted",

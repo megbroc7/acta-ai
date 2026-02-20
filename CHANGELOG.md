@@ -16,6 +16,42 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-20 (Session 55) — Week 1 Blocker #2: Remove Plaintext Credential Paths
+
+**What we did:**
+Completed Week 1 item #2 by removing legacy plaintext WordPress credential paths from runtime and schema.
+
+**Backend/data changes:**
+- Removed plaintext WordPress fields from the `Site` ORM model:
+  - dropped `username`
+  - dropped `app_password`
+- Added migration:
+  - `s8t9u0v1w2x3_drop_plaintext_wordpress_columns.py`
+  - Drops `sites.username` and `sites.app_password` on upgrade.
+  - Downgrade recreates those columns and restores values by decrypting encrypted fields.
+
+**Runtime changes:**
+- `site_credentials.py` now resolves credentials from encrypted fields only (no legacy plaintext fallback).
+- Site create flow no longer writes placeholder plaintext fields.
+- Settings data export logic no longer references plaintext credential columns.
+
+**Validation:**
+- Ran targeted suites:
+  - `pytest -q tests/test_wordpress_credentials_encryption.py tests/test_shopify_phase_1_4_closeout.py tests/test_shopify_phase_5_webhooks.py`
+  - Result: `25 passed`
+- Verified migration head:
+  - `alembic heads` -> `s8t9u0v1w2x3 (head)`
+
+**Files changed (6):**
+- `backend/app/models/site.py`
+- `backend/app/services/site_credentials.py`
+- `backend/app/api/sites.py`
+- `backend/app/api/settings.py`
+- `backend/tests/test_wordpress_credentials_encryption.py`
+- `backend/migrations/versions/s8t9u0v1w2x3_drop_plaintext_wordpress_columns.py`
+
+---
+
 ### 2026-02-20 (Session 54) — Week 1 Blocker: Encrypt WordPress Credentials At Rest
 
 **What we did:**

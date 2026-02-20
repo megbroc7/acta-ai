@@ -27,21 +27,17 @@ def set_wordpress_credentials(site: Site, *, username: str, app_password: str) -
     except EncryptionError as exc:
         raise WordPressCredentialError(str(exc)) from exc
 
-    # Clear legacy plaintext storage fields.
-    site.username = None
-    site.app_password = None
-
 
 def resolve_wordpress_username(site: Site) -> str | None:
     if site.wp_username_encrypted:
         return _decrypt_value(site.wp_username_encrypted)
-    return site.username
+    return None
 
 
 def resolve_wordpress_app_password(site: Site) -> str | None:
     if site.wp_app_password_encrypted:
         return _decrypt_value(site.wp_app_password_encrypted)
-    return site.app_password
+    return None
 
 
 def resolve_wordpress_credentials(site: Site) -> tuple[str, str]:
@@ -59,4 +55,4 @@ def display_wordpress_username(site: Site) -> str | None:
     try:
         return resolve_wordpress_username(site)
     except WordPressCredentialError:
-        return site.username
+        return None

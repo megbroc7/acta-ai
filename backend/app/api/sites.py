@@ -180,8 +180,6 @@ async def create_site(
         url=data.url,
         api_url=data.api_url or data.url,
         platform=data.platform,
-        username=None,
-        app_password=None,
         api_key=data.api_key if data.platform != Platform.shopify else None,
         default_blog_id=data.default_blog_id,
     )
