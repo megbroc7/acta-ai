@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,6 +27,23 @@ from app.services.shopify_connections import (
 )
 
 router = APIRouter(prefix="/shopify", tags=["shopify"])
+
+
+def _site_id_from_state_token(state_token: str | None) -> str | None:
+    """Best-effort state decode used only for frontend error redirect targeting."""
+    if not state_token:
+        return None
+    try:
+        state_payload = shopify_oauth.decode_state_token(state_token)
+        return str(uuid.UUID(state_payload["sid"]))
+    except (KeyError, ValueError, shopify_oauth.ShopifyOAuthError):
+        # If state is expired, decode unverified claims so we can still land the
+        # user on the correct site edit page with a useful error message.
+        try:
+            state_payload = jwt.get_unverified_claims(state_token)
+            return str(uuid.UUID(state_payload["sid"]))
+        except (JWTError, KeyError, ValueError):
+            return None
 
 
 def _frontend_callback_redirect(
@@ -136,18 +154,19 @@ async def oauth_callback(
 
     query = dict(request.query_params)
     state_token = query.get("state")
+    state_site_id = _site_id_from_state_token(state_token)
     code = query.get("code")
     shop = query.get("shop")
     if not state_token or not code or not shop:
         return _frontend_callback_redirect(
-            site_id=None,
+            site_id=state_site_id,
             success=False,
             message="Missing Shopify OAuth callback parameters",
         )
 
     if not shopify_oauth.verify_callback_hmac(request.url.query):
         return _frontend_callback_redirect(
-            site_id=None,
+            site_id=state_site_id,
             success=False,
             message="Invalid Shopify callback signature",
         )
@@ -162,7 +181,11 @@ async def oauth_callback(
         user_id = uuid.UUID(state_payload["uid"])
         site_id = uuid.UUID(state_payload["sid"])
     except (ValueError, shopify_oauth.ShopifyOAuthError) as exc:
-        return _frontend_callback_redirect(site_id=None, success=False, message=str(exc))
+        return _frontend_callback_redirect(
+            site_id=state_site_id,
+            success=False,
+            message=str(exc),
+        )
 
     result = await db.execute(
         select(Site).where(
@@ -181,6 +204,7 @@ async def oauth_callback(
 
     try:
         token_data = await shopify_oauth.exchange_access_token(callback_shop, code)
+        shopify_oauth.validate_granted_scopes(token_data.get("scope"))
     except shopify_oauth.ShopifyOAuthError as exc:
         return _frontend_callback_redirect(site_id=str(site.id), success=False, message=str(exc))
 

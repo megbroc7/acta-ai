@@ -105,6 +105,29 @@ def build_install_url(shop_domain: str, state_token: str) -> str:
     return f"https://{shop_domain}/admin/oauth/authorize?{urlencode(params)}"
 
 
+def parse_scopes(raw_scopes: str | None) -> set[str]:
+    """Split comma-delimited scopes into a normalized set."""
+    if not raw_scopes:
+        return set()
+    return {part.strip() for part in raw_scopes.split(",") if part.strip()}
+
+
+def required_scopes() -> set[str]:
+    """Resolve required Shopify scopes from app settings."""
+    return parse_scopes(settings.SHOPIFY_SCOPES)
+
+
+def validate_granted_scopes(raw_scopes: str | None) -> None:
+    """Ensure OAuth callback returned all required scopes."""
+    required = required_scopes()
+    granted = parse_scopes(raw_scopes)
+    missing = sorted(required - granted)
+    if missing:
+        raise ShopifyOAuthError(
+            f"Shopify connection is missing required scopes: {', '.join(missing)}"
+        )
+
+
 def verify_callback_hmac(raw_query: str) -> bool:
     """Verify Shopify callback HMAC signature."""
     pairs = parse_qsl(raw_query, keep_blank_values=True)

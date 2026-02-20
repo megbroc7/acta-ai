@@ -1,6 +1,6 @@
 # Shopify Public App Integration Plan
 
-Last updated: 2026-02-19
+Last updated: 2026-02-20
 
 ## Goal
 Enable one-click Shopify connection and reliable blog publishing for many unrelated merchants using the public app route.
@@ -16,6 +16,22 @@ Enable one-click Shopify connection and reliable blog publishing for many unrela
 - Distribution type: Public app
 - Acta UI remains external (non-embedded) for v1
 - API version pin target: `2026-01` (or latest stable at implementation time)
+
+## Architecture Decision Note (2026-02-20)
+- Public distribution remains the selected path (`App Store` distribution in Shopify app runtime config).
+- OAuth source of truth remains backend-driven and external to Shopify Admin:
+  - `POST /api/v1/shopify/install-url`
+  - `GET /api/v1/shopify/callback`
+- Acta v1 remains non-embedded (`embedded = false`) for OAuth and publishing workflows.
+
+## Phase Status Snapshot
+- Phase 1: Complete
+- Phase 2: Complete
+- Phase 3: Complete
+- Phase 4: Complete
+- Phase 5: Not started
+- Phase 6: In progress
+- Phase 7: Not started
 
 ## Phase 1: Foundation
 1. Finalize architecture decisions.
@@ -33,7 +49,7 @@ Enable one-click Shopify connection and reliable blog publishing for many unrela
 
 ## Phase 2: Authentication and Connection
 1. Backend install/auth endpoints.
-   - `GET /shopify/install`
+   - `POST /shopify/install-url`
    - `GET /shopify/callback`
 2. Security checks.
    - Validate `state` on callback.
@@ -109,14 +125,14 @@ Enable one-click Shopify connection and reliable blog publishing for many unrela
 - Week 3: Phases 6-7
 
 ## Deliverables Checklist
-- [ ] Public app configured
-- [ ] OAuth install flow working
-- [ ] Encrypted token storage in DB
-- [ ] Shopify site connect UI live
-- [ ] Blog selection and save live
-- [ ] GraphQL publish path live
+- [x] Public app configured
+- [x] OAuth install flow working
+- [x] Encrypted token storage in DB
+- [x] Shopify site connect UI live
+- [x] Blog selection and save live
+- [x] GraphQL publish path live
 - [ ] Compliance webhooks live
-- [ ] End-to-end QA pass complete
+- [x] End-to-end QA pass complete (Phase 1-4 closeout scope)
 - [ ] App review submission complete
 
 ## Acceptance Criteria
@@ -125,4 +141,3 @@ Enable one-click Shopify connection and reliable blog publishing for many unrela
 - Scheduler can auto-publish to Shopify when enabled.
 - Invalid webhook signatures are rejected.
 - Uninstalled stores cannot be published to.
-

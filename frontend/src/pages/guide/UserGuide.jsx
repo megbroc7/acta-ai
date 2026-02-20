@@ -664,7 +664,7 @@ function SitesSection() {
       <SubCard title="Shopify" icon={<Language fontSize="small" color="primary" />}>
         <FieldRow name="url">Your Shopify store URL (e.g. https://mystore.myshopify.com).</FieldRow>
         <FieldRow name="api_url">
-          Shopify Admin API URL. Format: https://mystore.myshopify.com/admin/api/2024-01
+          Shopify Admin API URL. Format: https://mystore.myshopify.com/admin/api/2026-01
         </FieldRow>
         <FieldRow name="api_key">
           Shopify Admin API access token. Create a custom app in your Shopify admin under

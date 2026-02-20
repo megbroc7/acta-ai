@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -16,6 +16,28 @@ const PLATFORMS = [
 ];
 
 const COMING_SOON_PLATFORMS = ['wix'];
+const SHOPIFY_API_VERSION = '2026-01';
+
+function normalizeShopDomain(rawValue) {
+  if (!rawValue) return '';
+  try {
+    const parsed = new URL(rawValue.includes('://') ? rawValue : `https://${rawValue}`);
+    return parsed.hostname.toLowerCase();
+  } catch {
+    return rawValue
+      .trim()
+      .replace(/^https?:\/\//i, '')
+      .replace(/^www\./i, '')
+      .split('/')[0]
+      .toLowerCase();
+  }
+}
+
+function deriveShopifyAdminApiUrl(rawValue) {
+  const domain = normalizeShopDomain(rawValue);
+  if (!domain || !domain.endsWith('.myshopify.com')) return '';
+  return `https://${domain}/admin/api/${SHOPIFY_API_VERSION}`;
+}
 
 export default function SiteForm() {
   const { id } = useParams();
@@ -36,6 +58,7 @@ export default function SiteForm() {
   const [testing, setTesting] = useState(false);
   const [shopifyBlogs, setShopifyBlogs] = useState([]);
   const [loadingBlogs, setLoadingBlogs] = useState(false);
+  const [shopifyConnected, setShopifyConnected] = useState(null);
 
   const { data: site } = useQuery({
     queryKey: ['site', id],
@@ -53,6 +76,9 @@ export default function SiteForm() {
         api_key: '',
         default_blog_id: site.default_blog_id || '',
       });
+      if (site.platform === 'shopify') {
+        setShopifyConnected(true);
+      }
     }
   }, [site]);
 
@@ -81,13 +107,15 @@ export default function SiteForm() {
     onError: (err) => enqueueSnackbar(err.response?.data?.detail || 'Failed to save', { variant: 'error' }),
   });
 
-  async function fetchShopifyBlogs(showErrorToast = false) {
+  const fetchShopifyBlogs = useCallback(async (showErrorToast = false) => {
     if (!isEdit || !id) return { connected: false, blogs: [] };
     setLoadingBlogs(true);
     try {
       const res = await api.get(`/shopify/sites/${id}/blogs`);
       const blogs = res.data?.blogs || [];
+      const connected = Boolean(res.data?.connected);
       setShopifyBlogs(blogs);
+      setShopifyConnected(connected);
       if (blogs.length > 0) {
         setForm((prev) => (
           prev.default_blog_id
@@ -95,32 +123,72 @@ export default function SiteForm() {
             : { ...prev, default_blog_id: blogs[0].id }
         ));
       }
-      return { connected: Boolean(res.data?.connected), blogs };
+      return { connected, blogs };
     } catch (err) {
       if (showErrorToast) {
         enqueueSnackbar(err.response?.data?.detail || 'Failed to load Shopify blogs', { variant: 'error' });
       }
       setShopifyBlogs([]);
+      setShopifyConnected(false);
       return { connected: false, blogs: [] };
     } finally {
       setLoadingBlogs(false);
     }
-  }
+  }, [isEdit, id, enqueueSnackbar]);
+
+  useEffect(() => {
+    if (form.platform !== 'shopify') return;
+    const derived = deriveShopifyAdminApiUrl(form.url);
+    if (!derived) return;
+    setForm((prev) => {
+      if (prev.platform !== 'shopify') return prev;
+      const previousDerived = deriveShopifyAdminApiUrl(prev.url);
+      if (!prev.api_url || prev.api_url === previousDerived) {
+        return { ...prev, api_url: derived };
+      }
+      return prev;
+    });
+  }, [form.platform, form.url]);
 
   useEffect(() => {
     if (!isEdit || form.platform !== 'shopify') return;
     fetchShopifyBlogs();
-  }, [isEdit, form.platform, id]);
+  }, [isEdit, form.platform, fetchShopifyBlogs]);
+
+  useEffect(() => {
+    if (form.platform !== 'shopify') {
+      setShopifyConnected(null);
+      setShopifyBlogs([]);
+    }
+  }, [form.platform]);
 
   const handleConnectShopify = async () => {
-    if (!isEdit || !id) {
-      enqueueSnackbar('Save this Shopify site first, then connect it.', { variant: 'info' });
-      return;
-    }
-
     try {
+      let shopifySiteId = id;
+      if (!isEdit || !id) {
+        const createPayload = {
+          platform: 'shopify',
+          name: form.name?.trim(),
+          url: form.url?.trim(),
+          api_url: (form.api_url || deriveShopifyAdminApiUrl(form.url)).trim(),
+          api_key: form.api_key?.trim() || null,
+          default_blog_id: form.default_blog_id?.trim() || null,
+        };
+        if (!createPayload.name || !createPayload.url || !createPayload.api_url) {
+          enqueueSnackbar('Enter Site Name, myshopify URL, and Admin API URL before connecting.', { variant: 'info' });
+          return;
+        }
+        const createRes = await api.post('/sites/', createPayload);
+        shopifySiteId = createRes.data?.id;
+        if (!shopifySiteId) {
+          enqueueSnackbar('Could not create Shopify site before connecting.', { variant: 'error' });
+          return;
+        }
+        queryClient.invalidateQueries({ queryKey: ['sites'] });
+      }
+
       const res = await api.post('/shopify/install-url', {
-        site_id: id,
+        site_id: shopifySiteId,
         shop_domain: form.url || null,
       });
       window.location.assign(res.data.auth_url);
@@ -141,7 +209,7 @@ export default function SiteForm() {
           success: connected,
           message: connected
             ? `Connected to Shopify (${blogs.length} blog${blogs.length === 1 ? '' : 's'} found)`
-            : 'Shopify is not connected yet. Click Connect Shopify first or provide a token to test manually.',
+            : 'Shopify is not connected yet. Start OAuth with Connect Shopify, or use manual token fallback.',
         });
         return;
       }
@@ -211,6 +279,13 @@ export default function SiteForm() {
   const isWP = form.platform === 'wordpress';
   const isShopify = form.platform === 'shopify';
   const blogOptions = shopifyBlogs.length > 0 ? shopifyBlogs : (testResult?.blogs || []);
+  const inferredShopifyApiUrl = deriveShopifyAdminApiUrl(form.url);
+  const canStartShopifyOAuth = Boolean(
+    isShopify
+    && form.name?.trim()
+    && form.url?.trim()
+    && (form.api_url?.trim() || inferredShopifyApiUrl)
+  );
 
   const canTest = (
     !isComingSoon
@@ -319,7 +394,14 @@ export default function SiteForm() {
               ) : (
                 <>
                   <TextField label="Site Name" required fullWidth value={form.name} onChange={update('name')} />
-                  <TextField label="Site URL" required fullWidth value={form.url} onChange={update('url')} placeholder="https://yourblog.com" />
+                  <TextField
+                    label="Site URL"
+                    required
+                    fullWidth
+                    value={form.url}
+                    onChange={update('url')}
+                    placeholder={isShopify ? 'https://your-store.myshopify.com' : 'https://yourblog.com'}
+                  />
                   <TextField
                     label={isShopify ? 'Shopify Admin API URL' : 'REST API URL'}
                     required
@@ -327,6 +409,7 @@ export default function SiteForm() {
                     value={form.api_url}
                     onChange={update('api_url')}
                     placeholder={isShopify ? 'https://your-store.myshopify.com/admin/api/2026-01' : 'https://yourblog.com/wp-json'}
+                    helperText={isShopify && inferredShopifyApiUrl ? `Auto-filled from store URL: ${inferredShopifyApiUrl}` : ''}
                   />
 
                   {isWP && (
@@ -345,18 +428,16 @@ export default function SiteForm() {
 
                   {isShopify && (
                     <>
-                      <TextField
-                        label={isEdit ? 'Admin API Access Token (optional to replace existing)' : 'Admin API Access Token'}
-                        required={false}
-                        fullWidth
-                        type="password"
-                        value={form.api_key}
-                        onChange={update('api_key')}
-                        helperText="Optional. Use Connect Shopify (recommended) or paste a token manually."
-                      />
+                      {shopifyConnected !== null && (
+                        <Alert severity={shopifyConnected ? 'success' : 'info'}>
+                          {shopifyConnected
+                            ? `Shopify OAuth is connected (${blogOptions.length} blog${blogOptions.length === 1 ? '' : 's'} available).`
+                            : 'Shopify OAuth is not connected yet. Use Connect Shopify to complete one-click auth.'}
+                        </Alert>
+                      )}
                       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                        <Button variant="outlined" onClick={handleConnectShopify}>
-                          Connect Shopify
+                        <Button variant="contained" onClick={handleConnectShopify} disabled={!canStartShopifyOAuth}>
+                          {isEdit ? 'Connect Shopify (OAuth)' : 'Save & Connect Shopify (OAuth)'}
                         </Button>
                         {isEdit && (
                           <Button variant="outlined" onClick={() => fetchShopifyBlogs(true)} disabled={loadingBlogs}>
@@ -364,6 +445,15 @@ export default function SiteForm() {
                           </Button>
                         )}
                       </Box>
+                      <TextField
+                        label={isEdit ? 'Manual Admin API Access Token (fallback, optional)' : 'Manual Admin API Access Token (fallback)'}
+                        required={false}
+                        fullWidth
+                        type="password"
+                        value={form.api_key}
+                        onChange={update('api_key')}
+                        helperText="Advanced fallback only. OAuth is the primary and recommended connection flow."
+                      />
                       <TextField
                         select
                         label="Default Blog"

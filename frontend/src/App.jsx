@@ -50,6 +50,7 @@ import ScheduleHistory from './pages/schedules/ScheduleHistory';
 import Settings from './pages/settings/Settings';
 import TermsOfService from './pages/legal/TermsOfService';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
+import Support from './pages/legal/Support';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -214,6 +215,7 @@ export default function App() {
                 {/* Public legal pages (no auth required) */}
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/support" element={<Support />} />
 
                 {/* Catch-all */}
                 <Route path="*" element={<Navigate to="/" replace />} />

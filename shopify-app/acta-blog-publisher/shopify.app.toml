@@ -1,15 +1,16 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+# Dashboard-managed policy/support URLs are tracked in SHOPIFY_DASHBOARD_SETTINGS.md
 
 client_id = "f6caa174583de2b71b59b6069ad9650f"
 name = "acta-blog-publisher"
-application_url = "https://example.com"
-embedded = true
+application_url = "https://app.actaai.com"
+embedded = false
 
 [build]
 automatically_update_urls_on_dev = true
 
 [webhooks]
-api_version = "2026-04"
+api_version = "2026-01"
 
   [[webhooks.subscriptions]]
   topics = [ "app/scopes_update" ]
@@ -19,6 +20,18 @@ api_version = "2026-04"
   topics = [ "app/uninstalled" ]
   uri = "/webhooks/app/uninstalled"
 
+  [[webhooks.subscriptions]]
+  topics = [ "customers/data_request" ]
+  uri = "/api/v1/shopify/webhooks/customers/data_request"
+
+  [[webhooks.subscriptions]]
+  topics = [ "customers/redact" ]
+  uri = "/api/v1/shopify/webhooks/customers/redact"
+
+  [[webhooks.subscriptions]]
+  topics = [ "shop/redact" ]
+  uri = "/api/v1/shopify/webhooks/shop/redact"
+
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "read_content,write_content"
@@ -27,7 +40,7 @@ use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://example.com/api/auth",
+  "https://app.actaai.com/api/v1/shopify/callback",
   "http://127.0.0.1:8000/api/v1/shopify/callback",
   "http://localhost:8000/api/v1/shopify/callback"
 ]

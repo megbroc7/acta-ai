@@ -16,6 +16,81 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-20 (Session 51) — Shopify Public App Phase 1-4 Closeout
+
+**What we did:**
+Implemented Phase 1-4 closeout work for the Shopify public-app track: config/version alignment, OAuth contract hardening, Shopify UX tightening, automated tests, and reproducible evidence artifacts.
+
+**1. Foundation alignment (Phase 1)**
+- Updated Shopify app config:
+  - `embedded = false`
+  - Webhook `api_version = 2026-01`
+  - Required privacy topics declared in subscriptions:
+    - `customers/data_request`
+    - `customers/redact`
+    - `shop/redact`
+  - Production callback URL pinned to Acta callback route.
+- Added dashboard-managed production URL reference doc:
+  - `shopify-app/acta-blog-publisher/SHOPIFY_DASHBOARD_SETTINGS.md`
+- Aligned Shopify app runtime version to January 2026:
+  - `ApiVersion.January26` in `shopify.server.js`
+
+**2. OAuth contract hardening (Phase 2)**
+- Added scope validation for callback token exchange:
+  - Callback now rejects granted scopes missing required values from `SHOPIFY_SCOPES`.
+- Improved callback error redirects:
+  - Best-effort state decode now keeps users on the correct `/sites/{id}/edit` page for callback failures.
+- Added canonical contract doc:
+  - `backend/docs/SHOPIFY_OAUTH_CONTRACT.md`
+
+**3. Product UX hardening (Phase 3)**
+- Shopify site form now prioritizes OAuth and presents manual token as fallback:
+  - Added persistent connection status message.
+  - Added `Save & Connect Shopify (OAuth)` for new Shopify sites.
+  - Added API URL auto-derivation from `*.myshopify.com` store URL.
+  - Updated fallback token copy and helper text.
+- Updated guide example to `2026-01` Shopify API path.
+- Added public support route for dashboard/app-review support URL:
+  - `/support`
+
+**4. Publishing and reliability validation (Phase 4 + QA evidence)**
+- Added focused test suite covering:
+  - OAuth route contract
+  - Callback validation/error paths
+  - Scope enforcement
+  - Encrypted reconnect upsert semantics
+  - GraphQL publish success + userError handling
+  - Encrypted-token resolution for publish path
+- Test command:
+  - `cd backend && ./.venv/bin/pytest -q tests/test_shopify_phase_1_4_closeout.py`
+  - Result: `14 passed`
+
+**5. Sign-off artifacts**
+- Updated `SHOPIFY_PUBLIC_APP_PLAN.md` with:
+  - Architecture decision note
+  - Phase status snapshot
+  - Deliverables checklist reflecting Phase 1-4 closeout
+- Added explicit scenario pass/fail matrix:
+  - `SHOPIFY_PHASE_1_4_TEST_MATRIX.md`
+- Captured reproducible E2E evidence in:
+  - `SHOPIFY_PHASE_1_4_E2E_EVIDENCE.md`
+
+**Files modified (high-level):**
+- `shopify-app/acta-blog-publisher/shopify.app.toml`
+- `shopify-app/acta-blog-publisher/app/shopify.server.js`
+- `shopify-app/acta-blog-publisher/SHOPIFY_DASHBOARD_SETTINGS.md`
+- `backend/app/services/shopify_oauth.py`
+- `backend/app/api/shopify.py`
+- `backend/docs/SHOPIFY_OAUTH_CONTRACT.md`
+- `backend/tests/test_shopify_phase_1_4_closeout.py`
+- `frontend/src/pages/sites/SiteForm.jsx`
+- `frontend/src/pages/guide/UserGuide.jsx`
+- `frontend/src/pages/legal/Support.jsx`
+- `frontend/src/App.jsx`
+- `SHOPIFY_PUBLIC_APP_PLAN.md`
+
+---
+
 ### 2026-02-20 (Session 50) — Shopify OAuth Whitelist Resolution + E2E Blog Publish Validation
 
 **What we did:**
