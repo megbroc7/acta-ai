@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import hmac
 import re
@@ -147,6 +148,20 @@ def verify_callback_hmac(raw_query: str) -> bool:
         hashlib.sha256,
     ).hexdigest()
     return hmac.compare_digest(digest, provided_hmac)
+
+
+def verify_webhook_hmac(raw_body: bytes, provided_hmac: str) -> bool:
+    """Verify Shopify webhook HMAC signature from request body."""
+    if not provided_hmac:
+        return False
+
+    digest = hmac.new(
+        settings.SHOPIFY_APP_CLIENT_SECRET.encode("utf-8"),
+        raw_body,
+        hashlib.sha256,
+    ).digest()
+    expected_hmac = base64.b64encode(digest).decode("utf-8")
+    return hmac.compare_digest(expected_hmac, provided_hmac)
 
 
 async def exchange_access_token(shop_domain: str, code: str) -> dict:

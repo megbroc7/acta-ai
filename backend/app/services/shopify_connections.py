@@ -6,10 +6,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.encryption import EncryptionError, decrypt_secret, encrypt_secret
 from app.models.shopify_connection import ShopifyConnection
 from app.models.site import Site
+from app.services import shopify_oauth
 
 
 class ShopifyConnectionError(Exception):
     """Raised when stored Shopify connection credentials cannot be used."""
+
+
+def _normalize_domain_or_fallback(raw_value: str | None) -> str | None:
+    """Normalize a domain using Shopify rules, with tolerant fallback."""
+    if not raw_value:
+        return None
+
+    candidate = raw_value.strip()
+    if not candidate:
+        return None
+
+    try:
+        return shopify_oauth.normalize_shop_domain(candidate)
+    except shopify_oauth.ShopifyOAuthError:
+        return candidate.lower()
 
 
 async def upsert_site_connection(
@@ -94,3 +110,54 @@ async def resolve_site_access_token(
         return decrypt_secret(connection.access_token_encrypted)
     except EncryptionError as exc:
         raise ShopifyConnectionError(str(exc)) from exc
+
+
+async def disconnect_shop_connections(
+    db: AsyncSession,
+    *,
+    shop_domain: str,
+) -> dict[str, int]:
+    """Deactivate matching Shopify connections and clear legacy site tokens."""
+    normalized_target = _normalize_domain_or_fallback(shop_domain)
+    if not normalized_target:
+        raise ShopifyConnectionError("Shop domain is required")
+
+    now = datetime.now(timezone.utc)
+    disconnected_connections = 0
+    matched_connections = 0
+    matched_site_ids = set()
+
+    connections_result = await db.execute(select(ShopifyConnection))
+    for connection in connections_result.scalars().all():
+        connection_domain = _normalize_domain_or_fallback(connection.shop_domain)
+        if connection_domain != normalized_target:
+            continue
+
+        matched_connections += 1
+        matched_site_ids.add(connection.site_id)
+        if connection.is_active:
+            disconnected_connections += 1
+            connection.disconnected_at = now
+        elif connection.disconnected_at is None:
+            connection.disconnected_at = now
+        connection.is_active = False
+
+    matched_sites = 0
+    cleared_site_tokens = 0
+    sites_result = await db.execute(select(Site).where(Site.platform == "shopify"))
+    for site in sites_result.scalars().all():
+        site_domain = _normalize_domain_or_fallback(site.url)
+        if site_domain != normalized_target and site.id not in matched_site_ids:
+            continue
+
+        matched_sites += 1
+        if site.api_key:
+            cleared_site_tokens += 1
+        site.api_key = None
+
+    return {
+        "matched_connections": matched_connections,
+        "disconnected_connections": disconnected_connections,
+        "matched_sites": matched_sites,
+        "cleared_site_tokens": cleared_site_tokens,
+    }
