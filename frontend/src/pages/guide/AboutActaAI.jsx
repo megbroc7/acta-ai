@@ -6,7 +6,7 @@ import { keyframes } from '@mui/system';
 import {
   AutoAwesome, Shield, Psychology, FormatQuote, Speed, Language,
   Search, Visibility, CheckCircleOutline, TipsAndUpdates, Compare,
-  East as ArrowIcon,
+  East as ArrowIcon, Share, TravelExplore,
 } from '@mui/icons-material';
 
 // ---------------------------------------------------------------------------
@@ -510,6 +510,12 @@ const BATTLES = [
     acta: 'Prompt Audit panel shows the exact system prompt, outline, and instructions sent to the AI. See and refine everything under the hood.',
     others: 'Black box. Type a topic, get an article. No insight into what the AI was told.',
   },
+  {
+    icon: <Share />,
+    title: 'Content Repurposing',
+    acta: 'Write one blog, distribute everywhere. One click turns any article into a LinkedIn post, YouTube script (short or long-form), PDF carousel, or email newsletter — all voice-matched and industry-calibrated.',
+    others: 'Write your blog, then manually rewrite it for every other channel. Or use a separate tool with no voice continuity.',
+  },
 ];
 
 const EEAT = [
@@ -534,9 +540,9 @@ const EEAT = [
 const CAPABILITIES = [
   { icon: <Language />, title: 'Multi-Platform Publishing', description: 'Publish to WordPress, Shopify, and Wix from one dashboard. Native API handling for categories, tags, blog selection, and more.' },
   { icon: <Speed />, title: 'Automated Scheduling', description: 'Daily, weekly, monthly, or custom cron. Topics queued with per-topic experience notes and processed on autopilot.' },
-  { icon: <Compare />, title: '5 Title Variants', description: 'Five headline approaches per topic: How-To, Contrarian, Listicle, Experience-Led, Direct Benefit. Pick the angle that fits.' },
+  { icon: <Share />, title: 'Content Repurposing', description: 'Turn any blog post into a LinkedIn post, YouTube script (short or long-form), PDF carousel, or email newsletter. Voice-matched and industry-calibrated.' },
+  { icon: <TravelExplore />, title: 'Web Research', description: 'AI-powered web research injects real-time facts, statistics, and trends into your articles. No more stale training-data-only content.' },
   { icon: <Psychology />, title: 'Reverse Interview', description: 'The AI asks 3-5 targeted questions about your real experience before writing. Your answers become authentic content.' },
-  { icon: <CheckCircleOutline />, title: 'AI Review Pass', description: 'Second AI review for quality, coherence, and style compliance before anything is saved or published.' },
   { icon: <TipsAndUpdates />, title: 'SEO Keyword Engine', description: 'AI-powered keyword suggestions. Control density, meta description style, and internal linking instructions.' },
 ];
 
@@ -704,7 +710,7 @@ export default function AboutActaAI() {
         <StatBlock number="5" label="AI Stages" delay={0.1} />
         <StatBlock number="80+" label="Banned Phrases" delay={0.2} />
         <StatBlock number="10" label="Voice Levels" delay={0.3} />
-        <StatBlock number="2" label="Experience Layers" delay={0.35} />
+        <StatBlock number="4" label="Repurpose Formats" delay={0.35} />
         <StatBlock number="3" label="Platforms" delay={0.4} />
       </Box>
 

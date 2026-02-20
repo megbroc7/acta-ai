@@ -11,6 +11,7 @@ import {
   Shield, Psychology, AutoAwesome, CheckCircleOutline,
   Warning as WarningIcon, TipsAndUpdates, FormatQuote,
   Gavel, CalendarMonth, AutoFixHigh, SkipNext,
+  Share, LinkedIn, YouTube, MailOutline, SlideshowOutlined, TravelExplore,
 } from '@mui/icons-material';
 
 // ---------------------------------------------------------------------------
@@ -22,6 +23,7 @@ const SECTIONS = [
   { id: 'templates', label: 'Prompt Templates', icon: <Description /> },
   { id: 'schedules', label: 'Schedules', icon: <Schedule /> },
   { id: 'posts', label: 'Posts & Review', icon: <Article /> },
+  { id: 'repurposing', label: 'Content Repurposing', icon: <Share /> },
   { id: 'sites', label: 'Sites', icon: <Language /> },
   { id: 'quality', label: 'Content Quality & Ranking', icon: <AutoAwesome /> },
 ];
@@ -428,10 +430,15 @@ function TemplatesSection() {
             questions about your first-hand experience with the topic. Your answers are woven into
             the article for authentic E-E-A-T signals.
           </Typography>
-          <Typography variant="body2">
+          <Typography variant="body2" sx={{ mb: 1 }}>
             <strong>Step 3 — Generate Article:</strong> Full article generated using all your
             template settings. Includes an HTML preview and a Prompt Audit panel showing exactly
             what was sent to the AI.
+          </Typography>
+          <Typography variant="body2">
+            <strong>Step 4 — Repurpose (optional):</strong> After generating an article, use the
+            repurpose buttons in the toolbar to test LinkedIn posts, YouTube scripts, PDF carousels,
+            and email newsletters using this template's voice settings.
           </Typography>
         </Box>
         <Tip>
@@ -627,6 +634,169 @@ function PostsSection() {
           before the date passes. The topic that was skipped becomes the next non-skipped
           run's topic — nothing is lost.
         </Typography>
+      </SubCard>
+
+      <SubCard title="Repurpose Toolbar" icon={<Share fontSize="small" color="primary" />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          Every post detail page includes a repurpose toolbar with four one-click options.
+          See the <strong>Content Repurposing</strong> section below for full details on each format.
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+          <Chip icon={<LinkedIn sx={{ fontSize: 16 }} />} label="LinkedIn Post" size="small" sx={{ fontWeight: 600, bgcolor: 'rgba(10, 102, 194, 0.08)', color: '#0A66C2' }} />
+          <Chip icon={<YouTube sx={{ fontSize: 16 }} />} label="YouTube Script" size="small" sx={{ fontWeight: 600, bgcolor: 'rgba(255, 0, 0, 0.06)', color: '#FF0000' }} />
+          <Chip icon={<SlideshowOutlined sx={{ fontSize: 16 }} />} label="Carousel" size="small" sx={{ fontWeight: 600, bgcolor: 'rgba(74, 124, 111, 0.08)', color: '#4A7C6F' }} />
+          <Chip icon={<MailOutline sx={{ fontSize: 16 }} />} label="Email Newsletter" size="small" sx={{ fontWeight: 600, bgcolor: 'rgba(212, 70, 56, 0.08)', color: '#D44638' }} />
+        </Box>
+      </SubCard>
+    </Box>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Section: Content Repurposing
+// ---------------------------------------------------------------------------
+
+function RepurposingSection() {
+  return (
+    <Box>
+      <Typography variant="body1" sx={{ mb: 3 }}>
+        Write one blog, distribute everywhere. Acta AI can repurpose any blog post into four
+        additional formats — all voice-matched using your template's personality, tone, and
+        style settings.
+      </Typography>
+
+      <Alert
+        severity="info"
+        variant="outlined"
+        icon={<TipsAndUpdates sx={{ color: '#B08D57' }} />}
+        sx={{ mb: 3, borderColor: '#B08D57', '& .MuiAlert-message': { color: '#2A2A2A' } }}
+      >
+        Content repurposing is available on <strong>Tribune</strong> and <strong>Imperator</strong> plans.
+        All four formats use your template's voice settings (personality level, tone, perspective,
+        humor, anecdotes) to maintain consistent brand voice across channels.
+      </Alert>
+
+      <SubCard title="LinkedIn Post" icon={<LinkedIn fontSize="small" sx={{ color: '#0A66C2' }} />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          Generates a ~1,300-character LinkedIn post optimized for the platform's algorithm.
+        </Typography>
+        <Box sx={{ pl: 2, mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Hook:</strong> Under 150 characters — the text visible before LinkedIn's "See more"
+            button. The dialog shows a preview with character count so you can verify it fits.
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Body:</strong> 2-3 key insights distilled (not summarized) from your article,
+            with a narrative arc and an open-ended engagement question at the end.
+          </Typography>
+          <Typography variant="body2">
+            <strong>Industry calibration:</strong> Tone is automatically adjusted based on your
+            template's industry — aspirational for leadership/coaching, practitioner-credible for
+            marketing/legal/finance, grounded-peer for everything else.
+          </Typography>
+        </Box>
+        <Tip>
+          The character count chip turns red if the hook exceeds 150 characters or the post exceeds
+          1,500 characters. Click Regenerate to get a new version.
+        </Tip>
+      </SubCard>
+
+      <SubCard title="YouTube Script" icon={<YouTube fontSize="small" sx={{ color: '#FF0000' }} />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          Generates a production-ready video script in two formats:
+        </Typography>
+        <Box sx={{ pl: 2, mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Short-Form (60-90s):</strong> 200-300 words for YouTube Shorts. Hook, one
+            core insight, and an impact-driven close with no CTA.
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Long-Form (5-8 min):</strong> 1,000-1,500 words with sections, B-roll cues,
+            on-screen text suggestions, open loops between sections, CTA, and production notes
+            (title, thumbnail concept, tags, pinned comment).
+          </Typography>
+          <Typography variant="body2">
+            <strong>Formatting:</strong> Scripts use markdown headings, [PAUSE] markers, and
+            italicized B-ROLL and ON-SCREEN TEXT cues. The dialog renders them as styled HTML.
+          </Typography>
+        </Box>
+        <Tip>
+          The dialog shows word count and estimated duration. Toggle between Short and Long format
+          before generating — switching after generation clears the current script.
+        </Tip>
+      </SubCard>
+
+      <SubCard title="LinkedIn Carousel" icon={<SlideshowOutlined fontSize="small" sx={{ color: '#4A7C6F' }} />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          Generates a multi-slide PDF carousel from your blog post, ready to upload to LinkedIn.
+        </Typography>
+        <Box sx={{ pl: 2, mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Content:</strong> The AI extracts key takeaways and structures them across
+            slides with a title slide, content slides, and a closing CTA slide.
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Branding:</strong> Choose from preset color themes or customize with your own
+            primary, secondary, text, and accent colors. Background patterns are also available.
+          </Typography>
+          <Typography variant="body2">
+            <strong>Output:</strong> Downloads as a PDF file that can be uploaded directly to
+            LinkedIn as a document post.
+          </Typography>
+        </Box>
+      </SubCard>
+
+      <SubCard title="Email Newsletter" icon={<MailOutline fontSize="small" sx={{ color: '#D44638' }} />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          Generates a ready-to-paste email draft with three distinct fields:
+        </Typography>
+        <Box sx={{ pl: 2, mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Subject Line:</strong> 6-10 words, curiosity-driven, optimized for open rates.
+            Character count shown with a target of under 60 characters.
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Preview Text:</strong> 40-90 characters — the snippet shown in inbox before
+            opening. Complements (not repeats) the subject line.
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>Email Body:</strong> 300-500 words with a conversational opening hook, 2-3
+            key insights rewritten for email, and a natural CTA driving readers to the full post.
+          </Typography>
+          <Typography variant="body2">
+            <strong>Deliverability:</strong> Subject lines and preview text are automatically
+            screened against common email spam trigger words. Plain text format works in any
+            email client (Mailchimp, ConvertKit, Beehiiv, etc.).
+          </Typography>
+        </Box>
+        <Tip>
+          Each section has its own Copy button, plus a "Copy All" button that formats all three
+          fields together. The subject line and preview text boxes turn green when within target
+          character ranges.
+        </Tip>
+      </SubCard>
+
+      <SubCard title="Web Research" icon={<TravelExplore fontSize="small" color="primary" />}>
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          When enabled on a template, the AI performs live web research before writing your article.
+          This injects real-time facts, statistics, and trends that go beyond the AI model's
+          training data.
+        </Typography>
+        <Box sx={{ pl: 2, mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            <strong>How it works:</strong> The AI formulates search queries based on your topic,
+            retrieves relevant sources, and incorporates specific data points into the article.
+          </Typography>
+          <Typography variant="body2">
+            <strong>When to use:</strong> Best for topics where recency matters — industry trends,
+            pricing data, regulatory changes, tool comparisons. Less necessary for evergreen
+            how-to content.
+          </Typography>
+        </Box>
+        <Tip>
+          Web research is enabled by default for Tribune+ templates. You can toggle it off per
+          template in the Defaults tab if your content doesn't need real-time data.
+        </Tip>
       </SubCard>
     </Box>
   );
@@ -952,6 +1122,7 @@ export default function UserGuide() {
     templates: <TemplatesSection />,
     schedules: <SchedulesSection />,
     posts: <PostsSection />,
+    repurposing: <RepurposingSection />,
     sites: <SitesSection />,
     quality: <QualitySection />,
   };

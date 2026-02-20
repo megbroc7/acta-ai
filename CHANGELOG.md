@@ -16,6 +16,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-20 (Session 53) — About & User Guide Refresh
+
+**What we did:**
+Updated the About Acta AI page and User Guide to reflect all features added in recent sessions.
+
+**About Acta AI (`AboutActaAI.jsx`):**
+- Replaced "2 Experience Layers" stat with **"4 Repurpose Formats"**
+- Added **Content Repurposing** battle card (Acta AI vs Others comparison)
+- Replaced "5 Title Variants" and "AI Review Pass" capability cards with **Content Repurposing** and **Web Research**
+- Added `Share` and `TravelExplore` icon imports
+
+**User Guide (`UserGuide.jsx`):**
+- Added new **Content Repurposing** accordion section covering all 4 formats: LinkedIn Post, YouTube Script, LinkedIn Carousel, Email Newsletter — plus Web Research
+- Updated **Templates > Test Panel** with Step 4 documenting repurpose buttons
+- Added **Repurpose Toolbar** sub-card to Posts & Review section with color-coded format chips
+- Added icon imports for LinkedIn, YouTube, MailOutline, SlideshowOutlined, TravelExplore
+
+**Files changed (2):** `AboutActaAI.jsx`, `UserGuide.jsx`
+
+---
+
 ### 2026-02-20 (Session 52) — Email Newsletter Repurpose Feature
 
 **What we did:**
