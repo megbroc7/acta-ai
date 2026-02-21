@@ -47,13 +47,15 @@ Launch scope for this cycle:
 
 Audit summary from repository evidence:
 - Week 1 checklist implementation is complete in code/config (`7/7` items checked below).
-- Week 1 exit gate is partially complete (`3/4` currently met).
-- Remaining Week 1 blocker: unresolved high vulnerabilities in Shopify app production dependency scan (`12` findings, `6` high) from `backend/docs/security/DEPENDENCY_VULNERABILITY_TRIAGE_2026-02-20.md`.
+- Week 1 exit gate is complete (`4/4` met).
+- Shopify dependency blocker was remediated on February 21, 2026: production-only Shopify app audit reduced from `12` findings (`6` high) to `0` after dependency classification + Docker flow remediation (see security evidence below).
 - Auth abuse verification was validated in staging on February 21, 2026.
 - Weeks 2-4 commercialization checklists are still pending implementation/operational evidence.
 - Validation run during this audit:
   - Backend: `cd backend && source .venv/bin/activate && pytest -q` -> `35 passed`.
   - Frontend: `cd frontend && npm run build` -> build succeeded.
+  - Shopify regression suites: `cd backend && ./.venv/bin/pytest -q tests/test_shopify_phase_1_4_closeout.py tests/test_shopify_phase_5_webhooks.py` -> `21 passed`.
+  - Shopify app build: `cd shopify-app/acta-blog-publisher && npm run build` (Node 22) -> build succeeded.
 
 Week 1 evidence index:
 - Credential encryption + migration: `backend/migrations/versions/r7s8t9u0v1w2_encrypt_wordpress_credentials.py`, `backend/tests/test_wordpress_credentials_encryption.py`
@@ -65,6 +67,12 @@ Week 1 evidence index:
 - Refresh token rotation/revocation + frontend handling: `backend/app/api/auth.py`, `backend/tests/test_refresh_token_rotation.py`, `frontend/src/services/api.js`
 - Nginx security headers + TLS plan: `frontend/nginx.conf`, `frontend/nginx.tls.conf`, `backend/docs/NGINX_TLS_PLAN.md`
 - Vulnerability scan + triage: `backend/docs/security/DEPENDENCY_VULNERABILITY_TRIAGE_2026-02-20.md` and companion JSON scan artifacts in `backend/docs/security/`
+- Shopify vulnerability baseline + remediation evidence:
+  - `backend/docs/security/SHOPIFY_VULNERABILITY_BASELINE_2026-02-21.md`
+  - `backend/docs/security/SHOPIFY_VULNERABILITY_REMEDIATION_STEP2_2026-02-21.md`
+  - `backend/docs/security/SHOPIFY_STEP4_REGRESSION_VALIDATION_2026-02-21.md`
+  - `backend/docs/security/npm-audit-shopify-app-prodonly-2026-02-21.json`
+  - `backend/docs/security/npm-audit-shopify-app-prodonly-2026-02-21-after-step2.json`
 
 ## 3.2 Environment + Test Context
 
@@ -109,7 +117,7 @@ Week 1 exit gate:
 - [x] No plaintext CMS credentials remain.
 - [x] Auth abuse protections verified in staging (`backend/docs/security/AUTH_ABUSE_PROTECTION_VERIFICATION_STAGING_2026-02-21.md`, raw log: `backend/docs/security/auth-abuse-protection-verification-staging-2026-02-21.txt`).
 - [x] Token rotation fully implemented and tested.
-- [ ] No unresolved Critical/High vulns.
+- [x] No unresolved Critical/High vulns in production runtime dependency scans (Shopify production-only audit reduced to `0`; evidence in `backend/docs/security/SHOPIFY_VULNERABILITY_REMEDIATION_STEP2_2026-02-21.md` and `backend/docs/security/npm-audit-shopify-app-prodonly-2026-02-21-after-step2.json`).
 
 ## Week 2 (Mar 2-Mar 6): Reliability + Operations
 
