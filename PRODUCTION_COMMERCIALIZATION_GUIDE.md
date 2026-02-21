@@ -47,9 +47,9 @@ Launch scope for this cycle:
 
 Audit summary from repository evidence:
 - Week 1 checklist implementation is complete in code/config (`7/7` items checked below).
-- Week 1 exit gate is partially complete (`2/4` currently met).
+- Week 1 exit gate is partially complete (`3/4` currently met).
 - Remaining Week 1 blocker: unresolved high vulnerabilities in Shopify app production dependency scan (`12` findings, `6` high) from `backend/docs/security/DEPENDENCY_VULNERABILITY_TRIAGE_2026-02-20.md`.
-- Auth abuse verification evidence was captured on February 21, 2026 (local runtime validation); staging sign-off remains open.
+- Auth abuse verification was validated in staging on February 21, 2026.
 - Weeks 2-4 commercialization checklists are still pending implementation/operational evidence.
 - Validation run during this audit:
   - Backend: `cd backend && source .venv/bin/activate && pytest -q` -> `35 passed`.
@@ -59,7 +59,9 @@ Week 1 evidence index:
 - Credential encryption + migration: `backend/migrations/versions/r7s8t9u0v1w2_encrypt_wordpress_credentials.py`, `backend/tests/test_wordpress_credentials_encryption.py`
 - Plaintext credential removal: `backend/migrations/versions/s8t9u0v1w2x3_drop_plaintext_wordpress_columns.py`
 - Auth rate limits: `backend/app/api/auth.py`, `backend/app/core/rate_limit.py`, `backend/tests/test_auth_rate_limit.py`
-- Auth abuse verification evidence: `backend/docs/security/AUTH_ABUSE_PROTECTION_VERIFICATION_2026-02-21.md`, `backend/docs/security/auth-abuse-protection-verification-2026-02-21.txt`
+- Auth abuse verification evidence:
+  - Local: `backend/docs/security/AUTH_ABUSE_PROTECTION_VERIFICATION_2026-02-21.md`, `backend/docs/security/auth-abuse-protection-verification-2026-02-21.txt`
+  - Staging: `backend/docs/security/AUTH_ABUSE_PROTECTION_VERIFICATION_STAGING_2026-02-21.md`, `backend/docs/security/auth-abuse-protection-verification-staging-2026-02-21.txt`
 - Refresh token rotation/revocation + frontend handling: `backend/app/api/auth.py`, `backend/tests/test_refresh_token_rotation.py`, `frontend/src/services/api.js`
 - Nginx security headers + TLS plan: `frontend/nginx.conf`, `frontend/nginx.tls.conf`, `backend/docs/NGINX_TLS_PLAN.md`
 - Vulnerability scan + triage: `backend/docs/security/DEPENDENCY_VULNERABILITY_TRIAGE_2026-02-20.md` and companion JSON scan artifacts in `backend/docs/security/`
@@ -67,10 +69,10 @@ Week 1 evidence index:
 ## 3.2 Environment + Test Context
 
 Current environment status (as of February 21, 2026):
-- There is no deployed staging URL yet.
-- Development and verification are currently local-machine only.
-- All evidence artifacts produced so far in this guide should be treated as local validation unless explicitly labeled as staging.
-- Any checklist or exit gate item that explicitly requires staging remains open until staging is provisioned and re-validated there.
+- Staging URL is deployed at `staging.sabina-strategies.com`.
+- Development and verification now include both local and staging evidence (see security docs for labeled artifacts).
+- HTTPS is enabled for staging (`https://staging.sabina-strategies.com`) with Let's Encrypt on the staging host.
+- Any checklist or exit gate item that explicitly requires staging should be closed only with staging-labeled evidence.
 
 ## 4. Ownership Matrix
 
@@ -105,7 +107,7 @@ Evidence required:
 
 Week 1 exit gate:
 - [x] No plaintext CMS credentials remain.
-- [ ] Auth abuse protections verified in staging (blocked until staging URL exists; local evidence in `backend/docs/security/AUTH_ABUSE_PROTECTION_VERIFICATION_2026-02-21.md`).
+- [x] Auth abuse protections verified in staging (`backend/docs/security/AUTH_ABUSE_PROTECTION_VERIFICATION_STAGING_2026-02-21.md`, raw log: `backend/docs/security/auth-abuse-protection-verification-staging-2026-02-21.txt`).
 - [x] Token rotation fully implemented and tested.
 - [ ] No unresolved Critical/High vulns.
 
