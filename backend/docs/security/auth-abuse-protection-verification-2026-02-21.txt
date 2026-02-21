@@ -1,0 +1,110 @@
+# Auth Abuse Protection Verification
+date_utc=2026-02-21T09:35:12Z
+target_base_url=http://127.0.0.1:8012/api/v1
+health={"status":"healthy","service":"Acta AI","scheduler":{"running":true,"job_count":2,"jobs":[{"id":"schedule_636fe95d-0317-4296-8c4f-466a83ddc015","name":"schedule:test 11234567","next_run_time":"2026-02-21T22:16:00+01:00"},{"id":"trial_expiry_check","name":"Daily trial expiry check","next_run_time":"2026-02-22T09:00:00+00:00"}]}}
+
+[register endpoint]
+register attempt=1 status=201 retry_after=none body={"id":"816ae617-7bab-4eed-9c13-d700401c75fa","email":"ratelimit.1771666512@example.com","full_name":"Rate Limit Test","is_active":true,"is_admin":false,"timezone":"UTC","subscription_tier":null,"trial_ends_at":"2026-03-07T09:35:12.302977Z","created_at":"2026-02-21T09:35:12.303890Z","trial_active":true}
+register attempt=2 status=400 retry_after=none body={"detail":"An account with this email already exists"}
+register attempt=3 status=400 retry_after=none body={"detail":"An account with this email already exists"}
+register attempt=4 status=400 retry_after=none body={"detail":"An account with this email already exists"}
+register attempt=5 status=400 retry_after=none body={"detail":"An account with this email already exists"}
+register attempt=6 status=429 retry_after=59 body={"detail":"Too many requests. Please try again later."}
+
+[token endpoint]
+token attempt=1 status=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=2 status=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=3 status=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=4 status=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=5 status=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=6 status=429 retry_after=58 body={"detail":"Too many requests. Please try again later."}
+
+[refresh endpoint]
+refresh attempt=1 status=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=2 status=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=3 status=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=4 status=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=5 status=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=6 status=429 retry_after=59 body={"detail":"Too many requests. Please try again later."}
+
+--backend-log-tail--
+2026-02-21 10:35:12,304 INFO sqlalchemy.engine.Engine [generated in 0.00019s] (UUID('816ae617-7bab-4eed-9c13-d700401c75fa'), 'ratelimit.1771666512@example.com', '$2b$12$9Irl26qoe1CeE5ImAPSdvOZKsjXNwARrr/TwZl3w7wXShtsoPjWQa', 'Rate Limit Test', True, False, 'UTC', None, datetime.datetime(2026, 3, 7, 9, 35, 12, 302977, tzinfo=datetime.timezone.utc), None, datetime.datetime(2026, 2, 21, 9, 35, 12, 303890, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 2, 21, 9, 35, 12, 303892, tzinfo=datetime.timezone.utc))
+2026-02-21 10:35:12,305 INFO sqlalchemy.engine.Engine COMMIT
+2026-02-21 10:35:12,306 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:12,306 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = $1::UUID
+2026-02-21 10:35:12,306 INFO sqlalchemy.engine.Engine [generated in 0.00005s] (UUID('816ae617-7bab-4eed-9c13-d700401c75fa'),)
+2026-02-21 10:35:12,307 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55498 - "POST /api/v1/auth/register HTTP/1.1" 201 Created
+2026-02-21 10:35:12,326 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:12,326 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-02-21 10:35:12,326 INFO sqlalchemy.engine.Engine [cached since 0.2328s ago] ('ratelimit.1771666512@example.com',)
+2026-02-21 10:35:12,327 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55499 - "POST /api/v1/auth/register HTTP/1.1" 400 Bad Request
+2026-02-21 10:35:12,342 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:12,342 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-02-21 10:35:12,342 INFO sqlalchemy.engine.Engine [cached since 0.2491s ago] ('ratelimit.1771666512@example.com',)
+2026-02-21 10:35:12,343 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55500 - "POST /api/v1/auth/register HTTP/1.1" 400 Bad Request
+2026-02-21 10:35:12,359 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:12,359 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-02-21 10:35:12,359 INFO sqlalchemy.engine.Engine [cached since 0.2659s ago] ('ratelimit.1771666512@example.com',)
+2026-02-21 10:35:12,360 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55501 - "POST /api/v1/auth/register HTTP/1.1" 400 Bad Request
+2026-02-21 10:35:12,375 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:12,375 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-02-21 10:35:12,375 INFO sqlalchemy.engine.Engine [cached since 0.2822s ago] ('ratelimit.1771666512@example.com',)
+2026-02-21 10:35:12,376 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55502 - "POST /api/v1/auth/register HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:55503 - "POST /api/v1/auth/register HTTP/1.1" 429 Too Many Requests
+2026-02-21 10:35:12,410 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:12,411 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-02-21 10:35:12,411 INFO sqlalchemy.engine.Engine [cached since 0.3174s ago] ('ratelimit.1771666512@example.com',)
+2026-02-21 10:35:12,610 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55504 - "POST /api/v1/auth/token HTTP/1.1" 401 Unauthorized
+2026-02-21 10:35:12,624 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:12,624 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-02-21 10:35:12,624 INFO sqlalchemy.engine.Engine [cached since 0.5309s ago] ('ratelimit.1771666512@example.com',)
+2026-02-21 10:35:12,817 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55505 - "POST /api/v1/auth/token HTTP/1.1" 401 Unauthorized
+2026-02-21 10:35:12,833 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:12,833 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-02-21 10:35:12,833 INFO sqlalchemy.engine.Engine [cached since 0.7399s ago] ('ratelimit.1771666512@example.com',)
+2026-02-21 10:35:13,026 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55506 - "POST /api/v1/auth/token HTTP/1.1" 401 Unauthorized
+2026-02-21 10:35:13,040 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:13,040 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-02-21 10:35:13,040 INFO sqlalchemy.engine.Engine [cached since 0.9467s ago] ('ratelimit.1771666512@example.com',)
+2026-02-21 10:35:13,233 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55507 - "POST /api/v1/auth/token HTTP/1.1" 401 Unauthorized
+2026-02-21 10:35:13,247 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-21 10:35:13,247 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.timezone, users.subscription_tier, users.trial_ends_at, users.stripe_customer_id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-02-21 10:35:13,247 INFO sqlalchemy.engine.Engine [cached since 1.154s ago] ('ratelimit.1771666512@example.com',)
+2026-02-21 10:35:13,441 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:55508 - "POST /api/v1/auth/token HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55509 - "POST /api/v1/auth/token HTTP/1.1" 429 Too Many Requests
+INFO:     127.0.0.1:55510 - "POST /api/v1/auth/refresh HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55511 - "POST /api/v1/auth/refresh HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55512 - "POST /api/v1/auth/refresh HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55513 - "POST /api/v1/auth/refresh HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55514 - "POST /api/v1/auth/refresh HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55515 - "POST /api/v1/auth/refresh HTTP/1.1" 429 Too Many Requests

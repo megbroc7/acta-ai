@@ -16,6 +16,33 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Session Log
 
+### 2026-02-21 (Session 60) — Auth Abuse Verification Evidence + Local-Only Environment Note
+
+**What we did:**
+- Executed live auth abuse protection verification for:
+  - `POST /api/v1/auth/register`
+  - `POST /api/v1/auth/token`
+  - `POST /api/v1/auth/refresh`
+- Captured raw request/response evidence showing rate-limit threshold behavior (`429 Too Many Requests`) and `retry-after` headers.
+- Added explicit environment context in commercialization planning to note that staging URL is not provisioned yet and current verification is local-only.
+
+**Verification evidence:**
+- Local verification summary: `backend/docs/security/AUTH_ABUSE_PROTECTION_VERIFICATION_2026-02-21.md`
+- Raw log artifact: `backend/docs/security/auth-abuse-protection-verification-2026-02-21.txt`
+- Observed threshold behavior (attempt 6) on all 3 auth endpoints with `retry-after` values in the expected window.
+
+**Planning/documentation updates:**
+- Added current-status and environment/test-context notes to `PRODUCTION_COMMERCIALIZATION_GUIDE.md`.
+- Marked Week 1 staging auth-abuse gate item as blocked until staging URL exists while linking local evidence.
+
+**Files changed (4):**
+- `PRODUCTION_COMMERCIALIZATION_GUIDE.md`
+- `backend/docs/security/AUTH_ABUSE_PROTECTION_VERIFICATION_2026-02-21.md`
+- `backend/docs/security/auth-abuse-protection-verification-2026-02-21.txt`
+- `CHANGELOG.md`
+
+---
+
 ### 2026-02-20 (Session 58) — Week 1 Blocker #5: Nginx Security Headers + TLS Plan
 
 **What we did:**
