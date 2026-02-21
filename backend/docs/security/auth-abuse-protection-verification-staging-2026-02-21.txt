@@ -1,0 +1,28 @@
+# Auth Abuse Protection Verification (staging)
+date_utc=2026-02-21T15:55:07Z
+target_base_url=http://staging.sabina-strategies.com/api/v1
+health={"status":"healthy","service":"Acta AI","scheduler":{"running":true,"job_count":1,"jobs":[{"id":"trial_expiry_check","name":"Daily trial expiry check","next_run_time":"2026-02-22T09:00:00+00:00"}]}}
+
+[register endpoint]
+register attempt=1 code=201 retry_after=none body={"id":"eb77dd44-78c7-44a6-9a32-fa36089000a9","email":"ratelimit.staging.1771689307@example.com","full_name":"Rate Limit Test","is_active":true,"is_admin":false,"timezone":"UTC","subscription_tier":null,"trial_ends_at":"2026-03-07T15:55:07.652823Z","created_at":"2026-02-21T15:55:07.655871Z","trial_active":true}
+register attempt=2 code=400 retry_after=none body={"detail":"An account with this email already exists"}
+register attempt=3 code=400 retry_after=none body={"detail":"An account with this email already exists"}
+register attempt=4 code=400 retry_after=none body={"detail":"An account with this email already exists"}
+register attempt=5 code=400 retry_after=none body={"detail":"An account with this email already exists"}
+register attempt=6 code=429 retry_after=59 body={"detail":"Too many requests. Please try again later."}
+
+[token endpoint]
+token attempt=1 code=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=2 code=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=3 code=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=4 code=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=5 code=401 retry_after=none body={"detail":"Incorrect email or password"}
+token attempt=6 code=429 retry_after=59 body={"detail":"Too many requests. Please try again later."}
+
+[refresh endpoint]
+refresh attempt=1 code=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=2 code=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=3 code=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=4 code=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=5 code=401 retry_after=none body={"detail":"Invalid refresh token"}
+refresh attempt=6 code=429 retry_after=59 body={"detail":"Too many requests. Please try again later."}

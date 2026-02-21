@@ -8,9 +8,9 @@ asyncpg==0.30.0
 alembic==1.13.3
 
 # Auth
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
-python-multipart==0.0.12
+python-multipart==0.0.22
 
 # Validation
 email-validator==2.2.0
@@ -39,7 +39,7 @@ stripe>=11.0.0
 reportlab>=4.0
 
 # Encryption
-cryptography==43.0.1
+cryptography==46.0.5
 
 # Dev / Testing
 pytest==8.3.3
