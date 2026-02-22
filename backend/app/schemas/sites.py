@@ -67,7 +67,7 @@ class SiteResponse(BaseModel):
     url: str
     api_url: str
     platform: str
-    username: str | None
+    username: str | None = None
     default_blog_id: str | None
     is_active: bool
     last_health_check: datetime | None
