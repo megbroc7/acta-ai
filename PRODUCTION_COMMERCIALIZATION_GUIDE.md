@@ -50,7 +50,7 @@ Audit summary from repository evidence:
 - Week 1 exit gate is complete (`4/4` met).
 - Shopify dependency blocker was remediated on February 21, 2026: production-only Shopify app audit reduced from `12` findings (`6` high) to `0` after dependency classification + Docker flow remediation (see security evidence below).
 - Auth abuse verification was validated in staging on February 21, 2026.
-- Minimum viable CI gates were introduced on February 21, 2026 for backend Shopify regression tests, frontend build, and Shopify app build + production-only High/Critical audit enforcement.
+- Minimum viable CI gates were introduced on February 22, 2026 for backend Shopify regression tests, frontend build, and Shopify app build + production-only High/Critical audit enforcement.
 - Weeks 2-4 commercialization checklists are still pending implementation/operational evidence.
 - Validation run during this audit:
   - Backend: `cd backend && source .venv/bin/activate && pytest -q` -> `35 passed`.
@@ -72,7 +72,7 @@ Week 1 evidence index:
   - `backend/docs/security/SHOPIFY_VULNERABILITY_BASELINE_2026-02-21.md`
   - `backend/docs/security/SHOPIFY_VULNERABILITY_REMEDIATION_STEP2_2026-02-21.md`
   - `backend/docs/security/SHOPIFY_STEP4_REGRESSION_VALIDATION_2026-02-21.md`
-  - `backend/docs/security/SHOPIFY_STEP5_CI_GATES_2026-02-21.md`
+  - `backend/docs/security/SHOPIFY_STEP5_CI_GATES_2026-02-22.md`
   - `backend/docs/security/npm-audit-shopify-app-prodonly-2026-02-21.json`
   - `backend/docs/security/npm-audit-shopify-app-prodonly-2026-02-21-after-step2.json`
 
