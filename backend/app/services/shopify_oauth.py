@@ -122,7 +122,15 @@ def validate_granted_scopes(raw_scopes: str | None) -> None:
     """Ensure OAuth callback returned all required scopes."""
     required = required_scopes()
     granted = parse_scopes(raw_scopes)
-    missing = sorted(required - granted)
+
+    # Shopify may return only write scopes even when read+write were requested.
+    # Expand granted scopes so write_* also satisfies read_* requirements.
+    effective_granted = set(granted)
+    for scope in list(granted):
+        if scope.startswith("write_") and len(scope) > len("write_"):
+            effective_granted.add(f"read_{scope[len('write_'):]}")
+
+    missing = sorted(required - effective_granted)
     if missing:
         raise ShopifyOAuthError(
             f"Shopify connection is missing required scopes: {', '.join(missing)}"

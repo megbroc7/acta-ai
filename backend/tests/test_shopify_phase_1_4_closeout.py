@@ -70,9 +70,13 @@ async def test_shopify_oauth_contract_routes_are_canonical():
     assert ("/shopify/sites/{site_id}/blogs", ("GET",)) in route_index
 
 
+def test_validate_granted_scopes_accepts_write_scope_as_read_write_equivalent():
+    shopify_oauth.validate_granted_scopes("write_content")
+
+
 def test_validate_granted_scopes_rejects_missing_required_scope():
     with pytest.raises(shopify_oauth.ShopifyOAuthError, match="missing required scopes"):
-        shopify_oauth.validate_granted_scopes("write_content")
+        shopify_oauth.validate_granted_scopes("read_content")
 
 
 def test_validate_granted_scopes_accepts_required_set():
@@ -193,7 +197,7 @@ async def test_callback_rejects_missing_required_scopes(monkeypatch):
     monkeypatch.setattr(shopify_oauth, "verify_callback_hmac", lambda _raw: True)
 
     async def _fake_exchange(_shop, _code):
-        return {"access_token": "offline-token", "scope": "write_content"}
+        return {"access_token": "offline-token", "scope": "read_content"}
 
     monkeypatch.setattr(shopify_oauth, "exchange_access_token", _fake_exchange)
 
